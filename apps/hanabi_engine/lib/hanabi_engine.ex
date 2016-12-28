@@ -9,6 +9,7 @@ defmodule HanabiEngine do
     children = [
       # Starts a worker by calling: HanabiEngine.Worker.start_link(arg1, arg2, arg3)
       # worker(HanabiEngine.Worker, [arg1, arg2, arg3]),
+      supervisor(Phoenix.PubSub.PG2, [:hanabi, [ ]]),
       game_supervisor
     ]
 

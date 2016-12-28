@@ -18,7 +18,7 @@ defmodule HanabiEngine.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger],
+    [applications: [:logger, :phoenix_pubsub],
      mod: {HanabiEngine, []}]
   end
 
@@ -36,6 +36,9 @@ defmodule HanabiEngine.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:phoenix_pubsub, "~> 1.0"},
+      {:ex_doc, "~> 0.14.5", only: :dev}
+    ]
   end
 end
