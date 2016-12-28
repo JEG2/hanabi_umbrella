@@ -1,7 +1,15 @@
 defmodule HanabiEngine.Game do
   use GenServer
 
-  defstruct id: nil, status: :setup, players: nil, hands: nil, draw_pile: nil
+  defstruct id: nil,
+            status: :setup,
+            players: nil,
+            hands: nil,
+            draw_pile: nil,
+            discards: [ ],
+            turn: nil,
+            clocks: 8,
+            fuses: 3
 
   alias Phoenix.PubSub
   alias HanabiEngine.GameSupervisor
@@ -71,8 +79,9 @@ defmodule HanabiEngine.Game do
     game =
       %__MODULE__{
         id: game_id,
-        players: List.to_tuple(players),
-        draw_pile: Enum.shuffle(all_tiles)
+        players: players,
+        draw_pile: Enum.shuffle(all_tiles),
+        turn: hd(players)
       }
 
     {:ok, game}
@@ -80,24 +89,45 @@ defmodule HanabiEngine.Game do
 
   @doc false
   def handle_call(:deal, _from, game = %__MODULE__{status: :setup}) do
-    hand_size = if tuple_size(game.players) < 4, do: 5, else: 4
-    tile_count = tuple_size(game.players) * hand_size
+    player_count = length(game.players)
+    hand_size = if player_count < 4, do: 5, else: 4
+    tile_count = player_count * hand_size
     tiles =
       game.draw_pile
       |> Enum.take(tile_count)
       |> Enum.chunk(hand_size)
     hands =
-      Enum.zip(Tuple.to_list(game.players), tiles)
+      game.players
+      |> Enum.zip(tiles)
       |> Enum.into(%{ })
     new_draw_pile = Enum.drop(game.draw_pile, tile_count)
+    new_game =
+      %__MODULE__{
+        game |
+        status: :playing,
+        hands: hands,
+        draw_pile: new_draw_pile
+      }
 
-    Enum.each(hands, fn {player, hand} ->
-      PubSub.broadcast(:hanabi, "game:#{game.id}:#{player}", {:dealt, hand})
+    Enum.each(new_game.players, fn player ->
+      details = %{
+        players: new_game.players,
+        hands: Map.update!(new_game.hands, player, fn hand -> length(hand) end),
+        new_draw_pile: length(new_game.draw_pile),
+        discards: new_game.discards,
+        next_turn: new_game.turn,
+        new_clocks: new_game.clocks,
+        new_fuses: new_game.fuses
+      }
+      PubSub.broadcast(
+        :hanabi,
+        "game:#{new_game.id}:#{player}",
+        {:deal, player, details}
+      )
     end)
 
-    {:reply, :ok, %__MODULE__{game | hands: hands, draw_pile: new_draw_pile}}
+    {:reply, :ok, new_game}
   end
-  def handle_call(:deal, _from, _game) do
-    {:reply, {:error, "The game is already setup."}}
-  end
+  def handle_call(:deal, _from, _game),
+    do: {:reply, {:error, "The game is already setup."}}
 end
