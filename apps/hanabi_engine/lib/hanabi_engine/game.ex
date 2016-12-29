@@ -247,13 +247,29 @@ defmodule HanabiEngine.Game do
     |> Map.from_struct
     |> Map.delete(:status)
     |> Map.update!(:draw_pile, fn tiles -> length(tiles) end)
+    |> tuples_to_lists
   end
 
   def to_player_view(table_view, player) do
     update_in(table_view, [:hands, player], fn hand -> length(hand) end)
   end
 
-  # ### Helpers ###
+  ### Helpers ###
+
+  defp tuples_to_lists(data) when is_map(data) do
+    Enum.into(data, %{ }, fn {key, value} ->
+      {tuples_to_lists(key), tuples_to_lists(value)}
+    end)
+  end
+  defp tuples_to_lists(data) when is_list(data) do
+    Enum.map(data, &tuples_to_lists/1)
+  end
+  defp tuples_to_lists(data) when is_tuple(data) do
+    Tuple.to_list(data) |> tuples_to_lists
+  end
+  defp tuples_to_lists(data) do
+    data
+  end
 
   # defp map_hand(hand, i, test, match, non_match) do
   #   Enum.map(hand, fn tile ->

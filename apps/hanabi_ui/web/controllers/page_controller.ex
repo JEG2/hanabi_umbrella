@@ -1,7 +1,16 @@
 defmodule HanabiUi.PageController do
   use HanabiUi.Web, :controller
 
+  alias HanabiEngine.Game
+
   def index(conn, _params) do
-    render conn, "index.html"
+    game =
+      Game.new(~w[James Paul])
+      |> Game.deal
+      |> Game.to_table_view
+      |> Game.to_player_view("Paul")
+
+    assign(conn, :game, game)
+    |> render "index.html"
   end
 end
