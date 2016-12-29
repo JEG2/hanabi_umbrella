@@ -24,3 +24,7 @@ instead to support the makers of great games!
 * Where do we loop in the long-term storage components?
     * They just listen on PubSub
     * `UI -> Storage -> Game`
+* Send events or the full game each time?
+    * What's easier for the frontend?
+    * What performs better?
+    * Do we have sync issues?
