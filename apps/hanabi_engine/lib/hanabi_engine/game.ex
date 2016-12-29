@@ -66,6 +66,20 @@ defmodule HanabiEngine.Game do
     GenServer.call(game, {:hint, player, to, hint})
   end
 
+  @doc ~S"""
+  One of three play functions for the players.
+
+  `game` is the process identifier, `player` is the player making the play
+  (who must be the current player), and `index` is the zero-based index into
+  the player's hand of the tile they wish to discard.  A fresh tile will be
+  drawn into the player's hand at the same position, if one is available.
+
+  Details of the play will be published to each player.
+  """
+  def discard(game, player, index) do
+    GenServer.call(game, {:discard, player, index})
+  end
+
   ### Server ###
 
   @doc false
@@ -191,6 +205,50 @@ defmodule HanabiEngine.Game do
   end
   def handle_call({:hint, _player, _to, _hint}, _from, game),
     do: {:reply, {:error, "That player cannot give a hint right now."}, game}
+
+  @doc false
+  def handle_call(
+    {:discard, player, index},
+    _from,
+    game = %__MODULE__{status: :playing, turn: player}
+  ) do
+    hand = game.hands |> Map.fetch!(player)
+    discard = hand |> Enum.at(index)
+    if discard do
+      drawn = hd(game.draw_pile)
+      new_hand = List.replace_at(hand, index, drawn)
+      new_game = %__MODULE__{
+        game |
+        hands: Map.put(game.hands, player, new_hand),
+        draw_pile: tl(game.draw_pile),
+        discards: [discard | game.discards],
+        turn: next_turn(game),
+        clocks: Enum.min([game.clocks + 1, 8])
+      }
+
+      details =
+        %{
+          discarded: discard,
+          drawn: drawn,
+          new_draw_pile: length(new_game.draw_pile),
+          next_turn: next_turn(game),
+          new_clocks: new_game.clocks
+        }
+      Enum.each(new_game.players, fn other_player ->
+        PubSub.broadcast(
+          :hanabi,
+          "game:#{new_game.id}:#{other_player}",
+          {:discard, player, details}
+        )
+      end)
+
+      {:reply, :ok, new_game}
+    else
+      {:reply, {:error, "Invalid discard."}, game}
+    end
+  end
+  def handle_call({:discard, _player, _index}, _from, game),
+    do: {:reply, {:error, "That player cannot discard right now."}, game}
 
   ### Helpers ###
 

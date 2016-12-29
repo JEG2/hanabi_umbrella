@@ -115,9 +115,50 @@ defmodule GameTest do
       assert Enum.find(positions, fn position -> position == value end)
     end
 
-    # test "discarding a tile", %{game: game, details: details} do
-      
-    # end
+    test "discarding a tile", %{game: game, details: details} do
+      # spend a clock
+      Enum.find(1..5, fn n -> Game.hint(game, "A", "B", n) == :ok end)
+      assert_receive {:hint, "A", %{new_clocks: 7}}
+
+      discard = details.hands |> Map.fetch!("B") |> Enum.at(1)
+      :ok = Game.discard(game, "B", 1)
+      assert_receive {
+        :discard,
+        "B",
+        %{
+          discarded: ^discard,
+          drawn: drawn,
+          new_draw_pile: 39,
+          next_turn: "A",
+          new_clocks: 8
+        }
+      }
+      assert is_tuple(drawn) and
+             tuple_size(drawn) == 2 and
+             elem(drawn, 0) in ~w[blue green red white yellow]a and
+             elem(drawn, 1) in 1..5
+
+      :ok = Game.discard(game, "A", 0)
+      assert_receive {
+        :discard,
+        "A",
+        %{
+          discarded: unknown,
+          drawn: drawn,
+          new_draw_pile: 38,
+          next_turn: "B",
+          new_clocks: 8
+        }
+      }
+      assert is_tuple(unknown) and
+             tuple_size(unknown) == 2 and
+             elem(unknown, 0) in ~w[blue green red white yellow]a and
+             elem(unknown, 1) in 1..5
+      assert is_tuple(drawn) and
+             tuple_size(drawn) == 2 and
+             elem(drawn, 0) in ~w[blue green red white yellow]a and
+             elem(drawn, 1) in 1..5
+    end
 
     # test "playing a tile", %{game: game, details: details} do
       
