@@ -43,6 +43,7 @@ defmodule GameTest do
         hands: %{"A" => 5, "B" => bs_hand},
         new_draw_pile: 40,
         discards: [ ],
+        fireworks: %{blue: nil, green: nil, red: nil, white: nil, yellow: nil},
         next_turn: "A",
         new_clocks: 8,
         new_fuses: 3
@@ -160,8 +161,77 @@ defmodule GameTest do
              elem(drawn, 1) in 1..5
     end
 
-    # test "playing a tile", %{game: game, details: details} do
-      
-    # end
+    test "playing a tile", %{game: game, details: details} do
+      :ok = Game.play(game, "A", 0)
+      assert_receive {
+        :play,
+        "A",
+        %{
+          played: first_play,
+          discarded: first_discard,
+          drawn: drawn,
+          new_draw_pile: 39,
+          next_turn: "B",
+          new_clocks: 8,
+          new_fuses: first_fuses
+        }
+      }
+      assert is_tuple(drawn) and
+             tuple_size(drawn) == 2 and
+             elem(drawn, 0) in ~w[blue green red white yellow]a and
+             elem(drawn, 1) in 1..5
+      if is_tuple(first_play) do
+        assert tuple_size(first_play) == 2 and
+               elem(first_play, 0) in ~w[blue green red white yellow]a and
+               elem(first_play, 1) in 1..5
+        assert is_nil(first_discard)
+        assert first_fuses == 3
+      else
+        assert is_nil(first_play)
+        assert tuple_size(first_discard) == 2 and
+               elem(first_discard, 0) in ~w[blue green red white yellow]a and
+               elem(first_discard, 1) in 1..5
+        assert first_fuses == 2
+      end
+
+      bs_hand = details.hands |> Map.fetch!("B")
+      legal_play =
+        Enum.find(bs_hand, fn tile ->
+          tile != first_play and elem(tile, 1) == 1
+        end)
+      second_discard = if legal_play, do: nil, else: hd(bs_hand)
+      index = Enum.find_index(bs_hand, fn tile -> legal_play == tile end)
+      :ok = Game.play(game, "B", index || 0)
+      assert_receive {
+        :play,
+        "B",
+        %{
+          played: ^legal_play,
+          discarded: ^second_discard,
+          drawn: drawn,
+          new_draw_pile: 38,
+          next_turn: "A",
+          new_clocks: 8,
+          new_fuses: second_fuses
+        }
+      }
+      assert is_tuple(drawn) and
+             tuple_size(drawn) == 2 and
+             elem(drawn, 0) in ~w[blue green red white yellow]a and
+             elem(drawn, 1) in 1..5
+      if is_tuple(legal_play) do
+        assert tuple_size(legal_play) == 2 and
+               elem(legal_play, 0) in ~w[blue green red white yellow]a and
+               elem(legal_play, 1) in 1..5
+        assert is_nil(second_discard)
+        assert second_fuses == first_fuses
+      else
+        assert is_nil(legal_play)
+        assert tuple_size(second_discard) == 2 and
+               elem(second_discard, 0) in ~w[blue green red white yellow]a and
+               elem(second_discard, 1) in 1..5
+        assert second_fuses == first_fuses - 1
+      end
+    end
   end
 end

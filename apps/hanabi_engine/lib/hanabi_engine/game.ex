@@ -7,6 +7,13 @@ defmodule HanabiEngine.Game do
             hands: nil,
             draw_pile: nil,
             discards: [ ],
+            fireworks: %{
+              blue: nil,
+              green: nil,
+              red: nil,
+              white: nil,
+              yellow: nil
+            },
             turn: nil,
             clocks: 8,
             fuses: 3
@@ -80,6 +87,20 @@ defmodule HanabiEngine.Game do
     GenServer.call(game, {:discard, player, index})
   end
 
+  @doc ~S"""
+  One of three play functions for the players.
+
+  `game` is the process identifier, `player` is the player making the play
+  (who must be the current player), and `index` is the zero-based index into
+  the player's hand of the tile they wish to play.  A fresh tile will be
+  drawn into the player's hand at the same position, if one is available.
+
+  Details of the play will be published to each player.
+  """
+  def play(game, player, index) do
+    GenServer.call(game, {:play, player, index})
+  end
+
   ### Server ###
 
   @doc false
@@ -144,6 +165,7 @@ defmodule HanabiEngine.Game do
         hands: Map.update!(new_game.hands, player, fn hand -> length(hand) end),
         new_draw_pile: length(new_game.draw_pile),
         discards: new_game.discards,
+        fireworks: new_game.fireworks,
         next_turn: new_game.turn,
         new_clocks: new_game.clocks,
         new_fuses: new_game.fuses
@@ -249,6 +271,72 @@ defmodule HanabiEngine.Game do
   end
   def handle_call({:discard, _player, _index}, _from, game),
     do: {:reply, {:error, "That player cannot discard right now."}, game}
+
+  @doc false
+  def handle_call(
+    {:play, player, index},
+    _from,
+    game = %__MODULE__{status: :playing, turn: player}
+  ) do
+    hand = game.hands |> Map.fetch!(player)
+    tile = hand |> Enum.at(index)
+    if tile do
+      drawn = hd(game.draw_pile)
+      new_hand = List.replace_at(hand, index, drawn)
+      color = elem(tile, 0)
+      fireworks = game.fireworks
+      {new_fireworks, played, discarded, new_fuses} =
+        if (Map.fetch!(fireworks, color) || 0) + 1 == elem(tile, 1) do
+          {
+            Map.put(fireworks, elem(tile, 0), elem(tile, 1)),
+            tile,
+            nil,
+            game.fuses
+          }
+        else
+          {fireworks, nil, tile, game.fuses - 1}
+        end
+      new_discards =
+        if discarded do
+          [discarded | game.discards]
+        else
+          game.discards
+        end
+      new_game = %__MODULE__{
+        game |
+        hands: Map.put(game.hands, player, new_hand),
+        draw_pile: tl(game.draw_pile),
+        discards: new_discards,
+        fireworks: new_fireworks,
+        turn: next_turn(game),
+        fuses: new_fuses
+      }
+
+      details =
+        %{
+          played: played,
+          discarded: discarded,
+          drawn: drawn,
+          new_draw_pile: length(new_game.draw_pile),
+          next_turn: next_turn(game),
+          new_clocks: new_game.clocks,
+          new_fuses: new_game.fuses
+        }
+      Enum.each(new_game.players, fn other_player ->
+        PubSub.broadcast(
+          :hanabi,
+          "game:#{new_game.id}:#{other_player}",
+          {:play, player, details}
+        )
+      end)
+
+      {:reply, :ok, new_game}
+    else
+      {:reply, {:error, "Invalid play."}, game}
+    end
+  end
+  def handle_call({:play, _player, _index}, _from, game),
+    do: {:reply, {:error, "That player cannot make a play right now."}, game}
 
   ### Helpers ###
 
