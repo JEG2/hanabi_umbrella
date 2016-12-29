@@ -252,6 +252,7 @@ defmodule HanabiEngine.Game do
 
   def to_player_view(table_view, player) do
     update_in(table_view, [:hands, player], fn hand -> length(hand) end)
+    |> Map.put(:my_turn, table_view.turn == player)
   end
 
   ### Helpers ###
