@@ -21,7 +21,7 @@ defmodule HanabiEngine do
 
   defp game_supervisor do
     children = [
-      worker(HanabiEngine.Game, [ ], restart: :transient)
+      worker(HanabiEngine.GameManager, [ ], restart: :transient)
     ]
 
     opts = [strategy: :simple_one_for_one, name: HanabiEngine.GameSupervisor]

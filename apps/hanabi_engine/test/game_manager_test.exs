@@ -1,28 +1,28 @@
-defmodule GameTest do
+defmodule GameManagerTest do
   use ExUnit.Case, async: true
 
   alias Phoenix.PubSub
-  alias HanabiEngine.{Game, GameSupervisor}
+  alias HanabiEngine.{GameManager, GameSupervisor}
 
   test "games are started under dynamic supervision" do
     before_children = Supervisor.which_children(GameSupervisor)
 
-    started = Game.start("TestSupervision", ~w[FirstPlayer SecondPlayer])
+    started = GameManager.start("TestSupervision", ~w[FirstPlayer SecondPlayer])
     assert(
       is_tuple(started) and elem(started, 0) == :ok and is_pid(elem(started, 1))
     )
 
     after_children = Supervisor.which_children(GameSupervisor)
     {:ok, supervised_game} = started
-    child = {:undefined, supervised_game, :worker, [Game]}
+    child = {:undefined, supervised_game, :worker, [GameManager]}
     assert not child in before_children
     assert child in after_children
   end
 
   test "games can be initialized with a seed to make them reproducible" do
-    {:ok, seeded_game} = Game.start("TestSeed", ~w[A B], {1, 2, 3})
+    {:ok, seeded_game} = GameManager.start("TestSeed", ~w[A B], {1, 2, 3})
     PubSub.subscribe(:hanabi, "game:TestSeed:A")
-    Game.deal(seeded_game)
+    GameManager.deal(seeded_game)
     assert_receive {
       :deal,
       "A",
@@ -32,9 +32,9 @@ defmodule GameTest do
 
   test "the initial deal publishes the game setup for each player" do
     players = ~w[A B]
-    {:ok, new_game} = Game.start("TestDeal", players)
+    {:ok, new_game} = GameManager.start("TestDeal", players)
     PubSub.subscribe(:hanabi, "game:TestDeal:A")
-    Game.deal(new_game)
+    GameManager.deal(new_game)
     assert_receive {
       :deal,
       "A",
@@ -52,23 +52,23 @@ defmodule GameTest do
   end
 
   test "starting hand sizes are based on the number of players" do
-    {:ok, two_player_game} = Game.start("TestTwoPlayerHand", ~w[A B])
+    {:ok, two_player_game} = GameManager.start("TestTwoPlayerHand", ~w[A B])
     PubSub.subscribe(:hanabi, "game:TestTwoPlayerHand:A")
-    Game.deal(two_player_game)
+    GameManager.deal(two_player_game)
     assert_receive {:deal, "A", %{hands: %{"A" => 5}}}
 
-    {:ok, four_player_game} = Game.start("TestFourPlayerHand", ~w[A B C D])
+    {:ok, four_player_game} = GameManager.start("TestFourPlayerHand", ~w[A B C D])
     PubSub.subscribe(:hanabi, "game:TestFourPlayerHand:A")
-    Game.deal(four_player_game)
+    GameManager.deal(four_player_game)
     assert_receive {:deal, "A", %{hands: %{"A" => 4}}}
   end
 
   describe "moves" do
     setup do
       game_id = UUID.uuid1
-      {:ok, game} = Game.start(game_id, ~w[A B])
+      {:ok, game} = GameManager.start(game_id, ~w[A B])
       PubSub.subscribe(:hanabi, "game:#{game_id}:A")
-      Game.deal(game)
+      GameManager.deal(game)
       details =
         receive do
           {:deal, "A", deal} -> deal
@@ -88,7 +88,7 @@ defmodule GameTest do
           nil
         end
       end)
-      :ok = Game.hint(game, "A", "B", hint_color)
+      :ok = GameManager.hint(game, "A", "B", hint_color)
       assert_receive {
         :hint,
         "A",
@@ -101,7 +101,7 @@ defmodule GameTest do
         }
       }
 
-      value = Enum.find(1..5, fn n -> Game.hint(game, "B", "A", n) == :ok end)
+      value = Enum.find(1..5, fn n -> GameManager.hint(game, "B", "A", n) == :ok end)
       assert_receive {
         :hint,
         "B",
@@ -118,11 +118,11 @@ defmodule GameTest do
 
     test "discarding a tile", %{game: game, details: details} do
       # spend a clock
-      Enum.find(1..5, fn n -> Game.hint(game, "A", "B", n) == :ok end)
+      Enum.find(1..5, fn n -> GameManager.hint(game, "A", "B", n) == :ok end)
       assert_receive {:hint, "A", %{new_clocks: 7}}
 
       discard = details.hands |> Map.fetch!("B") |> Enum.at(1)
-      :ok = Game.discard(game, "B", 1)
+      :ok = GameManager.discard(game, "B", 1)
       assert_receive {
         :discard,
         "B",
@@ -139,7 +139,7 @@ defmodule GameTest do
              elem(drawn, 0) in ~w[blue green red white yellow]a and
              elem(drawn, 1) in 1..5
 
-      :ok = Game.discard(game, "A", 0)
+      :ok = GameManager.discard(game, "A", 0)
       assert_receive {
         :discard,
         "A",
@@ -162,7 +162,7 @@ defmodule GameTest do
     end
 
     test "playing a tile", %{game: game, details: details} do
-      :ok = Game.play(game, "A", 0)
+      :ok = GameManager.play(game, "A", 0)
       assert_receive {
         :play,
         "A",
@@ -201,7 +201,7 @@ defmodule GameTest do
         end)
       second_discard = if legal_play, do: nil, else: hd(bs_hand)
       index = Enum.find_index(bs_hand, fn tile -> legal_play == tile end)
-      :ok = Game.play(game, "B", index || 0)
+      :ok = GameManager.play(game, "B", index || 0)
       assert_receive {
         :play,
         "B",

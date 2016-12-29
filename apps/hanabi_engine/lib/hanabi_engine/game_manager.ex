@@ -1,4 +1,4 @@
-defmodule HanabiEngine.Game do
+defmodule HanabiEngine.GameManager do
   use GenServer
 
   defstruct id: nil,
@@ -26,7 +26,7 @@ defmodule HanabiEngine.Game do
   @doc ~S"""
   This is the main start interface for client code.
 
-  All `Game` processes are dynamically started under a `GameSupervisor`.
+  All `GameManager` processes are dynamically started under a `GameSupervisor`.
   This function handles that sequence for the caller.
 
   A `game_id` is a unique `String` identifier for the game being built.
@@ -37,7 +37,7 @@ defmodule HanabiEngine.Game do
   the players in this game.
 
   You can provide a `seed` (a `Tuple` of three `Integer` values) to make
-  all randomization the `Game` does predictable.  This allows for the
+  all randomization the `GameManager` does predictable.  This allows for the
   recreation of games from long term storage.
   """
   def start(game_id, players, seed \\ nil) do
