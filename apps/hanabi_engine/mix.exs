@@ -38,6 +38,7 @@ defmodule HanabiEngine.Mixfile do
   defp deps do
     [
       {:phoenix_pubsub, "~> 1.0"},
+      {:uuid, "~> 1.1"},
       {:ex_doc, "~> 0.14.5", only: :dev}
     ]
   end

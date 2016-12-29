@@ -45,10 +45,25 @@ defmodule HanabiEngine.Game do
 
   @doc ~S"""
   This function triggers the initial deal of player hands and completes
-  game setup.
+  `game` setup.
+
+  Details of the setup will be published to each player.
   """
   def deal(game) do
     GenServer.call(game, :deal)
+  end
+
+  @doc ~S"""
+  One of three play functions for the players.
+
+  `game` is the process identifier, `player` is the player making the play
+  (who must be the current player), `to` is the player receiving the hint,
+  and `hint` is either a color atom (like `:yellow`) or a value (like `3`).
+
+  Details of the play will be published to each player.
+  """
+  def hint(game, player, to, hint) do
+    GenServer.call(game, {:hint, player, to, hint})
   end
 
   ### Server ###
@@ -128,6 +143,65 @@ defmodule HanabiEngine.Game do
 
     {:reply, :ok, new_game}
   end
-  def handle_call(:deal, _from, _game),
-    do: {:reply, {:error, "The game is already setup."}}
+  def handle_call(:deal, _from, game),
+    do: {:reply, {:error, "The game is already setup."}, game}
+
+  @doc false
+  def handle_call(
+    {:hint, player, to, hint},
+    _from,
+    game = %__MODULE__{status: :playing, turn: player, clocks: clocks}
+  ) when clocks > 0 do
+    hand = Map.fetch!(game.hands, to)
+    empty = map_hand(hand, 0, hint, nil, nil)
+    {type, positions} =
+      if is_atom(hint) do
+        {:color, map_hand(hand, 0, hint, hint, nil)}
+      else
+        {:value, map_hand(hand, 1, hint, hint, nil)}
+      end
+    if Enum.any?(positions) do
+      new_game = %__MODULE__{
+        game |
+        turn: next_turn(game),
+        clocks: clocks - 1
+      }
+
+      details =
+        %{
+          to: to,
+          color: empty,
+          value: empty,
+          next_turn: new_game.turn,
+          new_clocks: new_game.clocks
+        }
+        |> Map.put(type, positions)
+      Enum.each(new_game.players, fn other_player ->
+        PubSub.broadcast(
+          :hanabi,
+          "game:#{new_game.id}:#{other_player}",
+          {:hint, player, details}
+        )
+      end)
+
+      {:reply, :ok, new_game}
+    else
+      {:reply, {:error, "Invalid hint."}, game}
+    end
+  end
+  def handle_call({:hint, _player, _to, _hint}, _from, game),
+    do: {:reply, {:error, "That player cannot give a hint right now."}, game}
+
+  ### Helpers ###
+
+  defp map_hand(hand, i, test, match, non_match) do
+    Enum.map(hand, fn tile ->
+      if elem(tile, i) == test, do: match, else: non_match
+    end)
+  end
+
+  defp next_turn(game) do
+    i = Enum.find_index(game.players, fn player -> player == game.turn end)
+    Enum.at(game.players, i + 1, hd(game.players))
+  end
 end

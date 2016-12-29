@@ -61,4 +61,66 @@ defmodule GameTest do
     Game.deal(four_player_game)
     assert_receive {:deal, "A", %{hands: %{"A" => 4}}}
   end
+
+  describe "moves" do
+    setup do
+      game_id = UUID.uuid1
+      {:ok, game} = Game.start(game_id, ~w[A B])
+      PubSub.subscribe(:hanabi, "game:#{game_id}:A")
+      Game.deal(game)
+      details =
+        receive do
+          {:deal, "A", deal} -> deal
+        after
+          100 -> raise "Hand not received within 100ms."
+        end
+      {:ok, game: game, details: details}
+    end
+
+    test "giving a hint", %{game: game, details: details} do
+      bs_hand = Map.fetch!(details.hands, "B")
+      hint_color = bs_hand |> hd |> elem(0)
+      hint = Enum.map(bs_hand, fn {tile_color, _} ->
+        if tile_color == hint_color do
+          hint_color
+        else
+          nil
+        end
+      end)
+      :ok = Game.hint(game, "A", "B", hint_color)
+      assert_receive {
+        :hint,
+        "A",
+        %{
+          to: "B",
+          color: ^hint,
+          value: [nil, nil, nil, nil, nil],
+          next_turn: "B",
+          new_clocks: 7
+        }
+      }
+
+      value = Enum.find(1..5, fn n -> Game.hint(game, "B", "A", n) == :ok end)
+      assert_receive {
+        :hint,
+        "B",
+        %{
+          to: "A",
+          color: [nil, nil, nil, nil, nil],
+          value: positions,
+          next_turn: "A",
+          new_clocks: 6
+        }
+      }
+      assert Enum.find(positions, fn position -> position == value end)
+    end
+
+    # test "discarding a tile", %{game: game, details: details} do
+      
+    # end
+
+    # test "playing a tile", %{game: game, details: details} do
+      
+    # end
+  end
 end
