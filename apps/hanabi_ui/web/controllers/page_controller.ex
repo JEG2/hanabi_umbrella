@@ -10,7 +10,8 @@ defmodule HanabiUi.PageController do
       |> Game.to_table_view
       |> Game.to_player_view("Paul")
 
-    assign(conn, :game, game)
-    |> render "index.html"
+    conn
+    |> assign(:game, game)
+    |> render("index.html")
   end
 end

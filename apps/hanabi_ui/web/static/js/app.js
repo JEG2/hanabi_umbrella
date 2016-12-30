@@ -14,4 +14,4 @@
 import "phoenix_html"
 
 const elmDiv = document.querySelector("#elm-container")
-const elmApp = Elm.HanabiUi.embed(elmDiv)
+const elmApp = Elm.HanabiUi.embed(elmDiv, window.pageData)
