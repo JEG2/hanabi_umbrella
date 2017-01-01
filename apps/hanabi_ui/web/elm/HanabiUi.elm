@@ -19,7 +19,7 @@ type Msg
     = NoOp
 
 
-type alias Tile = (String, Int)
+type alias Tile = (Maybe String, Maybe Int)
 type alias Hand = List Tile
 type alias Fireworks =
     { blue : Maybe Int
@@ -35,39 +35,42 @@ type alias Model =
     , fireworks : Fireworks
     , fuses : Int
     , hands : Dict String Hand
-    , my_hand : Int
+    , my_hand : Hand
     , my_turn : Bool
     }
 
 
-init : Json.Decode.Value -> (Model, Cmd Msg)
+init : Value -> (Model, Cmd Msg)
 init values =
-    let
-        defaultModel = { clocks = 3
-                       , discards = []
-                       , draw_pile = 0
-                       , fireworks = {blue = Nothing, green = Nothing, red = Nothing, white = Nothing, yellow = Nothing}
-                       , fuses = 3
-                       , hands = Dict.fromList [("jon", [])]
-                       , my_hand = 5
-                       , my_turn = True}
-        tmp = Debug.log "json" (Json.Decode.decodeValue gameDecoder values)
-        model = Debug.log "result" (Result.withDefault defaultModel tmp)
-    in
-        ( model
-        , Cmd.none)
+    values
+        |> decodeValue gameDecoder
+        |> Result.withDefault defaultModel
+        |> (,)
+         <| Cmd.none
 
 
-gameDecoder : Json.Decode.Decoder Model
+defaultModel : Model
+defaultModel =
+    { clocks = 0
+    , discards = []
+    , draw_pile = 0
+    , fireworks = {blue = Nothing, green = Nothing, red = Nothing, white = Nothing, yellow = Nothing}
+    , fuses = 0
+    , hands = Dict.fromList [("Jon", [])]
+    , my_hand = [(Nothing, Nothing), (Nothing, Nothing), (Nothing, Nothing), (Nothing, Nothing)]
+    , my_turn = False}
+
+
+gameDecoder : Decoder Model
 gameDecoder =
-    Json.Decode.map8 Model
+    map8 Model
         (field "clocks" int)
         (field "discards" handDecoder)
         (field "draw_pile" int)
         (field "fireworks" fireworkDecoder)
         (field "fuses" int)
         (field "hands" (dict (handDecoder)))
-        (field "my_hand" int)
+        (field "my_hand" handDecoder)
         (field "my_turn" bool)
 
 
@@ -79,8 +82,8 @@ handDecoder =
 tileDecoder : Decoder Tile
 tileDecoder =
     map2 (,)
-        (index 0 string)
-        (index 1 int)
+        (index 0 (nullable string))
+        (index 1 (nullable int))
 
 
 fireworkDecoder : Decoder Fireworks

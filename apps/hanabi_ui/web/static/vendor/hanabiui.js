@@ -8168,9 +8168,53 @@ var _user$project$HanabiUi$tileDecoder = A3(
 		function (v0, v1) {
 			return {ctor: '_Tuple2', _0: v0, _1: v1};
 		}),
-	A2(_elm_lang$core$Json_Decode$index, 0, _elm_lang$core$Json_Decode$string),
-	A2(_elm_lang$core$Json_Decode$index, 1, _elm_lang$core$Json_Decode$int));
+	A2(
+		_elm_lang$core$Json_Decode$index,
+		0,
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$index,
+		1,
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
 var _user$project$HanabiUi$handDecoder = _elm_lang$core$Json_Decode$list(_user$project$HanabiUi$tileDecoder);
+var _user$project$HanabiUi$defaultModel = {
+	clocks: 0,
+	discards: {ctor: '[]'},
+	draw_pile: 0,
+	fireworks: {blue: _elm_lang$core$Maybe$Nothing, green: _elm_lang$core$Maybe$Nothing, red: _elm_lang$core$Maybe$Nothing, white: _elm_lang$core$Maybe$Nothing, yellow: _elm_lang$core$Maybe$Nothing},
+	fuses: 0,
+	hands: _elm_lang$core$Dict$fromList(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'Jon',
+				_1: {ctor: '[]'}
+			},
+			_1: {ctor: '[]'}
+		}),
+	my_hand: {
+		ctor: '::',
+		_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+		_1: {
+			ctor: '::',
+			_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+			_1: {
+				ctor: '::',
+				_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+				_1: {
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+					_1: {ctor: '[]'}
+				}
+			}
+		}
+	},
+	my_turn: false
+};
+var _user$project$HanabiUi$commandNone = function (model) {
+	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+};
 var _user$project$HanabiUi$Fireworks = F5(
 	function (a, b, c, d, e) {
 		return {blue: a, green: b, red: c, white: d, yellow: e};
@@ -8214,37 +8258,17 @@ var _user$project$HanabiUi$gameDecoder = A9(
 		_elm_lang$core$Json_Decode$field,
 		'hands',
 		_elm_lang$core$Json_Decode$dict(_user$project$HanabiUi$handDecoder)),
-	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _user$project$HanabiUi$handDecoder),
 	A2(_elm_lang$core$Json_Decode$field, 'my_turn', _elm_lang$core$Json_Decode$bool));
 var _user$project$HanabiUi$init = function (values) {
-	var tmp = A2(
-		_elm_lang$core$Debug$log,
-		'json',
-		A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$gameDecoder, values));
-	var defaultModel = {
-		clocks: 3,
-		discards: {ctor: '[]'},
-		draw_pile: 0,
-		fireworks: {blue: _elm_lang$core$Maybe$Nothing, green: _elm_lang$core$Maybe$Nothing, red: _elm_lang$core$Maybe$Nothing, white: _elm_lang$core$Maybe$Nothing, yellow: _elm_lang$core$Maybe$Nothing},
-		fuses: 3,
-		hands: _elm_lang$core$Dict$fromList(
-			{
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: 'jon',
-					_1: {ctor: '[]'}
-				},
-				_1: {ctor: '[]'}
-			}),
-		my_hand: 5,
-		my_turn: true
-	};
-	var model = A2(
-		_elm_lang$core$Debug$log,
-		'result',
-		A2(_elm_lang$core$Result$withDefault, defaultModel, tmp));
-	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+	return F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		})(
+		A2(
+			_elm_lang$core$Result$withDefault,
+			_user$project$HanabiUi$defaultModel,
+			A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$gameDecoder, values)))(_elm_lang$core$Platform_Cmd$none);
 };
 var _user$project$HanabiUi$main = _elm_lang$html$Html$programWithFlags(
 	{init: _user$project$HanabiUi$init, view: _user$project$HanabiUi$view, update: _user$project$HanabiUi$update, subscriptions: _user$project$HanabiUi$subscriptions})(_elm_lang$core$Json_Decode$value);
