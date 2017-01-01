@@ -3,147 +3,199 @@ defmodule GameTest do
 
   alias HanabiEngine.Game
 
-  test "starting hand sizes are based on the number of players" do
+  test "a starting hand for two or three players is five cards" do
     two_player_game = Game.new(~w[A B]) |> Game.deal
     hand_size = two_player_game.hands |> Map.fetch!("A") |> length
     assert hand_size == 5
+  end
 
+  test "a starting hand for four or five players is four cards" do
     four_player_game = Game.new(~w[A B C D]) |> Game.deal
     hand_size = four_player_game.hands |> Map.fetch!("A") |> length
     assert hand_size == 4
   end
 
+  test "conversion to a player's view discards unneeded fields" do
+    view = Game.new(~w[A B]) |> Game.deal |> Game.to_player_view("A")
+    assert not Map.has_key?(view, :__struct__)
+    assert not Map.has_key?(view, :status)
+    assert not Map.has_key?(view, :knowns)
+  end
+
+  test "conversion to a player's view reduces the draw pile to a size" do
+    view = Game.new(~w[A B]) |> Game.deal |> Game.to_player_view("A")
+    assert view.draw_pile == 40
+  end
+
+  test "conversion to a player's view changes tuples into lists" do
+    view = Game.new(~w[A B]) |> Game.deal |> Game.to_player_view("A")
+    bs_hand = view.hands |> Map.fetch!("B")
+    assert Enum.all?(bs_hand, &is_list/1)
+  end
+
+  test "conversion to a player's view hides a player's hand for knowns" do
+    view = Game.new(~w[A B]) |> Game.deal |> Game.to_player_view("A")
+    assert not Map.has_key?(view.hands, "A")
+    assert view.my_hand == List.duplicate([nil, nil], 5)
+  end
+
+  test "conversion to a player's view hides knowns" do
+    view = Game.new(~w[A B]) |> Game.deal |> Game.to_player_view("A")
+    assert not Map.has_key?(view, :knowns)
+  end
+
+  test "conversion to a player's view adds a turn indicator" do
+    game = Game.new(~w[A B]) |> Game.deal
+    as_view = Game.to_player_view(game, "A")
+    assert as_view.my_turn == true
+
+    bs_view = Game.to_player_view(game, "B")
+    assert bs_view.my_turn == false
+  end
+
   describe "moves" do
     setup do
+      # Use a known deal for testing purposes:
+      #
+      # * A's hand:  `[green: 4, green: 3, white: 3, blue: 4, green: 1]`
+      # * B's hand:  `[red: 4, blue: 5, red: 2, white: 4, blue: 2]`
+      # * Top three draws:  `[green: 4, white: 4, red: 5, …]`
+      :rand.seed(:exsplus, {1, 2, 3})
+
       game = Game.new(~w[A B])
       {:ok, game: Game.deal(game)}
     end
 
-    test "giving a hint", %{game: game} do
-      bs_hand = Map.fetch!(game.hands, "B")
-      hint_color = bs_hand |> hd |> elem(0)
-      hint = Enum.map(bs_hand, fn {tile_color, _} ->
-        if tile_color == hint_color do
-          {hint_color, nil}
-        else
-          {nil, nil}
-        end
-      end)
-      game_with_hint = Game.hint(game, "A", "B", hint_color)
-      assert Map.fetch!(game_with_hint.knowns, "B") == hint
+    test "giving a color hint", %{game: game} do
+      game_with_hint = Game.hint(game, "A", "B", :red)
+      bs_knowns = Map.fetch!(game_with_hint.knowns, "B")
+      hint = [{:red, nil}, {nil, nil}, {:red, nil}, {nil, nil}, {nil, nil}]
+      assert bs_knowns == hint
+    end
+
+    test "giving a value hint", %{game: game} do
+      game_with_hint = Game.hint(game, "A", "B", 4)
+      bs_knowns = Map.fetch!(game_with_hint.knowns, "B")
+      hint = [{nil, 4}, {nil, nil}, {nil, nil}, {nil, 4}, {nil, nil}]
+      assert bs_knowns == hint
+    end
+
+    test "hints stack", %{game: game} do
+      game_with_first_hint = Game.hint(game, "A", "B", :red)
+      game_with_passed_turn = Game.hint(game_with_first_hint, "B", "A", 1)
+      game_with_second_hint = Game.hint(game_with_passed_turn, "A", "B", 4)
+      bs_knowns = Map.fetch!(game_with_second_hint.knowns, "B")
+      hint = [{:red, 4}, {nil, nil}, {:red, nil}, {nil, 4}, {nil, nil}]
+      assert bs_knowns == hint
+    end
+
+    test "giving a hint advances to the next turn", %{game: game} do
+      game_with_hint = Game.hint(game, "A", "B", :red)
       assert game_with_hint.turn == "B"
-      assert game_with_hint.clocks == 7
-
-      # value = Enum.find(1..5, fn n -> GameManager.hint(game, "B", "A", n) == :ok end)
-      # assert_receive {
-      #   :hint,
-      #   "B",
-      #   %{
-      #     to: "A",
-      #     color: [nil, nil, nil, nil, nil],
-      #     value: positions,
-      #     next_turn: "A",
-      #     new_clocks: 6
-      #   }
-      # }
-      # assert Enum.find(positions, fn position -> position == value end)
     end
 
-    test "discarding a tile", %{game: game} do
-      # spend a clock
-      hint = game.hands |> Map.fetch!("B") |> hd |> elem(0)
-      game_with_hint = Game.hint(game, "A", "B", hint)
+    test "giving a hint spends a clock", %{game: game} do
+      game_with_hint = Game.hint(game, "A", "B", :red)
       assert game_with_hint.clocks == 7
-
-      discard = game_with_hint.hands |> Map.fetch!("B") |> Enum.at(1)
-      game_after_discard = Game.discard(game_with_hint, "B", 1)
-      bs_hand = game_after_discard.hands |> Map.fetch!("B")
-      assert hd(game_after_discard.discards) == discard
-      assert hd(game_with_hint.draw_pile) == Enum.at(bs_hand, 1)
-      assert hd(game_with_hint.draw_pile) != hd(game_after_discard.draw_pile)
-      assert game_after_discard.turn == "A"
-      assert game_after_discard.clocks == 8
-
-      # :ok = GameManager.discard(game, "A", 0)
-      # assert_receive {
-      #   :discard,
-      #   "A",
-      #   %{
-      #     discarded: unknown,
-      #     drawn: drawn,
-      #     new_draw_pile: 38,
-      #     next_turn: "B",
-      #     new_clocks: 8
-      #   }
-      # }
-      # assert is_tuple(unknown) and
-      #        tuple_size(unknown) == 2 and
-      #        elem(unknown, 0) in ~w[blue green red white yellow]a and
-      #        elem(unknown, 1) in 1..5
-      # assert is_tuple(drawn) and
-      #        tuple_size(drawn) == 2 and
-      #        elem(drawn, 0) in ~w[blue green red white yellow]a and
-      #        elem(drawn, 1) in 1..5
     end
 
-    test "playing a tile", %{game: game} do
-      hand = game.hands |> Map.fetch!("A")
-      tile = Enum.find(hand, hd(hand), fn {_, value} -> value == 1 end)
-      color = elem(tile, 0)
-      index = Enum.find_index(hand, fn other_tile -> tile == other_tile end)
-      game_after_play = Game.play(game, "A", index)
-      new_hand = game_after_play.hands |> Map.fetch!("A")
-      assert hd(game.draw_pile) == Enum.at(new_hand, index)
-      assert hd(game.draw_pile) != hd(game_after_play.draw_pile)
+    test "discarding a tile replaces it with a draw when available",
+      %{game: game} do
+      game_after_discard = Game.discard(game, "A", 2)
+      as_hand = game_after_discard.hands |> Map.fetch!("A")
+      assert Enum.at(as_hand, 2) == {:green, 4}
+      assert game_after_discard.discards == [white: 3]
+      assert hd(game_after_discard.draw_pile) == {:white, 4}
+    end
+
+    test "discarding a tile replaces it with a blank when no draws are available",
+         %{game: game} do
+      game_without_draws =
+        Enum.reduce(1..20, game, fn _i, new_game ->
+          new_game
+          |> Game.discard("A", 0)
+          |> Game.discard("B", 0)
+        end)
+      assert game_without_draws.draw_pile == [ ]
+
+      ending_game = Game.discard(game_without_draws, "A", 2)
+      as_hand = ending_game.hands |> Map.fetch!("A")
+      assert Enum.at(as_hand, 2) == {nil, nil}
+    end
+
+    test "discarding a tile advances to the next turn", %{game: game} do
+      game_after_discard = Game.discard(game, "A", 2)
+      assert game_after_discard.turn == "B"
+    end
+
+    test "discarding a tile restores spent clocks", %{game: game} do
+      game_without_full_clocks = Game.hint(game, "A", "B", :red)
+      assert game_without_full_clocks.clocks == 7
+
+      game_with_full_clocks = Game.discard(game_without_full_clocks, "B", 2)
+      assert game_with_full_clocks.clocks == 8
+
+      game_with_still_full_clocks =
+        Game.discard(game_with_full_clocks, "A", 2)
+      assert game_with_still_full_clocks.clocks == 8
+    end
+
+    test "discarding a tile clears knowns for that tile", %{game: game} do
+      game_with_hint = Game.hint(game, "A", "B", :red)
+      bs_knowns = game_with_hint.knowns |> Map.fetch!("B")
+      assert hd(bs_knowns) == {:red, nil}
+
+      game_after_discard = Game.discard(game_with_hint, "B", 0)
+      bs_knowns = game_after_discard.knowns |> Map.fetch!("B")
+      assert hd(bs_knowns) == {nil, nil}
+    end
+
+    test "playing a tile replaces it with a draw when available",
+      %{game: game} do
+      game_after_play = Game.play(game, "A", 4)
+      as_hand = game_after_play.hands |> Map.fetch!("A")
+      assert Enum.at(as_hand, 4) == {:green, 4}
+      assert game_after_play.fireworks.green == 1
+      assert hd(game_after_play.draw_pile) == {:white, 4}
+    end
+
+    test "playing a tile replaces it with a blank when no draws are available",
+         %{game: game} do
+      game_without_draws =
+        Enum.reduce(1..20, game, fn _i, new_game ->
+          new_game
+          |> Game.discard("A", 0)
+          |> Game.discard("B", 0)
+        end)
+      assert game_without_draws.draw_pile == [ ]
+
+      ending_game = Game.play(game_without_draws, "A", 4)
+      as_hand = ending_game.hands |> Map.fetch!("A")
+      assert Enum.at(as_hand, 4) == {nil, nil}
+    end
+
+    test "playing a tile advances to the next turn", %{game: game} do
+      game_after_play = Game.play(game, "A", 4)
       assert game_after_play.turn == "B"
-      if elem(tile, 1) == 1 do
-        assert Map.fetch!(game_after_play.fireworks, color) == elem(tile, 1)
-        assert game.discards == game_after_play.discards
-        assert game.fuses == game_after_play.fuses
-      else
-        assert game.fireworks == game_after_play.fireworks
-        assert game_after_play.discards == [tile | game.discards]
-        assert game_after_play.fuses == game.fuses - 1
-      end
+    end
 
-      # bs_hand = details.hands |> Map.fetch!("B")
-      # legal_play =
-      #   Enum.find(bs_hand, fn tile ->
-      #     tile != first_play and elem(tile, 1) == 1
-      #   end)
-      # second_discard = if legal_play, do: nil, else: hd(bs_hand)
-      # index = Enum.find_index(bs_hand, fn tile -> legal_play == tile end)
-      # :ok = GameManager.play(game, "B", index || 0)
-      # assert_receive {
-      #   :play,
-      #   "B",
-      #   %{
-      #     played: ^legal_play,
-      #     discarded: ^second_discard,
-      #     drawn: drawn,
-      #     new_draw_pile: 38,
-      #     next_turn: "A",
-      #     new_clocks: 8,
-      #     new_fuses: second_fuses
-      #   }
-      # }
-      # assert is_tuple(drawn) and
-      #        tuple_size(drawn) == 2 and
-      #        elem(drawn, 0) in ~w[blue green red white yellow]a and
-      #        elem(drawn, 1) in 1..5
-      # if is_tuple(legal_play) do
-      #   assert tuple_size(legal_play) == 2 and
-      #          elem(legal_play, 0) in ~w[blue green red white yellow]a and
-      #          elem(legal_play, 1) in 1..5
-      #   assert is_nil(second_discard)
-      #   assert second_fuses == first_fuses
-      # else
-      #   assert is_nil(legal_play)
-      #   assert tuple_size(second_discard) == 2 and
-      #          elem(second_discard, 0) in ~w[blue green red white yellow]a and
-      #          elem(second_discard, 1) in 1..5
-      #   assert second_fuses == first_fuses - 1
-      # end
+    test "playing an illegal tile discards it spends a fuse", %{game: game} do
+      game_with_full_fuses = Game.play(game, "A", 4)
+      assert game_with_full_fuses.fuses == 3
+
+      game_without_full_fuses = Game.play(game_with_full_fuses, "B", 0)
+      assert game_without_full_fuses.discards == [red: 4]
+      assert game_without_full_fuses.fuses == 2
+    end
+
+    test "playing a tile clears knowns for that tile", %{game: game} do
+      game_with_hint = Game.hint(game, "A", "B", :red)
+      bs_knowns = game_with_hint.knowns |> Map.fetch!("B")
+      assert hd(bs_knowns) == {:red, nil}
+
+      game_after_play = Game.play(game_with_hint, "B", 0)
+      bs_knowns = game_after_play.knowns |> Map.fetch!("B")
+      assert hd(bs_knowns) == {nil, nil}
     end
   end
 end

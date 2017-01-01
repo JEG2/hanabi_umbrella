@@ -28,18 +28,3 @@ instead to support the makers of great games!
     * What's easier for the frontend?
     * What performs better?
     * Do we have sync issues?
-
-## Known Bugs
-
-1. Discard sometimes fails
-
-        1) test moves discarding a tile (GameTest)
-           test/game_test.exs:52
-           Assertion with != failed
-           code: hd(game_with_hint.draw_pile()) != hd(game_after_discard.draw_pile())
-           lhs:  {:green, 2}
-           rhs:  {:green, 2}
-           stacktrace:
-             test/game_test.exs:63: (test)
-
-2. Exhausting the draw pile crashed the process

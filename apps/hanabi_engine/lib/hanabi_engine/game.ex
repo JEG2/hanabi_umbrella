@@ -94,13 +94,16 @@ defmodule HanabiEngine.Game do
   """
   def discard(game, player, index) do
     hand = game.hands |> Map.fetch!(player)
+    knowns = game.knowns |> Map.fetch!(player)
     discard = hand |> Enum.at(index)
-    drawn = hd(game.draw_pile)
+    drawn = draw(game)
     new_hand = List.replace_at(hand, index, drawn)
+    new_knowns = List.replace_at(knowns, index, {nil, nil})
     %__MODULE__{
       game |
       hands: Map.put(game.hands, player, new_hand),
-      draw_pile: tl(game.draw_pile),
+      knowns: Map.put(game.knowns, player, new_knowns),
+      draw_pile: post_draw_pile(game),
       discards: [discard | game.discards],
       turn: next_turn(game),
       clocks: Enum.min([game.clocks + 1, 8])
@@ -117,9 +120,11 @@ defmodule HanabiEngine.Game do
   """
   def play(game, player, index) do
     hand = game.hands |> Map.fetch!(player)
+    knowns = game.knowns |> Map.fetch!(player)
     tile = hand |> Enum.at(index)
-    drawn = hd(game.draw_pile)
+    drawn = draw(game)
     new_hand = List.replace_at(hand, index, drawn)
+    new_knowns = List.replace_at(knowns, index, {nil, nil})
     color = elem(tile, 0)
     fireworks = game.fireworks
     {new_fireworks, new_discards, new_fuses} =
@@ -135,7 +140,8 @@ defmodule HanabiEngine.Game do
     %__MODULE__{
       game |
       hands: Map.put(game.hands, player, new_hand),
-      draw_pile: tl(game.draw_pile),
+      knowns: Map.put(game.knowns, player, new_knowns),
+      draw_pile: post_draw_pile(game),
       discards: new_discards,
       fireworks: new_fireworks,
       turn: next_turn(game),
@@ -143,20 +149,20 @@ defmodule HanabiEngine.Game do
     }
   end
 
-  def to_table_view(game) do
+  @doc ~S"""
+  Converts the passed `game` struct to viewable information by `player`.  The
+  data is also prepared for serialization.
+  """
+  def to_player_view(game, player) do
     game
     |> Map.from_struct
     |> Map.delete(:status)
     |> Map.update!(:draw_pile, fn tiles -> length(tiles) end)
-    |> tuples_to_lists
-  end
-
-  def to_player_view(table_view, player) do
-    table_view
     |> Map.update!(:hands, fn hands -> Map.delete(hands, player) end)
-    |> Map.put(:my_hand, Map.fetch!(table_view.knowns, player))
+    |> Map.put(:my_hand, Map.fetch!(game.knowns, player))
     |> Map.delete(:knowns)
-    |> Map.put(:my_turn, table_view.turn == player)
+    |> Map.put(:my_turn, game.turn == player)
+    |> tuples_to_lists
   end
 
   ### Helpers ###
@@ -165,6 +171,12 @@ defmodule HanabiEngine.Game do
     i = Enum.find_index(game.players, fn player -> player == game.turn end)
     Enum.at(game.players, i + 1, hd(game.players))
   end
+
+  defp draw(%__MODULE__{draw_pile: [tile | _tiles]}), do: tile
+  defp draw(%__MODULE__{draw_pile: [ ]}), do: {nil, nil}
+
+  defp post_draw_pile(%__MODULE__{draw_pile: [_tile | tiles]}), do: tiles
+  defp post_draw_pile(%__MODULE__{draw_pile: [ ]}), do: [ ]
 
   defp tuples_to_lists(data) when is_map(data) do
     Enum.into(data, %{ }, fn {key, value} ->
@@ -177,7 +189,5 @@ defmodule HanabiEngine.Game do
   defp tuples_to_lists(data) when is_tuple(data) do
     Tuple.to_list(data) |> tuples_to_lists
   end
-  defp tuples_to_lists(data) do
-    data
-  end
+  defp tuples_to_lists(data), do: data
 end
