@@ -7,7 +7,6 @@ defmodule HanabiUi.PageController do
     game =
       Game.new(~w[James Paul])
       |> Game.deal
-      |> Game.to_table_view
       |> Game.to_player_view("Paul")
 
     conn
