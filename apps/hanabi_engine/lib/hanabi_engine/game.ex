@@ -1,4 +1,17 @@
 defmodule HanabiEngine.Game do
+  @moduledoc ~S"""
+  A `Game` is the primary data structure used to keep track of Hanabi concerns.
+  It create the initial layout of tiles and provides functions the execute the
+  moves players make, each one returning an updated `Game` state.
+
+  This module makes use of `:rand` to shuffle tiles.  Call `:rand.seed/2` before
+  calling `Game.deal/0` if you want to create reproducible plays.
+
+  This module does no validation, to keep it's complexity down.  The functions
+  in here assume only legal plays are attempted.  `RulesLawyer` can be used to
+  ensure this is the case.
+  """
+
   defstruct status: :started,
             players: nil,
             hands: nil,
