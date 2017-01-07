@@ -3741,6 +3741,203 @@ var _elm_lang$core$Result$fromMaybe = F2(
 		}
 	});
 
+var _elm_lang$core$Task$onError = _elm_lang$core$Native_Scheduler.onError;
+var _elm_lang$core$Task$andThen = _elm_lang$core$Native_Scheduler.andThen;
+var _elm_lang$core$Task$spawnCmd = F2(
+	function (router, _p0) {
+		var _p1 = _p0;
+		return _elm_lang$core$Native_Scheduler.spawn(
+			A2(
+				_elm_lang$core$Task$andThen,
+				_elm_lang$core$Platform$sendToApp(router),
+				_p1._0));
+	});
+var _elm_lang$core$Task$fail = _elm_lang$core$Native_Scheduler.fail;
+var _elm_lang$core$Task$mapError = F2(
+	function (convert, task) {
+		return A2(
+			_elm_lang$core$Task$onError,
+			function (_p2) {
+				return _elm_lang$core$Task$fail(
+					convert(_p2));
+			},
+			task);
+	});
+var _elm_lang$core$Task$succeed = _elm_lang$core$Native_Scheduler.succeed;
+var _elm_lang$core$Task$map = F2(
+	function (func, taskA) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return _elm_lang$core$Task$succeed(
+					func(a));
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map2 = F3(
+	function (func, taskA, taskB) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return _elm_lang$core$Task$succeed(
+							A2(func, a, b));
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map3 = F4(
+	function (func, taskA, taskB, taskC) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return _elm_lang$core$Task$succeed(
+									A3(func, a, b, c));
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map4 = F5(
+	function (func, taskA, taskB, taskC, taskD) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									function (d) {
+										return _elm_lang$core$Task$succeed(
+											A4(func, a, b, c, d));
+									},
+									taskD);
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$map5 = F6(
+	function (func, taskA, taskB, taskC, taskD, taskE) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (a) {
+				return A2(
+					_elm_lang$core$Task$andThen,
+					function (b) {
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (c) {
+								return A2(
+									_elm_lang$core$Task$andThen,
+									function (d) {
+										return A2(
+											_elm_lang$core$Task$andThen,
+											function (e) {
+												return _elm_lang$core$Task$succeed(
+													A5(func, a, b, c, d, e));
+											},
+											taskE);
+									},
+									taskD);
+							},
+							taskC);
+					},
+					taskB);
+			},
+			taskA);
+	});
+var _elm_lang$core$Task$sequence = function (tasks) {
+	var _p3 = tasks;
+	if (_p3.ctor === '[]') {
+		return _elm_lang$core$Task$succeed(
+			{ctor: '[]'});
+	} else {
+		return A3(
+			_elm_lang$core$Task$map2,
+			F2(
+				function (x, y) {
+					return {ctor: '::', _0: x, _1: y};
+				}),
+			_p3._0,
+			_elm_lang$core$Task$sequence(_p3._1));
+	}
+};
+var _elm_lang$core$Task$onEffects = F3(
+	function (router, commands, state) {
+		return A2(
+			_elm_lang$core$Task$map,
+			function (_p4) {
+				return {ctor: '_Tuple0'};
+			},
+			_elm_lang$core$Task$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					_elm_lang$core$Task$spawnCmd(router),
+					commands)));
+	});
+var _elm_lang$core$Task$init = _elm_lang$core$Task$succeed(
+	{ctor: '_Tuple0'});
+var _elm_lang$core$Task$onSelfMsg = F3(
+	function (_p7, _p6, _p5) {
+		return _elm_lang$core$Task$succeed(
+			{ctor: '_Tuple0'});
+	});
+var _elm_lang$core$Task$command = _elm_lang$core$Native_Platform.leaf('Task');
+var _elm_lang$core$Task$Perform = function (a) {
+	return {ctor: 'Perform', _0: a};
+};
+var _elm_lang$core$Task$perform = F2(
+	function (toMessage, task) {
+		return _elm_lang$core$Task$command(
+			_elm_lang$core$Task$Perform(
+				A2(_elm_lang$core$Task$map, toMessage, task)));
+	});
+var _elm_lang$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return _elm_lang$core$Task$command(
+			_elm_lang$core$Task$Perform(
+				A2(
+					_elm_lang$core$Task$onError,
+					function (_p8) {
+						return _elm_lang$core$Task$succeed(
+							resultToMessage(
+								_elm_lang$core$Result$Err(_p8)));
+					},
+					A2(
+						_elm_lang$core$Task$andThen,
+						function (_p9) {
+							return _elm_lang$core$Task$succeed(
+								resultToMessage(
+									_elm_lang$core$Result$Ok(_p9)));
+						},
+						task))));
+	});
+var _elm_lang$core$Task$cmdMap = F2(
+	function (tagger, _p10) {
+		var _p11 = _p10;
+		return _elm_lang$core$Task$Perform(
+			A2(_elm_lang$core$Task$map, tagger, _p11._0));
+	});
+_elm_lang$core$Native_Platform.effectManagers['Task'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Task$init, onEffects: _elm_lang$core$Task$onEffects, onSelfMsg: _elm_lang$core$Task$onSelfMsg, tag: 'cmd', cmdMap: _elm_lang$core$Task$cmdMap};
+
 //import Native.Utils //
 
 var _elm_lang$core$Native_Debug = function() {
@@ -5068,6 +5265,221 @@ var _elm_lang$core$Dict$diff = F2(
 			t2);
 	});
 
+//import Native.Scheduler //
+
+var _elm_lang$core$Native_Time = function() {
+
+var now = _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+{
+	callback(_elm_lang$core$Native_Scheduler.succeed(Date.now()));
+});
+
+function setInterval_(interval, task)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		var id = setInterval(function() {
+			_elm_lang$core$Native_Scheduler.rawSpawn(task);
+		}, interval);
+
+		return function() { clearInterval(id); };
+	});
+}
+
+return {
+	now: now,
+	setInterval_: F2(setInterval_)
+};
+
+}();
+var _elm_lang$core$Time$setInterval = _elm_lang$core$Native_Time.setInterval_;
+var _elm_lang$core$Time$spawnHelp = F3(
+	function (router, intervals, processes) {
+		var _p0 = intervals;
+		if (_p0.ctor === '[]') {
+			return _elm_lang$core$Task$succeed(processes);
+		} else {
+			var _p1 = _p0._0;
+			var spawnRest = function (id) {
+				return A3(
+					_elm_lang$core$Time$spawnHelp,
+					router,
+					_p0._1,
+					A3(_elm_lang$core$Dict$insert, _p1, id, processes));
+			};
+			var spawnTimer = _elm_lang$core$Native_Scheduler.spawn(
+				A2(
+					_elm_lang$core$Time$setInterval,
+					_p1,
+					A2(_elm_lang$core$Platform$sendToSelf, router, _p1)));
+			return A2(_elm_lang$core$Task$andThen, spawnRest, spawnTimer);
+		}
+	});
+var _elm_lang$core$Time$addMySub = F2(
+	function (_p2, state) {
+		var _p3 = _p2;
+		var _p6 = _p3._1;
+		var _p5 = _p3._0;
+		var _p4 = A2(_elm_lang$core$Dict$get, _p5, state);
+		if (_p4.ctor === 'Nothing') {
+			return A3(
+				_elm_lang$core$Dict$insert,
+				_p5,
+				{
+					ctor: '::',
+					_0: _p6,
+					_1: {ctor: '[]'}
+				},
+				state);
+		} else {
+			return A3(
+				_elm_lang$core$Dict$insert,
+				_p5,
+				{ctor: '::', _0: _p6, _1: _p4._0},
+				state);
+		}
+	});
+var _elm_lang$core$Time$inMilliseconds = function (t) {
+	return t;
+};
+var _elm_lang$core$Time$millisecond = 1;
+var _elm_lang$core$Time$second = 1000 * _elm_lang$core$Time$millisecond;
+var _elm_lang$core$Time$minute = 60 * _elm_lang$core$Time$second;
+var _elm_lang$core$Time$hour = 60 * _elm_lang$core$Time$minute;
+var _elm_lang$core$Time$inHours = function (t) {
+	return t / _elm_lang$core$Time$hour;
+};
+var _elm_lang$core$Time$inMinutes = function (t) {
+	return t / _elm_lang$core$Time$minute;
+};
+var _elm_lang$core$Time$inSeconds = function (t) {
+	return t / _elm_lang$core$Time$second;
+};
+var _elm_lang$core$Time$now = _elm_lang$core$Native_Time.now;
+var _elm_lang$core$Time$onSelfMsg = F3(
+	function (router, interval, state) {
+		var _p7 = A2(_elm_lang$core$Dict$get, interval, state.taggers);
+		if (_p7.ctor === 'Nothing') {
+			return _elm_lang$core$Task$succeed(state);
+		} else {
+			var tellTaggers = function (time) {
+				return _elm_lang$core$Task$sequence(
+					A2(
+						_elm_lang$core$List$map,
+						function (tagger) {
+							return A2(
+								_elm_lang$core$Platform$sendToApp,
+								router,
+								tagger(time));
+						},
+						_p7._0));
+			};
+			return A2(
+				_elm_lang$core$Task$andThen,
+				function (_p8) {
+					return _elm_lang$core$Task$succeed(state);
+				},
+				A2(_elm_lang$core$Task$andThen, tellTaggers, _elm_lang$core$Time$now));
+		}
+	});
+var _elm_lang$core$Time$subscription = _elm_lang$core$Native_Platform.leaf('Time');
+var _elm_lang$core$Time$State = F2(
+	function (a, b) {
+		return {taggers: a, processes: b};
+	});
+var _elm_lang$core$Time$init = _elm_lang$core$Task$succeed(
+	A2(_elm_lang$core$Time$State, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty));
+var _elm_lang$core$Time$onEffects = F3(
+	function (router, subs, _p9) {
+		var _p10 = _p9;
+		var rightStep = F3(
+			function (_p12, id, _p11) {
+				var _p13 = _p11;
+				return {
+					ctor: '_Tuple3',
+					_0: _p13._0,
+					_1: _p13._1,
+					_2: A2(
+						_elm_lang$core$Task$andThen,
+						function (_p14) {
+							return _p13._2;
+						},
+						_elm_lang$core$Native_Scheduler.kill(id))
+				};
+			});
+		var bothStep = F4(
+			function (interval, taggers, id, _p15) {
+				var _p16 = _p15;
+				return {
+					ctor: '_Tuple3',
+					_0: _p16._0,
+					_1: A3(_elm_lang$core$Dict$insert, interval, id, _p16._1),
+					_2: _p16._2
+				};
+			});
+		var leftStep = F3(
+			function (interval, taggers, _p17) {
+				var _p18 = _p17;
+				return {
+					ctor: '_Tuple3',
+					_0: {ctor: '::', _0: interval, _1: _p18._0},
+					_1: _p18._1,
+					_2: _p18._2
+				};
+			});
+		var newTaggers = A3(_elm_lang$core$List$foldl, _elm_lang$core$Time$addMySub, _elm_lang$core$Dict$empty, subs);
+		var _p19 = A6(
+			_elm_lang$core$Dict$merge,
+			leftStep,
+			bothStep,
+			rightStep,
+			newTaggers,
+			_p10.processes,
+			{
+				ctor: '_Tuple3',
+				_0: {ctor: '[]'},
+				_1: _elm_lang$core$Dict$empty,
+				_2: _elm_lang$core$Task$succeed(
+					{ctor: '_Tuple0'})
+			});
+		var spawnList = _p19._0;
+		var existingDict = _p19._1;
+		var killTask = _p19._2;
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (newProcesses) {
+				return _elm_lang$core$Task$succeed(
+					A2(_elm_lang$core$Time$State, newTaggers, newProcesses));
+			},
+			A2(
+				_elm_lang$core$Task$andThen,
+				function (_p20) {
+					return A3(_elm_lang$core$Time$spawnHelp, router, spawnList, existingDict);
+				},
+				killTask));
+	});
+var _elm_lang$core$Time$Every = F2(
+	function (a, b) {
+		return {ctor: 'Every', _0: a, _1: b};
+	});
+var _elm_lang$core$Time$every = F2(
+	function (interval, tagger) {
+		return _elm_lang$core$Time$subscription(
+			A2(_elm_lang$core$Time$Every, interval, tagger));
+	});
+var _elm_lang$core$Time$subMap = F2(
+	function (f, _p21) {
+		var _p22 = _p21;
+		return A2(
+			_elm_lang$core$Time$Every,
+			_p22._0,
+			function (_p23) {
+				return f(
+					_p22._1(_p23));
+			});
+	});
+_elm_lang$core$Native_Platform.effectManagers['Time'] = {pkg: 'elm-lang/core', init: _elm_lang$core$Time$init, onEffects: _elm_lang$core$Time$onEffects, onSelfMsg: _elm_lang$core$Time$onSelfMsg, tag: 'sub', subMap: _elm_lang$core$Time$subMap};
+
 var _elm_lang$core$Debug$crash = _elm_lang$core$Native_Debug.crash;
 var _elm_lang$core$Debug$log = _elm_lang$core$Native_Debug.log;
 
@@ -5725,6 +6137,10 @@ var _elm_lang$core$Json_Decode$int = _elm_lang$core$Native_Json.decodePrimitive(
 var _elm_lang$core$Json_Decode$bool = _elm_lang$core$Native_Json.decodePrimitive('bool');
 var _elm_lang$core$Json_Decode$string = _elm_lang$core$Native_Json.decodePrimitive('string');
 var _elm_lang$core$Json_Decode$Decoder = {ctor: 'Decoder'};
+
+var _elm_lang$core$Process$kill = _elm_lang$core$Native_Scheduler.kill;
+var _elm_lang$core$Process$sleep = _elm_lang$core$Native_Scheduler.sleep;
+var _elm_lang$core$Process$spawn = _elm_lang$core$Native_Scheduler.spawn;
 
 var _elm_lang$core$Tuple$mapSecond = F2(
 	function (func, _p0) {
@@ -8141,1357 +8557,1469 @@ var _elm_lang$html$Html_Attributes$classList = function (list) {
 };
 var _elm_lang$html$Html_Attributes$style = _elm_lang$virtual_dom$VirtualDom$style;
 
-var _elm_lang$svg$Svg$map = _elm_lang$virtual_dom$VirtualDom$map;
-var _elm_lang$svg$Svg$text = _elm_lang$virtual_dom$VirtualDom$text;
-var _elm_lang$svg$Svg$svgNamespace = A2(
-	_elm_lang$virtual_dom$VirtualDom$property,
-	'namespace',
-	_elm_lang$core$Json_Encode$string('http://www.w3.org/2000/svg'));
-var _elm_lang$svg$Svg$node = F3(
-	function (name, attributes, children) {
-		return A3(
-			_elm_lang$virtual_dom$VirtualDom$node,
-			name,
-			{ctor: '::', _0: _elm_lang$svg$Svg$svgNamespace, _1: attributes},
-			children);
+var _elm_lang$html$Html_Events$keyCode = A2(_elm_lang$core$Json_Decode$field, 'keyCode', _elm_lang$core$Json_Decode$int);
+var _elm_lang$html$Html_Events$targetChecked = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'target',
+		_1: {
+			ctor: '::',
+			_0: 'checked',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$bool);
+var _elm_lang$html$Html_Events$targetValue = A2(
+	_elm_lang$core$Json_Decode$at,
+	{
+		ctor: '::',
+		_0: 'target',
+		_1: {
+			ctor: '::',
+			_0: 'value',
+			_1: {ctor: '[]'}
+		}
+	},
+	_elm_lang$core$Json_Decode$string);
+var _elm_lang$html$Html_Events$defaultOptions = _elm_lang$virtual_dom$VirtualDom$defaultOptions;
+var _elm_lang$html$Html_Events$onWithOptions = _elm_lang$virtual_dom$VirtualDom$onWithOptions;
+var _elm_lang$html$Html_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$html$Html_Events$onFocus = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'focus',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onBlur = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'blur',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onSubmitOptions = _elm_lang$core$Native_Utils.update(
+	_elm_lang$html$Html_Events$defaultOptions,
+	{preventDefault: true});
+var _elm_lang$html$Html_Events$onSubmit = function (msg) {
+	return A3(
+		_elm_lang$html$Html_Events$onWithOptions,
+		'submit',
+		_elm_lang$html$Html_Events$onSubmitOptions,
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onCheck = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'change',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetChecked));
+};
+var _elm_lang$html$Html_Events$onInput = function (tagger) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'input',
+		A2(_elm_lang$core$Json_Decode$map, tagger, _elm_lang$html$Html_Events$targetValue));
+};
+var _elm_lang$html$Html_Events$onMouseOut = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseout',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseOver = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseover',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseLeave = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseleave',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseEnter = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseenter',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseUp = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mouseup',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onMouseDown = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'mousedown',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onDoubleClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'dblclick',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$onClick = function (msg) {
+	return A2(
+		_elm_lang$html$Html_Events$on,
+		'click',
+		_elm_lang$core$Json_Decode$succeed(msg));
+};
+var _elm_lang$html$Html_Events$Options = F2(
+	function (a, b) {
+		return {stopPropagation: a, preventDefault: b};
 	});
-var _elm_lang$svg$Svg$svg = _elm_lang$svg$Svg$node('svg');
-var _elm_lang$svg$Svg$foreignObject = _elm_lang$svg$Svg$node('foreignObject');
-var _elm_lang$svg$Svg$animate = _elm_lang$svg$Svg$node('animate');
-var _elm_lang$svg$Svg$animateColor = _elm_lang$svg$Svg$node('animateColor');
-var _elm_lang$svg$Svg$animateMotion = _elm_lang$svg$Svg$node('animateMotion');
-var _elm_lang$svg$Svg$animateTransform = _elm_lang$svg$Svg$node('animateTransform');
-var _elm_lang$svg$Svg$mpath = _elm_lang$svg$Svg$node('mpath');
-var _elm_lang$svg$Svg$set = _elm_lang$svg$Svg$node('set');
-var _elm_lang$svg$Svg$a = _elm_lang$svg$Svg$node('a');
-var _elm_lang$svg$Svg$defs = _elm_lang$svg$Svg$node('defs');
-var _elm_lang$svg$Svg$g = _elm_lang$svg$Svg$node('g');
-var _elm_lang$svg$Svg$marker = _elm_lang$svg$Svg$node('marker');
-var _elm_lang$svg$Svg$mask = _elm_lang$svg$Svg$node('mask');
-var _elm_lang$svg$Svg$pattern = _elm_lang$svg$Svg$node('pattern');
-var _elm_lang$svg$Svg$switch = _elm_lang$svg$Svg$node('switch');
-var _elm_lang$svg$Svg$symbol = _elm_lang$svg$Svg$node('symbol');
-var _elm_lang$svg$Svg$desc = _elm_lang$svg$Svg$node('desc');
-var _elm_lang$svg$Svg$metadata = _elm_lang$svg$Svg$node('metadata');
-var _elm_lang$svg$Svg$title = _elm_lang$svg$Svg$node('title');
-var _elm_lang$svg$Svg$feBlend = _elm_lang$svg$Svg$node('feBlend');
-var _elm_lang$svg$Svg$feColorMatrix = _elm_lang$svg$Svg$node('feColorMatrix');
-var _elm_lang$svg$Svg$feComponentTransfer = _elm_lang$svg$Svg$node('feComponentTransfer');
-var _elm_lang$svg$Svg$feComposite = _elm_lang$svg$Svg$node('feComposite');
-var _elm_lang$svg$Svg$feConvolveMatrix = _elm_lang$svg$Svg$node('feConvolveMatrix');
-var _elm_lang$svg$Svg$feDiffuseLighting = _elm_lang$svg$Svg$node('feDiffuseLighting');
-var _elm_lang$svg$Svg$feDisplacementMap = _elm_lang$svg$Svg$node('feDisplacementMap');
-var _elm_lang$svg$Svg$feFlood = _elm_lang$svg$Svg$node('feFlood');
-var _elm_lang$svg$Svg$feFuncA = _elm_lang$svg$Svg$node('feFuncA');
-var _elm_lang$svg$Svg$feFuncB = _elm_lang$svg$Svg$node('feFuncB');
-var _elm_lang$svg$Svg$feFuncG = _elm_lang$svg$Svg$node('feFuncG');
-var _elm_lang$svg$Svg$feFuncR = _elm_lang$svg$Svg$node('feFuncR');
-var _elm_lang$svg$Svg$feGaussianBlur = _elm_lang$svg$Svg$node('feGaussianBlur');
-var _elm_lang$svg$Svg$feImage = _elm_lang$svg$Svg$node('feImage');
-var _elm_lang$svg$Svg$feMerge = _elm_lang$svg$Svg$node('feMerge');
-var _elm_lang$svg$Svg$feMergeNode = _elm_lang$svg$Svg$node('feMergeNode');
-var _elm_lang$svg$Svg$feMorphology = _elm_lang$svg$Svg$node('feMorphology');
-var _elm_lang$svg$Svg$feOffset = _elm_lang$svg$Svg$node('feOffset');
-var _elm_lang$svg$Svg$feSpecularLighting = _elm_lang$svg$Svg$node('feSpecularLighting');
-var _elm_lang$svg$Svg$feTile = _elm_lang$svg$Svg$node('feTile');
-var _elm_lang$svg$Svg$feTurbulence = _elm_lang$svg$Svg$node('feTurbulence');
-var _elm_lang$svg$Svg$font = _elm_lang$svg$Svg$node('font');
-var _elm_lang$svg$Svg$linearGradient = _elm_lang$svg$Svg$node('linearGradient');
-var _elm_lang$svg$Svg$radialGradient = _elm_lang$svg$Svg$node('radialGradient');
-var _elm_lang$svg$Svg$stop = _elm_lang$svg$Svg$node('stop');
-var _elm_lang$svg$Svg$circle = _elm_lang$svg$Svg$node('circle');
-var _elm_lang$svg$Svg$ellipse = _elm_lang$svg$Svg$node('ellipse');
-var _elm_lang$svg$Svg$image = _elm_lang$svg$Svg$node('image');
-var _elm_lang$svg$Svg$line = _elm_lang$svg$Svg$node('line');
-var _elm_lang$svg$Svg$path = _elm_lang$svg$Svg$node('path');
-var _elm_lang$svg$Svg$polygon = _elm_lang$svg$Svg$node('polygon');
-var _elm_lang$svg$Svg$polyline = _elm_lang$svg$Svg$node('polyline');
-var _elm_lang$svg$Svg$rect = _elm_lang$svg$Svg$node('rect');
-var _elm_lang$svg$Svg$use = _elm_lang$svg$Svg$node('use');
-var _elm_lang$svg$Svg$feDistantLight = _elm_lang$svg$Svg$node('feDistantLight');
-var _elm_lang$svg$Svg$fePointLight = _elm_lang$svg$Svg$node('fePointLight');
-var _elm_lang$svg$Svg$feSpotLight = _elm_lang$svg$Svg$node('feSpotLight');
-var _elm_lang$svg$Svg$altGlyph = _elm_lang$svg$Svg$node('altGlyph');
-var _elm_lang$svg$Svg$altGlyphDef = _elm_lang$svg$Svg$node('altGlyphDef');
-var _elm_lang$svg$Svg$altGlyphItem = _elm_lang$svg$Svg$node('altGlyphItem');
-var _elm_lang$svg$Svg$glyph = _elm_lang$svg$Svg$node('glyph');
-var _elm_lang$svg$Svg$glyphRef = _elm_lang$svg$Svg$node('glyphRef');
-var _elm_lang$svg$Svg$textPath = _elm_lang$svg$Svg$node('textPath');
-var _elm_lang$svg$Svg$text_ = _elm_lang$svg$Svg$node('text');
-var _elm_lang$svg$Svg$tref = _elm_lang$svg$Svg$node('tref');
-var _elm_lang$svg$Svg$tspan = _elm_lang$svg$Svg$node('tspan');
-var _elm_lang$svg$Svg$clipPath = _elm_lang$svg$Svg$node('clipPath');
-var _elm_lang$svg$Svg$colorProfile = _elm_lang$svg$Svg$node('colorProfile');
-var _elm_lang$svg$Svg$cursor = _elm_lang$svg$Svg$node('cursor');
-var _elm_lang$svg$Svg$filter = _elm_lang$svg$Svg$node('filter');
-var _elm_lang$svg$Svg$script = _elm_lang$svg$Svg$node('script');
-var _elm_lang$svg$Svg$style = _elm_lang$svg$Svg$node('style');
-var _elm_lang$svg$Svg$view = _elm_lang$svg$Svg$node('view');
 
-var _elm_lang$svg$Svg_Attributes$writingMode = _elm_lang$virtual_dom$VirtualDom$attribute('writing-mode');
-var _elm_lang$svg$Svg_Attributes$wordSpacing = _elm_lang$virtual_dom$VirtualDom$attribute('word-spacing');
-var _elm_lang$svg$Svg_Attributes$visibility = _elm_lang$virtual_dom$VirtualDom$attribute('visibility');
-var _elm_lang$svg$Svg_Attributes$unicodeBidi = _elm_lang$virtual_dom$VirtualDom$attribute('unicode-bidi');
-var _elm_lang$svg$Svg_Attributes$textRendering = _elm_lang$virtual_dom$VirtualDom$attribute('text-rendering');
-var _elm_lang$svg$Svg_Attributes$textDecoration = _elm_lang$virtual_dom$VirtualDom$attribute('text-decoration');
-var _elm_lang$svg$Svg_Attributes$textAnchor = _elm_lang$virtual_dom$VirtualDom$attribute('text-anchor');
-var _elm_lang$svg$Svg_Attributes$stroke = _elm_lang$virtual_dom$VirtualDom$attribute('stroke');
-var _elm_lang$svg$Svg_Attributes$strokeWidth = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-width');
-var _elm_lang$svg$Svg_Attributes$strokeOpacity = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-opacity');
-var _elm_lang$svg$Svg_Attributes$strokeMiterlimit = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-miterlimit');
-var _elm_lang$svg$Svg_Attributes$strokeLinejoin = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-linejoin');
-var _elm_lang$svg$Svg_Attributes$strokeLinecap = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-linecap');
-var _elm_lang$svg$Svg_Attributes$strokeDashoffset = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-dashoffset');
-var _elm_lang$svg$Svg_Attributes$strokeDasharray = _elm_lang$virtual_dom$VirtualDom$attribute('stroke-dasharray');
-var _elm_lang$svg$Svg_Attributes$stopOpacity = _elm_lang$virtual_dom$VirtualDom$attribute('stop-opacity');
-var _elm_lang$svg$Svg_Attributes$stopColor = _elm_lang$virtual_dom$VirtualDom$attribute('stop-color');
-var _elm_lang$svg$Svg_Attributes$shapeRendering = _elm_lang$virtual_dom$VirtualDom$attribute('shape-rendering');
-var _elm_lang$svg$Svg_Attributes$pointerEvents = _elm_lang$virtual_dom$VirtualDom$attribute('pointer-events');
-var _elm_lang$svg$Svg_Attributes$overflow = _elm_lang$virtual_dom$VirtualDom$attribute('overflow');
-var _elm_lang$svg$Svg_Attributes$opacity = _elm_lang$virtual_dom$VirtualDom$attribute('opacity');
-var _elm_lang$svg$Svg_Attributes$mask = _elm_lang$virtual_dom$VirtualDom$attribute('mask');
-var _elm_lang$svg$Svg_Attributes$markerStart = _elm_lang$virtual_dom$VirtualDom$attribute('marker-start');
-var _elm_lang$svg$Svg_Attributes$markerMid = _elm_lang$virtual_dom$VirtualDom$attribute('marker-mid');
-var _elm_lang$svg$Svg_Attributes$markerEnd = _elm_lang$virtual_dom$VirtualDom$attribute('marker-end');
-var _elm_lang$svg$Svg_Attributes$lightingColor = _elm_lang$virtual_dom$VirtualDom$attribute('lighting-color');
-var _elm_lang$svg$Svg_Attributes$letterSpacing = _elm_lang$virtual_dom$VirtualDom$attribute('letter-spacing');
-var _elm_lang$svg$Svg_Attributes$kerning = _elm_lang$virtual_dom$VirtualDom$attribute('kerning');
-var _elm_lang$svg$Svg_Attributes$imageRendering = _elm_lang$virtual_dom$VirtualDom$attribute('image-rendering');
-var _elm_lang$svg$Svg_Attributes$glyphOrientationVertical = _elm_lang$virtual_dom$VirtualDom$attribute('glyph-orientation-vertical');
-var _elm_lang$svg$Svg_Attributes$glyphOrientationHorizontal = _elm_lang$virtual_dom$VirtualDom$attribute('glyph-orientation-horizontal');
-var _elm_lang$svg$Svg_Attributes$fontWeight = _elm_lang$virtual_dom$VirtualDom$attribute('font-weight');
-var _elm_lang$svg$Svg_Attributes$fontVariant = _elm_lang$virtual_dom$VirtualDom$attribute('font-variant');
-var _elm_lang$svg$Svg_Attributes$fontStyle = _elm_lang$virtual_dom$VirtualDom$attribute('font-style');
-var _elm_lang$svg$Svg_Attributes$fontStretch = _elm_lang$virtual_dom$VirtualDom$attribute('font-stretch');
-var _elm_lang$svg$Svg_Attributes$fontSize = _elm_lang$virtual_dom$VirtualDom$attribute('font-size');
-var _elm_lang$svg$Svg_Attributes$fontSizeAdjust = _elm_lang$virtual_dom$VirtualDom$attribute('font-size-adjust');
-var _elm_lang$svg$Svg_Attributes$fontFamily = _elm_lang$virtual_dom$VirtualDom$attribute('font-family');
-var _elm_lang$svg$Svg_Attributes$floodOpacity = _elm_lang$virtual_dom$VirtualDom$attribute('flood-opacity');
-var _elm_lang$svg$Svg_Attributes$floodColor = _elm_lang$virtual_dom$VirtualDom$attribute('flood-color');
-var _elm_lang$svg$Svg_Attributes$filter = _elm_lang$virtual_dom$VirtualDom$attribute('filter');
-var _elm_lang$svg$Svg_Attributes$fill = _elm_lang$virtual_dom$VirtualDom$attribute('fill');
-var _elm_lang$svg$Svg_Attributes$fillRule = _elm_lang$virtual_dom$VirtualDom$attribute('fill-rule');
-var _elm_lang$svg$Svg_Attributes$fillOpacity = _elm_lang$virtual_dom$VirtualDom$attribute('fill-opacity');
-var _elm_lang$svg$Svg_Attributes$enableBackground = _elm_lang$virtual_dom$VirtualDom$attribute('enable-background');
-var _elm_lang$svg$Svg_Attributes$dominantBaseline = _elm_lang$virtual_dom$VirtualDom$attribute('dominant-baseline');
-var _elm_lang$svg$Svg_Attributes$display = _elm_lang$virtual_dom$VirtualDom$attribute('display');
-var _elm_lang$svg$Svg_Attributes$direction = _elm_lang$virtual_dom$VirtualDom$attribute('direction');
-var _elm_lang$svg$Svg_Attributes$cursor = _elm_lang$virtual_dom$VirtualDom$attribute('cursor');
-var _elm_lang$svg$Svg_Attributes$color = _elm_lang$virtual_dom$VirtualDom$attribute('color');
-var _elm_lang$svg$Svg_Attributes$colorRendering = _elm_lang$virtual_dom$VirtualDom$attribute('color-rendering');
-var _elm_lang$svg$Svg_Attributes$colorProfile = _elm_lang$virtual_dom$VirtualDom$attribute('color-profile');
-var _elm_lang$svg$Svg_Attributes$colorInterpolation = _elm_lang$virtual_dom$VirtualDom$attribute('color-interpolation');
-var _elm_lang$svg$Svg_Attributes$colorInterpolationFilters = _elm_lang$virtual_dom$VirtualDom$attribute('color-interpolation-filters');
-var _elm_lang$svg$Svg_Attributes$clip = _elm_lang$virtual_dom$VirtualDom$attribute('clip');
-var _elm_lang$svg$Svg_Attributes$clipRule = _elm_lang$virtual_dom$VirtualDom$attribute('clip-rule');
-var _elm_lang$svg$Svg_Attributes$clipPath = _elm_lang$virtual_dom$VirtualDom$attribute('clip-path');
-var _elm_lang$svg$Svg_Attributes$baselineShift = _elm_lang$virtual_dom$VirtualDom$attribute('baseline-shift');
-var _elm_lang$svg$Svg_Attributes$alignmentBaseline = _elm_lang$virtual_dom$VirtualDom$attribute('alignment-baseline');
-var _elm_lang$svg$Svg_Attributes$zoomAndPan = _elm_lang$virtual_dom$VirtualDom$attribute('zoomAndPan');
-var _elm_lang$svg$Svg_Attributes$z = _elm_lang$virtual_dom$VirtualDom$attribute('z');
-var _elm_lang$svg$Svg_Attributes$yChannelSelector = _elm_lang$virtual_dom$VirtualDom$attribute('yChannelSelector');
-var _elm_lang$svg$Svg_Attributes$y2 = _elm_lang$virtual_dom$VirtualDom$attribute('y2');
-var _elm_lang$svg$Svg_Attributes$y1 = _elm_lang$virtual_dom$VirtualDom$attribute('y1');
-var _elm_lang$svg$Svg_Attributes$y = _elm_lang$virtual_dom$VirtualDom$attribute('y');
-var _elm_lang$svg$Svg_Attributes$xmlSpace = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/XML/1998/namespace', 'xml:space');
-var _elm_lang$svg$Svg_Attributes$xmlLang = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/XML/1998/namespace', 'xml:lang');
-var _elm_lang$svg$Svg_Attributes$xmlBase = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/XML/1998/namespace', 'xml:base');
-var _elm_lang$svg$Svg_Attributes$xlinkType = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:type');
-var _elm_lang$svg$Svg_Attributes$xlinkTitle = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:title');
-var _elm_lang$svg$Svg_Attributes$xlinkShow = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:show');
-var _elm_lang$svg$Svg_Attributes$xlinkRole = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:role');
-var _elm_lang$svg$Svg_Attributes$xlinkHref = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:href');
-var _elm_lang$svg$Svg_Attributes$xlinkArcrole = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:arcrole');
-var _elm_lang$svg$Svg_Attributes$xlinkActuate = A2(_elm_lang$virtual_dom$VirtualDom$attributeNS, 'http://www.w3.org/1999/xlink', 'xlink:actuate');
-var _elm_lang$svg$Svg_Attributes$xChannelSelector = _elm_lang$virtual_dom$VirtualDom$attribute('xChannelSelector');
-var _elm_lang$svg$Svg_Attributes$x2 = _elm_lang$virtual_dom$VirtualDom$attribute('x2');
-var _elm_lang$svg$Svg_Attributes$x1 = _elm_lang$virtual_dom$VirtualDom$attribute('x1');
-var _elm_lang$svg$Svg_Attributes$xHeight = _elm_lang$virtual_dom$VirtualDom$attribute('x-height');
-var _elm_lang$svg$Svg_Attributes$x = _elm_lang$virtual_dom$VirtualDom$attribute('x');
-var _elm_lang$svg$Svg_Attributes$widths = _elm_lang$virtual_dom$VirtualDom$attribute('widths');
-var _elm_lang$svg$Svg_Attributes$width = _elm_lang$virtual_dom$VirtualDom$attribute('width');
-var _elm_lang$svg$Svg_Attributes$viewTarget = _elm_lang$virtual_dom$VirtualDom$attribute('viewTarget');
-var _elm_lang$svg$Svg_Attributes$viewBox = _elm_lang$virtual_dom$VirtualDom$attribute('viewBox');
-var _elm_lang$svg$Svg_Attributes$vertOriginY = _elm_lang$virtual_dom$VirtualDom$attribute('vert-origin-y');
-var _elm_lang$svg$Svg_Attributes$vertOriginX = _elm_lang$virtual_dom$VirtualDom$attribute('vert-origin-x');
-var _elm_lang$svg$Svg_Attributes$vertAdvY = _elm_lang$virtual_dom$VirtualDom$attribute('vert-adv-y');
-var _elm_lang$svg$Svg_Attributes$version = _elm_lang$virtual_dom$VirtualDom$attribute('version');
-var _elm_lang$svg$Svg_Attributes$values = _elm_lang$virtual_dom$VirtualDom$attribute('values');
-var _elm_lang$svg$Svg_Attributes$vMathematical = _elm_lang$virtual_dom$VirtualDom$attribute('v-mathematical');
-var _elm_lang$svg$Svg_Attributes$vIdeographic = _elm_lang$virtual_dom$VirtualDom$attribute('v-ideographic');
-var _elm_lang$svg$Svg_Attributes$vHanging = _elm_lang$virtual_dom$VirtualDom$attribute('v-hanging');
-var _elm_lang$svg$Svg_Attributes$vAlphabetic = _elm_lang$virtual_dom$VirtualDom$attribute('v-alphabetic');
-var _elm_lang$svg$Svg_Attributes$unitsPerEm = _elm_lang$virtual_dom$VirtualDom$attribute('units-per-em');
-var _elm_lang$svg$Svg_Attributes$unicodeRange = _elm_lang$virtual_dom$VirtualDom$attribute('unicode-range');
-var _elm_lang$svg$Svg_Attributes$unicode = _elm_lang$virtual_dom$VirtualDom$attribute('unicode');
-var _elm_lang$svg$Svg_Attributes$underlineThickness = _elm_lang$virtual_dom$VirtualDom$attribute('underline-thickness');
-var _elm_lang$svg$Svg_Attributes$underlinePosition = _elm_lang$virtual_dom$VirtualDom$attribute('underline-position');
-var _elm_lang$svg$Svg_Attributes$u2 = _elm_lang$virtual_dom$VirtualDom$attribute('u2');
-var _elm_lang$svg$Svg_Attributes$u1 = _elm_lang$virtual_dom$VirtualDom$attribute('u1');
-var _elm_lang$svg$Svg_Attributes$type_ = _elm_lang$virtual_dom$VirtualDom$attribute('type');
-var _elm_lang$svg$Svg_Attributes$transform = _elm_lang$virtual_dom$VirtualDom$attribute('transform');
-var _elm_lang$svg$Svg_Attributes$to = _elm_lang$virtual_dom$VirtualDom$attribute('to');
-var _elm_lang$svg$Svg_Attributes$title = _elm_lang$virtual_dom$VirtualDom$attribute('title');
-var _elm_lang$svg$Svg_Attributes$textLength = _elm_lang$virtual_dom$VirtualDom$attribute('textLength');
-var _elm_lang$svg$Svg_Attributes$targetY = _elm_lang$virtual_dom$VirtualDom$attribute('targetY');
-var _elm_lang$svg$Svg_Attributes$targetX = _elm_lang$virtual_dom$VirtualDom$attribute('targetX');
-var _elm_lang$svg$Svg_Attributes$target = _elm_lang$virtual_dom$VirtualDom$attribute('target');
-var _elm_lang$svg$Svg_Attributes$tableValues = _elm_lang$virtual_dom$VirtualDom$attribute('tableValues');
-var _elm_lang$svg$Svg_Attributes$systemLanguage = _elm_lang$virtual_dom$VirtualDom$attribute('systemLanguage');
-var _elm_lang$svg$Svg_Attributes$surfaceScale = _elm_lang$virtual_dom$VirtualDom$attribute('surfaceScale');
-var _elm_lang$svg$Svg_Attributes$style = _elm_lang$virtual_dom$VirtualDom$attribute('style');
-var _elm_lang$svg$Svg_Attributes$string = _elm_lang$virtual_dom$VirtualDom$attribute('string');
-var _elm_lang$svg$Svg_Attributes$strikethroughThickness = _elm_lang$virtual_dom$VirtualDom$attribute('strikethrough-thickness');
-var _elm_lang$svg$Svg_Attributes$strikethroughPosition = _elm_lang$virtual_dom$VirtualDom$attribute('strikethrough-position');
-var _elm_lang$svg$Svg_Attributes$stitchTiles = _elm_lang$virtual_dom$VirtualDom$attribute('stitchTiles');
-var _elm_lang$svg$Svg_Attributes$stemv = _elm_lang$virtual_dom$VirtualDom$attribute('stemv');
-var _elm_lang$svg$Svg_Attributes$stemh = _elm_lang$virtual_dom$VirtualDom$attribute('stemh');
-var _elm_lang$svg$Svg_Attributes$stdDeviation = _elm_lang$virtual_dom$VirtualDom$attribute('stdDeviation');
-var _elm_lang$svg$Svg_Attributes$startOffset = _elm_lang$virtual_dom$VirtualDom$attribute('startOffset');
-var _elm_lang$svg$Svg_Attributes$spreadMethod = _elm_lang$virtual_dom$VirtualDom$attribute('spreadMethod');
-var _elm_lang$svg$Svg_Attributes$speed = _elm_lang$virtual_dom$VirtualDom$attribute('speed');
-var _elm_lang$svg$Svg_Attributes$specularExponent = _elm_lang$virtual_dom$VirtualDom$attribute('specularExponent');
-var _elm_lang$svg$Svg_Attributes$specularConstant = _elm_lang$virtual_dom$VirtualDom$attribute('specularConstant');
-var _elm_lang$svg$Svg_Attributes$spacing = _elm_lang$virtual_dom$VirtualDom$attribute('spacing');
-var _elm_lang$svg$Svg_Attributes$slope = _elm_lang$virtual_dom$VirtualDom$attribute('slope');
-var _elm_lang$svg$Svg_Attributes$seed = _elm_lang$virtual_dom$VirtualDom$attribute('seed');
-var _elm_lang$svg$Svg_Attributes$scale = _elm_lang$virtual_dom$VirtualDom$attribute('scale');
-var _elm_lang$svg$Svg_Attributes$ry = _elm_lang$virtual_dom$VirtualDom$attribute('ry');
-var _elm_lang$svg$Svg_Attributes$rx = _elm_lang$virtual_dom$VirtualDom$attribute('rx');
-var _elm_lang$svg$Svg_Attributes$rotate = _elm_lang$virtual_dom$VirtualDom$attribute('rotate');
-var _elm_lang$svg$Svg_Attributes$result = _elm_lang$virtual_dom$VirtualDom$attribute('result');
-var _elm_lang$svg$Svg_Attributes$restart = _elm_lang$virtual_dom$VirtualDom$attribute('restart');
-var _elm_lang$svg$Svg_Attributes$requiredFeatures = _elm_lang$virtual_dom$VirtualDom$attribute('requiredFeatures');
-var _elm_lang$svg$Svg_Attributes$requiredExtensions = _elm_lang$virtual_dom$VirtualDom$attribute('requiredExtensions');
-var _elm_lang$svg$Svg_Attributes$repeatDur = _elm_lang$virtual_dom$VirtualDom$attribute('repeatDur');
-var _elm_lang$svg$Svg_Attributes$repeatCount = _elm_lang$virtual_dom$VirtualDom$attribute('repeatCount');
-var _elm_lang$svg$Svg_Attributes$renderingIntent = _elm_lang$virtual_dom$VirtualDom$attribute('rendering-intent');
-var _elm_lang$svg$Svg_Attributes$refY = _elm_lang$virtual_dom$VirtualDom$attribute('refY');
-var _elm_lang$svg$Svg_Attributes$refX = _elm_lang$virtual_dom$VirtualDom$attribute('refX');
-var _elm_lang$svg$Svg_Attributes$radius = _elm_lang$virtual_dom$VirtualDom$attribute('radius');
-var _elm_lang$svg$Svg_Attributes$r = _elm_lang$virtual_dom$VirtualDom$attribute('r');
-var _elm_lang$svg$Svg_Attributes$primitiveUnits = _elm_lang$virtual_dom$VirtualDom$attribute('primitiveUnits');
-var _elm_lang$svg$Svg_Attributes$preserveAspectRatio = _elm_lang$virtual_dom$VirtualDom$attribute('preserveAspectRatio');
-var _elm_lang$svg$Svg_Attributes$preserveAlpha = _elm_lang$virtual_dom$VirtualDom$attribute('preserveAlpha');
-var _elm_lang$svg$Svg_Attributes$pointsAtZ = _elm_lang$virtual_dom$VirtualDom$attribute('pointsAtZ');
-var _elm_lang$svg$Svg_Attributes$pointsAtY = _elm_lang$virtual_dom$VirtualDom$attribute('pointsAtY');
-var _elm_lang$svg$Svg_Attributes$pointsAtX = _elm_lang$virtual_dom$VirtualDom$attribute('pointsAtX');
-var _elm_lang$svg$Svg_Attributes$points = _elm_lang$virtual_dom$VirtualDom$attribute('points');
-var _elm_lang$svg$Svg_Attributes$pointOrder = _elm_lang$virtual_dom$VirtualDom$attribute('point-order');
-var _elm_lang$svg$Svg_Attributes$patternUnits = _elm_lang$virtual_dom$VirtualDom$attribute('patternUnits');
-var _elm_lang$svg$Svg_Attributes$patternTransform = _elm_lang$virtual_dom$VirtualDom$attribute('patternTransform');
-var _elm_lang$svg$Svg_Attributes$patternContentUnits = _elm_lang$virtual_dom$VirtualDom$attribute('patternContentUnits');
-var _elm_lang$svg$Svg_Attributes$pathLength = _elm_lang$virtual_dom$VirtualDom$attribute('pathLength');
-var _elm_lang$svg$Svg_Attributes$path = _elm_lang$virtual_dom$VirtualDom$attribute('path');
-var _elm_lang$svg$Svg_Attributes$panose1 = _elm_lang$virtual_dom$VirtualDom$attribute('panose-1');
-var _elm_lang$svg$Svg_Attributes$overlineThickness = _elm_lang$virtual_dom$VirtualDom$attribute('overline-thickness');
-var _elm_lang$svg$Svg_Attributes$overlinePosition = _elm_lang$virtual_dom$VirtualDom$attribute('overline-position');
-var _elm_lang$svg$Svg_Attributes$origin = _elm_lang$virtual_dom$VirtualDom$attribute('origin');
-var _elm_lang$svg$Svg_Attributes$orientation = _elm_lang$virtual_dom$VirtualDom$attribute('orientation');
-var _elm_lang$svg$Svg_Attributes$orient = _elm_lang$virtual_dom$VirtualDom$attribute('orient');
-var _elm_lang$svg$Svg_Attributes$order = _elm_lang$virtual_dom$VirtualDom$attribute('order');
-var _elm_lang$svg$Svg_Attributes$operator = _elm_lang$virtual_dom$VirtualDom$attribute('operator');
-var _elm_lang$svg$Svg_Attributes$offset = _elm_lang$virtual_dom$VirtualDom$attribute('offset');
-var _elm_lang$svg$Svg_Attributes$numOctaves = _elm_lang$virtual_dom$VirtualDom$attribute('numOctaves');
-var _elm_lang$svg$Svg_Attributes$name = _elm_lang$virtual_dom$VirtualDom$attribute('name');
-var _elm_lang$svg$Svg_Attributes$mode = _elm_lang$virtual_dom$VirtualDom$attribute('mode');
-var _elm_lang$svg$Svg_Attributes$min = _elm_lang$virtual_dom$VirtualDom$attribute('min');
-var _elm_lang$svg$Svg_Attributes$method = _elm_lang$virtual_dom$VirtualDom$attribute('method');
-var _elm_lang$svg$Svg_Attributes$media = _elm_lang$virtual_dom$VirtualDom$attribute('media');
-var _elm_lang$svg$Svg_Attributes$max = _elm_lang$virtual_dom$VirtualDom$attribute('max');
-var _elm_lang$svg$Svg_Attributes$mathematical = _elm_lang$virtual_dom$VirtualDom$attribute('mathematical');
-var _elm_lang$svg$Svg_Attributes$maskUnits = _elm_lang$virtual_dom$VirtualDom$attribute('maskUnits');
-var _elm_lang$svg$Svg_Attributes$maskContentUnits = _elm_lang$virtual_dom$VirtualDom$attribute('maskContentUnits');
-var _elm_lang$svg$Svg_Attributes$markerWidth = _elm_lang$virtual_dom$VirtualDom$attribute('markerWidth');
-var _elm_lang$svg$Svg_Attributes$markerUnits = _elm_lang$virtual_dom$VirtualDom$attribute('markerUnits');
-var _elm_lang$svg$Svg_Attributes$markerHeight = _elm_lang$virtual_dom$VirtualDom$attribute('markerHeight');
-var _elm_lang$svg$Svg_Attributes$local = _elm_lang$virtual_dom$VirtualDom$attribute('local');
-var _elm_lang$svg$Svg_Attributes$limitingConeAngle = _elm_lang$virtual_dom$VirtualDom$attribute('limitingConeAngle');
-var _elm_lang$svg$Svg_Attributes$lengthAdjust = _elm_lang$virtual_dom$VirtualDom$attribute('lengthAdjust');
-var _elm_lang$svg$Svg_Attributes$lang = _elm_lang$virtual_dom$VirtualDom$attribute('lang');
-var _elm_lang$svg$Svg_Attributes$keyTimes = _elm_lang$virtual_dom$VirtualDom$attribute('keyTimes');
-var _elm_lang$svg$Svg_Attributes$keySplines = _elm_lang$virtual_dom$VirtualDom$attribute('keySplines');
-var _elm_lang$svg$Svg_Attributes$keyPoints = _elm_lang$virtual_dom$VirtualDom$attribute('keyPoints');
-var _elm_lang$svg$Svg_Attributes$kernelUnitLength = _elm_lang$virtual_dom$VirtualDom$attribute('kernelUnitLength');
-var _elm_lang$svg$Svg_Attributes$kernelMatrix = _elm_lang$virtual_dom$VirtualDom$attribute('kernelMatrix');
-var _elm_lang$svg$Svg_Attributes$k4 = _elm_lang$virtual_dom$VirtualDom$attribute('k4');
-var _elm_lang$svg$Svg_Attributes$k3 = _elm_lang$virtual_dom$VirtualDom$attribute('k3');
-var _elm_lang$svg$Svg_Attributes$k2 = _elm_lang$virtual_dom$VirtualDom$attribute('k2');
-var _elm_lang$svg$Svg_Attributes$k1 = _elm_lang$virtual_dom$VirtualDom$attribute('k1');
-var _elm_lang$svg$Svg_Attributes$k = _elm_lang$virtual_dom$VirtualDom$attribute('k');
-var _elm_lang$svg$Svg_Attributes$intercept = _elm_lang$virtual_dom$VirtualDom$attribute('intercept');
-var _elm_lang$svg$Svg_Attributes$in2 = _elm_lang$virtual_dom$VirtualDom$attribute('in2');
-var _elm_lang$svg$Svg_Attributes$in_ = _elm_lang$virtual_dom$VirtualDom$attribute('in');
-var _elm_lang$svg$Svg_Attributes$ideographic = _elm_lang$virtual_dom$VirtualDom$attribute('ideographic');
-var _elm_lang$svg$Svg_Attributes$id = _elm_lang$virtual_dom$VirtualDom$attribute('id');
-var _elm_lang$svg$Svg_Attributes$horizOriginY = _elm_lang$virtual_dom$VirtualDom$attribute('horiz-origin-y');
-var _elm_lang$svg$Svg_Attributes$horizOriginX = _elm_lang$virtual_dom$VirtualDom$attribute('horiz-origin-x');
-var _elm_lang$svg$Svg_Attributes$horizAdvX = _elm_lang$virtual_dom$VirtualDom$attribute('horiz-adv-x');
-var _elm_lang$svg$Svg_Attributes$height = _elm_lang$virtual_dom$VirtualDom$attribute('height');
-var _elm_lang$svg$Svg_Attributes$hanging = _elm_lang$virtual_dom$VirtualDom$attribute('hanging');
-var _elm_lang$svg$Svg_Attributes$gradientUnits = _elm_lang$virtual_dom$VirtualDom$attribute('gradientUnits');
-var _elm_lang$svg$Svg_Attributes$gradientTransform = _elm_lang$virtual_dom$VirtualDom$attribute('gradientTransform');
-var _elm_lang$svg$Svg_Attributes$glyphRef = _elm_lang$virtual_dom$VirtualDom$attribute('glyphRef');
-var _elm_lang$svg$Svg_Attributes$glyphName = _elm_lang$virtual_dom$VirtualDom$attribute('glyph-name');
-var _elm_lang$svg$Svg_Attributes$g2 = _elm_lang$virtual_dom$VirtualDom$attribute('g2');
-var _elm_lang$svg$Svg_Attributes$g1 = _elm_lang$virtual_dom$VirtualDom$attribute('g1');
-var _elm_lang$svg$Svg_Attributes$fy = _elm_lang$virtual_dom$VirtualDom$attribute('fy');
-var _elm_lang$svg$Svg_Attributes$fx = _elm_lang$virtual_dom$VirtualDom$attribute('fx');
-var _elm_lang$svg$Svg_Attributes$from = _elm_lang$virtual_dom$VirtualDom$attribute('from');
-var _elm_lang$svg$Svg_Attributes$format = _elm_lang$virtual_dom$VirtualDom$attribute('format');
-var _elm_lang$svg$Svg_Attributes$filterUnits = _elm_lang$virtual_dom$VirtualDom$attribute('filterUnits');
-var _elm_lang$svg$Svg_Attributes$filterRes = _elm_lang$virtual_dom$VirtualDom$attribute('filterRes');
-var _elm_lang$svg$Svg_Attributes$externalResourcesRequired = _elm_lang$virtual_dom$VirtualDom$attribute('externalResourcesRequired');
-var _elm_lang$svg$Svg_Attributes$exponent = _elm_lang$virtual_dom$VirtualDom$attribute('exponent');
-var _elm_lang$svg$Svg_Attributes$end = _elm_lang$virtual_dom$VirtualDom$attribute('end');
-var _elm_lang$svg$Svg_Attributes$elevation = _elm_lang$virtual_dom$VirtualDom$attribute('elevation');
-var _elm_lang$svg$Svg_Attributes$edgeMode = _elm_lang$virtual_dom$VirtualDom$attribute('edgeMode');
-var _elm_lang$svg$Svg_Attributes$dy = _elm_lang$virtual_dom$VirtualDom$attribute('dy');
-var _elm_lang$svg$Svg_Attributes$dx = _elm_lang$virtual_dom$VirtualDom$attribute('dx');
-var _elm_lang$svg$Svg_Attributes$dur = _elm_lang$virtual_dom$VirtualDom$attribute('dur');
-var _elm_lang$svg$Svg_Attributes$divisor = _elm_lang$virtual_dom$VirtualDom$attribute('divisor');
-var _elm_lang$svg$Svg_Attributes$diffuseConstant = _elm_lang$virtual_dom$VirtualDom$attribute('diffuseConstant');
-var _elm_lang$svg$Svg_Attributes$descent = _elm_lang$virtual_dom$VirtualDom$attribute('descent');
-var _elm_lang$svg$Svg_Attributes$decelerate = _elm_lang$virtual_dom$VirtualDom$attribute('decelerate');
-var _elm_lang$svg$Svg_Attributes$d = _elm_lang$virtual_dom$VirtualDom$attribute('d');
-var _elm_lang$svg$Svg_Attributes$cy = _elm_lang$virtual_dom$VirtualDom$attribute('cy');
-var _elm_lang$svg$Svg_Attributes$cx = _elm_lang$virtual_dom$VirtualDom$attribute('cx');
-var _elm_lang$svg$Svg_Attributes$contentStyleType = _elm_lang$virtual_dom$VirtualDom$attribute('contentStyleType');
-var _elm_lang$svg$Svg_Attributes$contentScriptType = _elm_lang$virtual_dom$VirtualDom$attribute('contentScriptType');
-var _elm_lang$svg$Svg_Attributes$clipPathUnits = _elm_lang$virtual_dom$VirtualDom$attribute('clipPathUnits');
-var _elm_lang$svg$Svg_Attributes$class = _elm_lang$virtual_dom$VirtualDom$attribute('class');
-var _elm_lang$svg$Svg_Attributes$capHeight = _elm_lang$virtual_dom$VirtualDom$attribute('cap-height');
-var _elm_lang$svg$Svg_Attributes$calcMode = _elm_lang$virtual_dom$VirtualDom$attribute('calcMode');
-var _elm_lang$svg$Svg_Attributes$by = _elm_lang$virtual_dom$VirtualDom$attribute('by');
-var _elm_lang$svg$Svg_Attributes$bias = _elm_lang$virtual_dom$VirtualDom$attribute('bias');
-var _elm_lang$svg$Svg_Attributes$begin = _elm_lang$virtual_dom$VirtualDom$attribute('begin');
-var _elm_lang$svg$Svg_Attributes$bbox = _elm_lang$virtual_dom$VirtualDom$attribute('bbox');
-var _elm_lang$svg$Svg_Attributes$baseProfile = _elm_lang$virtual_dom$VirtualDom$attribute('baseProfile');
-var _elm_lang$svg$Svg_Attributes$baseFrequency = _elm_lang$virtual_dom$VirtualDom$attribute('baseFrequency');
-var _elm_lang$svg$Svg_Attributes$azimuth = _elm_lang$virtual_dom$VirtualDom$attribute('azimuth');
-var _elm_lang$svg$Svg_Attributes$autoReverse = _elm_lang$virtual_dom$VirtualDom$attribute('autoReverse');
-var _elm_lang$svg$Svg_Attributes$attributeType = _elm_lang$virtual_dom$VirtualDom$attribute('attributeType');
-var _elm_lang$svg$Svg_Attributes$attributeName = _elm_lang$virtual_dom$VirtualDom$attribute('attributeName');
-var _elm_lang$svg$Svg_Attributes$ascent = _elm_lang$virtual_dom$VirtualDom$attribute('ascent');
-var _elm_lang$svg$Svg_Attributes$arabicForm = _elm_lang$virtual_dom$VirtualDom$attribute('arabic-form');
-var _elm_lang$svg$Svg_Attributes$amplitude = _elm_lang$virtual_dom$VirtualDom$attribute('amplitude');
-var _elm_lang$svg$Svg_Attributes$allowReorder = _elm_lang$virtual_dom$VirtualDom$attribute('allowReorder');
-var _elm_lang$svg$Svg_Attributes$alphabetic = _elm_lang$virtual_dom$VirtualDom$attribute('alphabetic');
-var _elm_lang$svg$Svg_Attributes$additive = _elm_lang$virtual_dom$VirtualDom$attribute('additive');
-var _elm_lang$svg$Svg_Attributes$accumulate = _elm_lang$virtual_dom$VirtualDom$attribute('accumulate');
-var _elm_lang$svg$Svg_Attributes$accelerate = _elm_lang$virtual_dom$VirtualDom$attribute('accelerate');
-var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom$attribute('accent-height');
+var _elm_lang$websocket$Native_WebSocket = function() {
 
-var _user$project$HanabiUi$renderFive = F3(
-	function (xpos, ypos, color) {
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
+function open(url, settings)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		try
+		{
+			var socket = new WebSocket(url);
+			socket.elm_web_socket = true;
+		}
+		catch(err)
+		{
+			return callback(_elm_lang$core$Native_Scheduler.fail({
+				ctor: err.name === 'SecurityError' ? 'BadSecurity' : 'BadArgs',
+				_0: err.message
+			}));
+		}
+
+		socket.addEventListener("open", function(event) {
+			callback(_elm_lang$core$Native_Scheduler.succeed(socket));
+		});
+
+		socket.addEventListener("message", function(event) {
+			_elm_lang$core$Native_Scheduler.rawSpawn(A2(settings.onMessage, socket, event.data));
+		});
+
+		socket.addEventListener("close", function(event) {
+			_elm_lang$core$Native_Scheduler.rawSpawn(settings.onClose({
+				code: event.code,
+				reason: event.reason,
+				wasClean: event.wasClean
+			}));
+		});
+
+		return function()
+		{
+			if (socket && socket.close)
 			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$svg$Svg$circle,
-							{
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cx(
-									_elm_lang$core$Basics$toString(xpos + 70)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cy(
-										_elm_lang$core$Basics$toString(ypos + 20)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$r('5'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'fill: ',
-													A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$svg$Svg$circle,
-								{
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cx(
-										_elm_lang$core$Basics$toString(xpos + 50)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$cy(
-											_elm_lang$core$Basics$toString(ypos + 40)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$r('5'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style(
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														'fill: ',
-														A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$svg$Svg$circle,
-									{
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$cx(
-											_elm_lang$core$Basics$toString(xpos + 30)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$cy(
-												_elm_lang$core$Basics$toString(ypos + 40)),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$r('5'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$svg$Svg_Attributes$style(
-														A2(
-															_elm_lang$core$Basics_ops['++'],
-															'fill: ',
-															A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									},
-									{ctor: '[]'}),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
+				socket.close();
+			}
+		};
+	});
+}
+
+function send(socket, string)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		var result =
+			socket.readyState === WebSocket.OPEN
+				? _elm_lang$core$Maybe$Nothing
+				: _elm_lang$core$Maybe$Just({ ctor: 'NotOpen' });
+
+		try
+		{
+			socket.send(string);
+		}
+		catch(err)
+		{
+			result = _elm_lang$core$Maybe$Just({ ctor: 'BadString' });
+		}
+
+		callback(_elm_lang$core$Native_Scheduler.succeed(result));
+	});
+}
+
+function close(code, reason, socket)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+		try
+		{
+			socket.close(code, reason);
+		}
+		catch(err)
+		{
+			return callback(_elm_lang$core$Native_Scheduler.fail(_elm_lang$core$Maybe$Just({
+				ctor: err.name === 'SyntaxError' ? 'BadReason' : 'BadCode'
+			})));
+		}
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Maybe$Nothing));
+	});
+}
+
+function bytesQueued(socket)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback) {
+		callback(_elm_lang$core$Native_Scheduler.succeed(socket.bufferedAmount));
+	});
+}
+
+return {
+	open: F2(open),
+	send: F2(send),
+	close: F3(close),
+	bytesQueued: bytesQueued
+};
+
+}();
+
+var _elm_lang$websocket$WebSocket_LowLevel$bytesQueued = _elm_lang$websocket$Native_WebSocket.bytesQueued;
+var _elm_lang$websocket$WebSocket_LowLevel$send = _elm_lang$websocket$Native_WebSocket.send;
+var _elm_lang$websocket$WebSocket_LowLevel$closeWith = _elm_lang$websocket$Native_WebSocket.close;
+var _elm_lang$websocket$WebSocket_LowLevel$close = function (socket) {
+	return A2(
+		_elm_lang$core$Task$map,
+		_elm_lang$core$Basics$always(
+			{ctor: '_Tuple0'}),
+		A3(_elm_lang$websocket$WebSocket_LowLevel$closeWith, 1000, '', socket));
+};
+var _elm_lang$websocket$WebSocket_LowLevel$open = _elm_lang$websocket$Native_WebSocket.open;
+var _elm_lang$websocket$WebSocket_LowLevel$Settings = F2(
+	function (a, b) {
+		return {onMessage: a, onClose: b};
+	});
+var _elm_lang$websocket$WebSocket_LowLevel$WebSocket = {ctor: 'WebSocket'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadArgs = {ctor: 'BadArgs'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadSecurity = {ctor: 'BadSecurity'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadReason = {ctor: 'BadReason'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadCode = {ctor: 'BadCode'};
+var _elm_lang$websocket$WebSocket_LowLevel$BadString = {ctor: 'BadString'};
+var _elm_lang$websocket$WebSocket_LowLevel$NotOpen = {ctor: 'NotOpen'};
+
+var _elm_lang$websocket$WebSocket$closeConnection = function (connection) {
+	var _p0 = connection;
+	if (_p0.ctor === 'Opening') {
+		return _elm_lang$core$Process$kill(_p0._1);
+	} else {
+		return _elm_lang$websocket$WebSocket_LowLevel$close(_p0._0);
+	}
+};
+var _elm_lang$websocket$WebSocket$after = function (backoff) {
+	return (_elm_lang$core$Native_Utils.cmp(backoff, 1) < 0) ? _elm_lang$core$Task$succeed(
+		{ctor: '_Tuple0'}) : _elm_lang$core$Process$sleep(
+		_elm_lang$core$Basics$toFloat(
+			10 * Math.pow(2, backoff)));
+};
+var _elm_lang$websocket$WebSocket$removeQueue = F2(
+	function (name, state) {
+		return _elm_lang$core$Native_Utils.update(
+			state,
+			{
+				queues: A2(_elm_lang$core$Dict$remove, name, state.queues)
 			});
 	});
-var _user$project$HanabiUi$renderFour = F3(
-	function (xpos, ypos, color) {
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
+var _elm_lang$websocket$WebSocket$updateSocket = F3(
+	function (name, connection, state) {
+		return _elm_lang$core$Native_Utils.update(
+			state,
 			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$svg$Svg$circle,
-							{
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cx(
-									_elm_lang$core$Basics$toString(xpos + 70)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cy(
-										_elm_lang$core$Basics$toString(ypos + 20)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$r('5'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'fill: ',
-													A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$svg$Svg$circle,
-								{
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cx(
-										_elm_lang$core$Basics$toString(xpos + 50)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$cy(
-											_elm_lang$core$Basics$toString(ypos + 40)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$r('5'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style(
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														'fill: ',
-														A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
-							_1: {ctor: '[]'}
-						}
-					}
-				}
+				sockets: A3(_elm_lang$core$Dict$insert, name, connection, state.sockets)
 			});
 	});
-var _user$project$HanabiUi$renderThree = F3(
-	function (xpos, ypos, color) {
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
+var _elm_lang$websocket$WebSocket$add = F2(
+	function (value, maybeList) {
+		var _p1 = maybeList;
+		if (_p1.ctor === 'Nothing') {
+			return _elm_lang$core$Maybe$Just(
+				{
 					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$svg$Svg$circle,
-							{
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cx(
-									_elm_lang$core$Basics$toString(xpos + 70)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cy(
-										_elm_lang$core$Basics$toString(ypos + 20)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$r('5'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'fill: ',
-													A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							},
-							{ctor: '[]'}),
-						_1: {ctor: '[]'}
-					}
-				}
-			});
-	});
-var _user$project$HanabiUi$renderTwo = F3(
-	function (xpos, ypos, color) {
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: value,
 					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _user$project$HanabiUi$renderOne = F3(
-	function (xpos, ypos, color) {
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 20)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {ctor: '[]'}
-			});
-	});
-var _user$project$HanabiUi$renderFirework = F3(
-	function (xpos, ypos, _p0) {
-		var _p1 = _p0;
-		var _p3 = _p1._0;
-		var _p2 = A2(_elm_lang$core$Maybe$withDefault, 0, _p1._1);
-		switch (_p2) {
-			case 1:
-				return A3(_user$project$HanabiUi$renderOne, xpos, ypos, _p3);
-			case 2:
-				return A3(_user$project$HanabiUi$renderTwo, xpos, ypos, _p3);
-			case 3:
-				return A3(_user$project$HanabiUi$renderThree, xpos, ypos, _p3);
-			case 4:
-				return A3(_user$project$HanabiUi$renderFour, xpos, ypos, _p3);
-			case 5:
-				return A3(_user$project$HanabiUi$renderFive, xpos, ypos, _p3);
-			default:
-				return A2(
-					_elm_lang$svg$Svg$g,
-					{ctor: '[]'},
-					{ctor: '[]'});
+				});
+		} else {
+			return _elm_lang$core$Maybe$Just(
+				{ctor: '::', _0: value, _1: _p1._0});
 		}
 	});
-var _user$project$HanabiUi$tileXpos = F3(
-	function (w, padding, idx) {
-		return (padding + (idx * w)) + (idx * padding);
-	});
-var _user$project$HanabiUi$drawTile = F3(
-	function (_p5, idx, _p4) {
-		var _p6 = _p5;
-		var _p9 = _p6._0;
-		var _p8 = _p6._2;
-		var _p7 = _p4;
-		var ypos = _p8;
-		var xpos = A3(_user$project$HanabiUi$tileXpos, _p9, _p8, idx);
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$rect,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$width(
-							_elm_lang$core$Basics$toString(_p9)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$height(
-								_elm_lang$core$Basics$toString(_p6._1)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$y(
-									_elm_lang$core$Basics$toString(ypos)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$x(
-										_elm_lang$core$Basics$toString(xpos)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$rx(
-											_elm_lang$core$Basics$toString(_p8)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$ry(
-												_elm_lang$core$Basics$toString(_p8)),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A3(
-						_user$project$HanabiUi$renderFirework,
-						xpos,
-						ypos,
-						{ctor: '_Tuple2', _0: _p7._0, _1: _p7._1}),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _user$project$HanabiUi$handWidth = F2(
-	function (width, padding) {
-		return _elm_lang$core$Basics$toString(((padding + width) * 5) + padding);
-	});
-var _user$project$HanabiUi$handHeight = F2(
-	function (height, padding) {
-		return _elm_lang$core$Basics$toString((padding + height) + padding);
-	});
-var _user$project$HanabiUi$renderPlayerHand = F3(
-	function (hand, _p10, name) {
-		var _p11 = _p10;
-		var _p14 = _p11._0;
-		var _p13 = _p11._2;
-		var _p12 = _p11._1;
-		return A2(
-			_elm_lang$svg$Svg$svg,
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$height(
-					A2(_user$project$HanabiUi$handHeight, _p12, _p13)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$width(
-						A2(_user$project$HanabiUi$handWidth, _p14, _p13)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$class(
-							A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
-						_1: {ctor: '[]'}
-					}
-				}
-			},
-			A2(
-				_elm_lang$core$List$indexedMap,
-				_user$project$HanabiUi$drawTile(
-					{ctor: '_Tuple3', _0: _p14, _1: _p12, _2: _p13}),
-				hand));
-	});
-var _user$project$HanabiUi$teamHand = F3(
-	function (dimensions, name, hand) {
-		return A3(_user$project$HanabiUi$renderPlayerHand, hand, dimensions, name);
-	});
-var _user$project$HanabiUi$renderTeamHands = F2(
-	function (hands, dimensions) {
-		return _elm_lang$core$Dict$values(
-			A2(
-				_elm_lang$core$Dict$map,
-				_user$project$HanabiUi$teamHand(dimensions),
-				hands));
-	});
-var _user$project$HanabiUi$renderDiscardPile = F2(
-	function (hand, dimensions) {
-		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
-			{ctor: '[]'});
-	});
-var _user$project$HanabiUi$drawFireworkTile = F3(
-	function (_p16, idx, _p15) {
-		var _p17 = _p16;
-		var _p22 = _p17._2;
-		var _p21 = _p17._1;
-		var _p18 = _p15;
-		var _p20 = _p18._1;
-		var fillStyle = function () {
-			var _p19 = _p20;
-			if (_p19.ctor === 'Just') {
-				return '';
+var _elm_lang$websocket$WebSocket$buildSubDict = F2(
+	function (subs, dict) {
+		buildSubDict:
+		while (true) {
+			var _p2 = subs;
+			if (_p2.ctor === '[]') {
+				return dict;
 			} else {
-				return 'fill-opacity:0.1';
+				if (_p2._0.ctor === 'Listen') {
+					var _v3 = _p2._1,
+						_v4 = A3(
+						_elm_lang$core$Dict$update,
+						_p2._0._0,
+						_elm_lang$websocket$WebSocket$add(_p2._0._1),
+						dict);
+					subs = _v3;
+					dict = _v4;
+					continue buildSubDict;
+				} else {
+					var _v5 = _p2._1,
+						_v6 = A3(
+						_elm_lang$core$Dict$update,
+						_p2._0._0,
+						function (_p3) {
+							return _elm_lang$core$Maybe$Just(
+								A2(
+									_elm_lang$core$Maybe$withDefault,
+									{ctor: '[]'},
+									_p3));
+						},
+						dict);
+					subs = _v5;
+					dict = _v6;
+					continue buildSubDict;
+				}
 			}
-		}();
-		var ypos = A3(_user$project$HanabiUi$tileXpos, _p21, _p22, idx);
-		var xpos = _p22;
+		}
+	});
+var _elm_lang$websocket$WebSocket_ops = _elm_lang$websocket$WebSocket_ops || {};
+_elm_lang$websocket$WebSocket_ops['&>'] = F2(
+	function (t1, t2) {
 		return A2(
-			_elm_lang$svg$Svg$g,
-			{ctor: '[]'},
+			_elm_lang$core$Task$andThen,
+			function (_p4) {
+				return t2;
+			},
+			t1);
+	});
+var _elm_lang$websocket$WebSocket$sendMessagesHelp = F3(
+	function (cmds, socketsDict, queuesDict) {
+		sendMessagesHelp:
+		while (true) {
+			var _p5 = cmds;
+			if (_p5.ctor === '[]') {
+				return _elm_lang$core$Task$succeed(queuesDict);
+			} else {
+				var _p9 = _p5._1;
+				var _p8 = _p5._0._0;
+				var _p7 = _p5._0._1;
+				var _p6 = A2(_elm_lang$core$Dict$get, _p8, socketsDict);
+				if ((_p6.ctor === 'Just') && (_p6._0.ctor === 'Connected')) {
+					return A2(
+						_elm_lang$websocket$WebSocket_ops['&>'],
+						A2(_elm_lang$websocket$WebSocket_LowLevel$send, _p6._0._0, _p7),
+						A3(_elm_lang$websocket$WebSocket$sendMessagesHelp, _p9, socketsDict, queuesDict));
+				} else {
+					var _v9 = _p9,
+						_v10 = socketsDict,
+						_v11 = A3(
+						_elm_lang$core$Dict$update,
+						_p8,
+						_elm_lang$websocket$WebSocket$add(_p7),
+						queuesDict);
+					cmds = _v9;
+					socketsDict = _v10;
+					queuesDict = _v11;
+					continue sendMessagesHelp;
+				}
+			}
+		}
+	});
+var _elm_lang$websocket$WebSocket$subscription = _elm_lang$core$Native_Platform.leaf('WebSocket');
+var _elm_lang$websocket$WebSocket$command = _elm_lang$core$Native_Platform.leaf('WebSocket');
+var _elm_lang$websocket$WebSocket$State = F3(
+	function (a, b, c) {
+		return {sockets: a, queues: b, subs: c};
+	});
+var _elm_lang$websocket$WebSocket$init = _elm_lang$core$Task$succeed(
+	A3(_elm_lang$websocket$WebSocket$State, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty, _elm_lang$core$Dict$empty));
+var _elm_lang$websocket$WebSocket$Send = F2(
+	function (a, b) {
+		return {ctor: 'Send', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$send = F2(
+	function (url, message) {
+		return _elm_lang$websocket$WebSocket$command(
+			A2(_elm_lang$websocket$WebSocket$Send, url, message));
+	});
+var _elm_lang$websocket$WebSocket$cmdMap = F2(
+	function (_p11, _p10) {
+		var _p12 = _p10;
+		return A2(_elm_lang$websocket$WebSocket$Send, _p12._0, _p12._1);
+	});
+var _elm_lang$websocket$WebSocket$KeepAlive = function (a) {
+	return {ctor: 'KeepAlive', _0: a};
+};
+var _elm_lang$websocket$WebSocket$keepAlive = function (url) {
+	return _elm_lang$websocket$WebSocket$subscription(
+		_elm_lang$websocket$WebSocket$KeepAlive(url));
+};
+var _elm_lang$websocket$WebSocket$Listen = F2(
+	function (a, b) {
+		return {ctor: 'Listen', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$listen = F2(
+	function (url, tagger) {
+		return _elm_lang$websocket$WebSocket$subscription(
+			A2(_elm_lang$websocket$WebSocket$Listen, url, tagger));
+	});
+var _elm_lang$websocket$WebSocket$subMap = F2(
+	function (func, sub) {
+		var _p13 = sub;
+		if (_p13.ctor === 'Listen') {
+			return A2(
+				_elm_lang$websocket$WebSocket$Listen,
+				_p13._0,
+				function (_p14) {
+					return func(
+						_p13._1(_p14));
+				});
+		} else {
+			return _elm_lang$websocket$WebSocket$KeepAlive(_p13._0);
+		}
+	});
+var _elm_lang$websocket$WebSocket$Connected = function (a) {
+	return {ctor: 'Connected', _0: a};
+};
+var _elm_lang$websocket$WebSocket$Opening = F2(
+	function (a, b) {
+		return {ctor: 'Opening', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$BadOpen = function (a) {
+	return {ctor: 'BadOpen', _0: a};
+};
+var _elm_lang$websocket$WebSocket$GoodOpen = F2(
+	function (a, b) {
+		return {ctor: 'GoodOpen', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$Die = function (a) {
+	return {ctor: 'Die', _0: a};
+};
+var _elm_lang$websocket$WebSocket$Receive = F2(
+	function (a, b) {
+		return {ctor: 'Receive', _0: a, _1: b};
+	});
+var _elm_lang$websocket$WebSocket$open = F2(
+	function (name, router) {
+		return A2(
+			_elm_lang$websocket$WebSocket_LowLevel$open,
+			name,
 			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$rect,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$width(
-							_elm_lang$core$Basics$toString(_p17._0)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$height(
-								_elm_lang$core$Basics$toString(_p21)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$y(
-									_elm_lang$core$Basics$toString(ypos)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$x(
-										_elm_lang$core$Basics$toString(xpos)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$rx(
-											_elm_lang$core$Basics$toString(_p22)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$ry(
-												_elm_lang$core$Basics$toString(_p22)),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style(fillStyle),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A3(
-						_user$project$HanabiUi$renderFirework,
-						xpos,
-						ypos,
-						{ctor: '_Tuple2', _0: _p18._0, _1: _p20}),
-					_1: {ctor: '[]'}
+				onMessage: F2(
+					function (_p15, msg) {
+						return A2(
+							_elm_lang$core$Platform$sendToSelf,
+							router,
+							A2(_elm_lang$websocket$WebSocket$Receive, name, msg));
+					}),
+				onClose: function (details) {
+					return A2(
+						_elm_lang$core$Platform$sendToSelf,
+						router,
+						_elm_lang$websocket$WebSocket$Die(name));
 				}
 			});
 	});
-var _user$project$HanabiUi$renderFireworkPile = F2(
-	function (fireworks, _p23) {
-		var _p24 = _p23;
-		var _p27 = _p24._0;
-		var _p26 = _p24._2;
-		var _p25 = _p24._1;
-		return A2(
-			_elm_lang$svg$Svg$svg,
-			{
-				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$height(
-					_elm_lang$core$Basics$toString(((_p25 + _p26) * 5) + _p26)),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$width(
-						_elm_lang$core$Basics$toString((_p26 + _p27) + _p26)),
-					_1: {ctor: '[]'}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A3(
-					_user$project$HanabiUi$drawFireworkTile,
-					{ctor: '_Tuple3', _0: _p27, _1: _p25, _2: _p26},
-					0,
-					{
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Maybe$Just('blue'),
-						_1: fireworks.blue
-					}),
-				_1: {
-					ctor: '::',
-					_0: A3(
-						_user$project$HanabiUi$drawFireworkTile,
-						{ctor: '_Tuple3', _0: _p27, _1: _p25, _2: _p26},
-						1,
-						{
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Maybe$Just('green'),
-							_1: fireworks.green
+var _elm_lang$websocket$WebSocket$attemptOpen = F3(
+	function (router, backoff, name) {
+		var badOpen = function (_p16) {
+			return A2(
+				_elm_lang$core$Platform$sendToSelf,
+				router,
+				_elm_lang$websocket$WebSocket$BadOpen(name));
+		};
+		var goodOpen = function (ws) {
+			return A2(
+				_elm_lang$core$Platform$sendToSelf,
+				router,
+				A2(_elm_lang$websocket$WebSocket$GoodOpen, name, ws));
+		};
+		var actuallyAttemptOpen = A2(
+			_elm_lang$core$Task$onError,
+			badOpen,
+			A2(
+				_elm_lang$core$Task$andThen,
+				goodOpen,
+				A2(_elm_lang$websocket$WebSocket$open, name, router)));
+		return _elm_lang$core$Process$spawn(
+			A2(
+				_elm_lang$websocket$WebSocket_ops['&>'],
+				_elm_lang$websocket$WebSocket$after(backoff),
+				actuallyAttemptOpen));
+	});
+var _elm_lang$websocket$WebSocket$onEffects = F4(
+	function (router, cmds, subs, state) {
+		var newSubs = A2(_elm_lang$websocket$WebSocket$buildSubDict, subs, _elm_lang$core$Dict$empty);
+		var cleanup = function (newQueues) {
+			var rightStep = F3(
+				function (name, connection, getNewSockets) {
+					return A2(
+						_elm_lang$websocket$WebSocket_ops['&>'],
+						_elm_lang$websocket$WebSocket$closeConnection(connection),
+						getNewSockets);
+				});
+			var bothStep = F4(
+				function (name, _p17, connection, getNewSockets) {
+					return A2(
+						_elm_lang$core$Task$map,
+						A2(_elm_lang$core$Dict$insert, name, connection),
+						getNewSockets);
+				});
+			var leftStep = F3(
+				function (name, _p18, getNewSockets) {
+					return A2(
+						_elm_lang$core$Task$andThen,
+						function (newSockets) {
+							return A2(
+								_elm_lang$core$Task$andThen,
+								function (pid) {
+									return _elm_lang$core$Task$succeed(
+										A3(
+											_elm_lang$core$Dict$insert,
+											name,
+											A2(_elm_lang$websocket$WebSocket$Opening, 0, pid),
+											newSockets));
+								},
+								A3(_elm_lang$websocket$WebSocket$attemptOpen, router, 0, name));
+						},
+						getNewSockets);
+				});
+			var newEntries = A2(
+				_elm_lang$core$Dict$union,
+				newQueues,
+				A2(
+					_elm_lang$core$Dict$map,
+					F2(
+						function (k, v) {
+							return {ctor: '[]'};
 						}),
-					_1: {
-						ctor: '::',
-						_0: A3(
-							_user$project$HanabiUi$drawFireworkTile,
-							{ctor: '_Tuple3', _0: _p27, _1: _p25, _2: _p26},
-							2,
-							{
-								ctor: '_Tuple2',
-								_0: _elm_lang$core$Maybe$Just('red'),
-								_1: fireworks.red
+					newSubs));
+			var collectNewSockets = A6(
+				_elm_lang$core$Dict$merge,
+				leftStep,
+				bothStep,
+				rightStep,
+				newEntries,
+				state.sockets,
+				_elm_lang$core$Task$succeed(_elm_lang$core$Dict$empty));
+			return A2(
+				_elm_lang$core$Task$andThen,
+				function (newSockets) {
+					return _elm_lang$core$Task$succeed(
+						A3(_elm_lang$websocket$WebSocket$State, newSockets, newQueues, newSubs));
+				},
+				collectNewSockets);
+		};
+		var sendMessagesGetNewQueues = A3(_elm_lang$websocket$WebSocket$sendMessagesHelp, cmds, state.sockets, state.queues);
+		return A2(_elm_lang$core$Task$andThen, cleanup, sendMessagesGetNewQueues);
+	});
+var _elm_lang$websocket$WebSocket$onSelfMsg = F3(
+	function (router, selfMsg, state) {
+		var _p19 = selfMsg;
+		switch (_p19.ctor) {
+			case 'Receive':
+				var sends = A2(
+					_elm_lang$core$List$map,
+					function (tagger) {
+						return A2(
+							_elm_lang$core$Platform$sendToApp,
+							router,
+							tagger(_p19._1));
+					},
+					A2(
+						_elm_lang$core$Maybe$withDefault,
+						{ctor: '[]'},
+						A2(_elm_lang$core$Dict$get, _p19._0, state.subs)));
+				return A2(
+					_elm_lang$websocket$WebSocket_ops['&>'],
+					_elm_lang$core$Task$sequence(sends),
+					_elm_lang$core$Task$succeed(state));
+			case 'Die':
+				var _p21 = _p19._0;
+				var _p20 = A2(_elm_lang$core$Dict$get, _p21, state.sockets);
+				if (_p20.ctor === 'Nothing') {
+					return _elm_lang$core$Task$succeed(state);
+				} else {
+					return A2(
+						_elm_lang$core$Task$andThen,
+						function (pid) {
+							return _elm_lang$core$Task$succeed(
+								A3(
+									_elm_lang$websocket$WebSocket$updateSocket,
+									_p21,
+									A2(_elm_lang$websocket$WebSocket$Opening, 0, pid),
+									state));
+						},
+						A3(_elm_lang$websocket$WebSocket$attemptOpen, router, 0, _p21));
+				}
+			case 'GoodOpen':
+				var _p24 = _p19._1;
+				var _p23 = _p19._0;
+				var _p22 = A2(_elm_lang$core$Dict$get, _p23, state.queues);
+				if (_p22.ctor === 'Nothing') {
+					return _elm_lang$core$Task$succeed(
+						A3(
+							_elm_lang$websocket$WebSocket$updateSocket,
+							_p23,
+							_elm_lang$websocket$WebSocket$Connected(_p24),
+							state));
+				} else {
+					return A3(
+						_elm_lang$core$List$foldl,
+						F2(
+							function (msg, task) {
+								return A2(
+									_elm_lang$websocket$WebSocket_ops['&>'],
+									A2(_elm_lang$websocket$WebSocket_LowLevel$send, _p24, msg),
+									task);
 							}),
-						_1: {
-							ctor: '::',
-							_0: A3(
-								_user$project$HanabiUi$drawFireworkTile,
-								{ctor: '_Tuple3', _0: _p27, _1: _p25, _2: _p26},
-								3,
-								{
-									ctor: '_Tuple2',
-									_0: _elm_lang$core$Maybe$Just('white'),
-									_1: fireworks.white
-								}),
-							_1: {
-								ctor: '::',
-								_0: A3(
-									_user$project$HanabiUi$drawFireworkTile,
-									{ctor: '_Tuple3', _0: _p27, _1: _p25, _2: _p26},
-									4,
-									{
-										ctor: '_Tuple2',
-										_0: _elm_lang$core$Maybe$Just('yellow'),
-										_1: fireworks.yellow
-									}),
-								_1: {ctor: '[]'}
-							}
-						}
+						_elm_lang$core$Task$succeed(
+							A2(
+								_elm_lang$websocket$WebSocket$removeQueue,
+								_p23,
+								A3(
+									_elm_lang$websocket$WebSocket$updateSocket,
+									_p23,
+									_elm_lang$websocket$WebSocket$Connected(_p24),
+									state))),
+						_p22._0);
+				}
+			default:
+				var _p27 = _p19._0;
+				var _p25 = A2(_elm_lang$core$Dict$get, _p27, state.sockets);
+				if (_p25.ctor === 'Nothing') {
+					return _elm_lang$core$Task$succeed(state);
+				} else {
+					if (_p25._0.ctor === 'Opening') {
+						var _p26 = _p25._0._0;
+						return A2(
+							_elm_lang$core$Task$andThen,
+							function (pid) {
+								return _elm_lang$core$Task$succeed(
+									A3(
+										_elm_lang$websocket$WebSocket$updateSocket,
+										_p27,
+										A2(_elm_lang$websocket$WebSocket$Opening, _p26 + 1, pid),
+										state));
+							},
+							A3(_elm_lang$websocket$WebSocket$attemptOpen, router, _p26 + 1, _p27));
+					} else {
+						return _elm_lang$core$Task$succeed(state);
 					}
 				}
-			});
+		}
 	});
-var _user$project$HanabiUi$view = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+_elm_lang$core$Native_Platform.effectManagers['WebSocket'] = {pkg: 'elm-lang/websocket', init: _elm_lang$websocket$WebSocket$init, onEffects: _elm_lang$websocket$WebSocket$onEffects, onSelfMsg: _elm_lang$websocket$WebSocket$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$websocket$WebSocket$cmdMap, subMap: _elm_lang$websocket$WebSocket$subMap};
+
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$emptyPayload = _elm_lang$core$Json_Encode$object(
+	{ctor: '[]'});
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$maybeInt = function (maybe) {
+	var _p0 = maybe;
+	if (_p0.ctor === 'Just') {
+		return _elm_lang$core$Json_Encode$int(_p0._0);
+	} else {
+		return _elm_lang$core$Json_Encode$null;
+	}
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$messageEncoder = function (_p1) {
+	var _p2 = _p1;
+	return _elm_lang$core$Json_Encode$object(
 		{
 			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('draw'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'Remaining Tiles: ',
-							_elm_lang$core$Basics$toString(model.draw_pile))),
-					_1: {ctor: '[]'}
-				}),
+			_0: {
+				ctor: '_Tuple2',
+				_0: 'event',
+				_1: _elm_lang$core$Json_Encode$string(_p2.event)
+			},
 			_1: {
 				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('fuses'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Fuses: ',
-								_elm_lang$core$Basics$toString(model.fuses))),
-						_1: {ctor: '[]'}
-					}),
+				_0: {
+					ctor: '_Tuple2',
+					_0: 'topic',
+					_1: _elm_lang$core$Json_Encode$string(_p2.topic)
+				},
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('timers'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'Clocks: ',
-									_elm_lang$core$Basics$toString(model.clocks))),
-							_1: {ctor: '[]'}
-						}),
+					_0: {ctor: '_Tuple2', _0: 'payload', _1: _p2.payload},
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('fireworks'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A2(
-									_user$project$HanabiUi$renderFireworkPile,
-									model.fireworks,
-									{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('player-container'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A3(
-										_user$project$HanabiUi$renderPlayerHand,
-										model.my_hand,
-										{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10},
-										'player'),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('team-container'),
-										_1: {ctor: '[]'}
-									},
-									A2(
-										_user$project$HanabiUi$renderTeamHands,
-										model.hands,
-										{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10})),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('discards-container'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: A2(
-												_user$project$HanabiUi$renderDiscardPile,
-												model.discards,
-												{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'ref',
+							_1: _fbonetti$elm_phoenix_socket$Phoenix_Helpers$maybeInt(_p2.ref)
+						},
+						_1: {ctor: '[]'}
 					}
 				}
 			}
 		});
 };
-var _user$project$HanabiUi$update = F2(
-	function (msg, model) {
-		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-	});
-var _user$project$HanabiUi$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$encodeMessage = function (_p3) {
+	return A2(
+		_elm_lang$core$Json_Encode$encode,
+		0,
+		_fbonetti$elm_phoenix_socket$Phoenix_Helpers$messageEncoder(_p3));
 };
-var _user$project$HanabiUi$tileDecoder = A3(
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$nullOrInt = _elm_lang$core$Json_Decode$oneOf(
+	{
+		ctor: '::',
+		_0: _elm_lang$core$Json_Decode$null(_elm_lang$core$Maybe$Nothing),
+		_1: {
+			ctor: '::',
+			_0: A2(_elm_lang$core$Json_Decode$map, _elm_lang$core$Maybe$Just, _elm_lang$core$Json_Decode$int),
+			_1: {ctor: '[]'}
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$Message = F4(
+	function (a, b, c, d) {
+		return {event: a, topic: b, payload: c, ref: d};
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Helpers$messageDecoder = A5(
+	_elm_lang$core$Json_Decode$map4,
+	_fbonetti$elm_phoenix_socket$Phoenix_Helpers$Message,
+	A2(_elm_lang$core$Json_Decode$field, 'event', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'topic', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'payload', _elm_lang$core$Json_Decode$value),
+	A2(_elm_lang$core$Json_Decode$field, 'ref', _fbonetti$elm_phoenix_socket$Phoenix_Helpers$nullOrInt));
+
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$setState = F2(
+	function (state, channel) {
+		return _elm_lang$core$Native_Utils.update(
+			channel,
+			{state: state});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$onJoinError = F2(
+	function (valueToMsg, channel) {
+		return _elm_lang$core$Native_Utils.update(
+			channel,
+			{
+				onJoinError: _elm_lang$core$Maybe$Just(valueToMsg)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$onJoin = F2(
+	function (valueToMsg, channel) {
+		return _elm_lang$core$Native_Utils.update(
+			channel,
+			{
+				onJoin: _elm_lang$core$Maybe$Just(valueToMsg)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$onClose = F2(
+	function (valueToMsg, channel) {
+		return _elm_lang$core$Native_Utils.update(
+			channel,
+			{
+				onClose: _elm_lang$core$Maybe$Just(valueToMsg)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$onError = F2(
+	function (valueToMsg, channel) {
+		return _elm_lang$core$Native_Utils.update(
+			channel,
+			{
+				onError: _elm_lang$core$Maybe$Just(valueToMsg)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$withPayload = F2(
+	function (payload, channel) {
+		return _elm_lang$core$Native_Utils.update(
+			channel,
+			{payload: payload});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$Channel = F9(
+	function (a, b, c, d, e, f, g, h, i) {
+		return {name: a, payload: b, state: c, onClose: d, onError: e, onJoin: f, onJoinError: g, joinRef: h, leaveRef: i};
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$Leaving = {ctor: 'Leaving'};
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joining = {ctor: 'Joining'};
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joined = {ctor: 'Joined'};
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$Errored = {ctor: 'Errored'};
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$Closed = {ctor: 'Closed'};
+var _fbonetti$elm_phoenix_socket$Phoenix_Channel$init = function (name) {
+	return {name: name, payload: _fbonetti$elm_phoenix_socket$Phoenix_Helpers$emptyPayload, state: _fbonetti$elm_phoenix_socket$Phoenix_Channel$Closed, onClose: _elm_lang$core$Maybe$Nothing, onError: _elm_lang$core$Maybe$Nothing, onJoin: _elm_lang$core$Maybe$Nothing, onJoinError: _elm_lang$core$Maybe$Nothing, joinRef: -1, leaveRef: -1};
+};
+
+var _fbonetti$elm_phoenix_socket$Phoenix_Push$onError = F2(
+	function (valueToMsg, push) {
+		return _elm_lang$core$Native_Utils.update(
+			push,
+			{
+				onError: _elm_lang$core$Maybe$Just(valueToMsg)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Push$onOk = F2(
+	function (valueToMsg, push) {
+		return _elm_lang$core$Native_Utils.update(
+			push,
+			{
+				onOk: _elm_lang$core$Maybe$Just(valueToMsg)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload = F2(
+	function (payload, push) {
+		return _elm_lang$core$Native_Utils.update(
+			push,
+			{payload: payload});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Push$Push = F5(
+	function (a, b, c, d, e) {
+		return {event: a, channel: b, payload: c, onOk: d, onError: e};
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Push$init = F2(
+	function (event, channel) {
+		return A5(_fbonetti$elm_phoenix_socket$Phoenix_Push$Push, event, channel, _fbonetti$elm_phoenix_socket$Phoenix_Helpers$emptyPayload, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing);
+	});
+
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$replyDecoder = A3(
 	_elm_lang$core$Json_Decode$map2,
 	F2(
 		function (v0, v1) {
 			return {ctor: '_Tuple2', _0: v0, _1: v1};
 		}),
-	A2(
-		_elm_lang$core$Json_Decode$index,
-		0,
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string)),
-	A2(
-		_elm_lang$core$Json_Decode$index,
-		1,
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
-var _user$project$HanabiUi$handDecoder = _elm_lang$core$Json_Decode$list(_user$project$HanabiUi$tileDecoder);
-var _user$project$HanabiUi$defaultModel = {
-	clocks: 0,
-	discards: {ctor: '[]'},
-	draw_pile: 0,
-	fireworks: {blue: _elm_lang$core$Maybe$Nothing, green: _elm_lang$core$Maybe$Nothing, red: _elm_lang$core$Maybe$Nothing, white: _elm_lang$core$Maybe$Nothing, yellow: _elm_lang$core$Maybe$Nothing},
-	fuses: 0,
-	hands: _elm_lang$core$Dict$fromList(
-		{
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'Jon',
-				_1: {ctor: '[]'}
+	A2(_elm_lang$core$Json_Decode$field, 'status', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'response', _elm_lang$core$Json_Decode$value));
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$decodeMessage = function (_p0) {
+	return _elm_lang$core$Result$toMaybe(
+		A2(_elm_lang$core$Json_Decode$decodeString, _fbonetti$elm_phoenix_socket$Phoenix_Helpers$messageDecoder, _p0));
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$debugIfEnabled = function (socket) {
+	return socket.debug ? _elm_lang$core$Debug$log('phx_message') : _elm_lang$core$Basics$identity;
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$phoenixMessages = function (socket) {
+	return A2(_elm_lang$websocket$WebSocket$listen, socket.path, _fbonetti$elm_phoenix_socket$Phoenix_Socket$decodeMessage);
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$mapAll = F2(
+	function (fn, internalMsg) {
+		var _p1 = internalMsg;
+		if (_p1.ctor === 'ExternalMsg') {
+			return _p1._0;
+		} else {
+			return fn(internalMsg);
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$sendMessage = F2(
+	function (path, message) {
+		return A2(
+			_elm_lang$websocket$WebSocket$send,
+			path,
+			_fbonetti$elm_phoenix_socket$Phoenix_Helpers$encodeMessage(message));
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$send = F4(
+	function (_p2, event, channel, payload) {
+		var _p3 = _p2;
+		return A2(
+			_fbonetti$elm_phoenix_socket$Phoenix_Socket$sendMessage,
+			_p3.path,
+			A4(
+				_fbonetti$elm_phoenix_socket$Phoenix_Helpers$Message,
+				event,
+				channel,
+				payload,
+				_elm_lang$core$Maybe$Just(_p3.ref)));
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$off = F3(
+	function (eventName, channelName, socket) {
+		return _elm_lang$core$Native_Utils.update(
+			socket,
+			{
+				events: A2(
+					_elm_lang$core$Dict$remove,
+					{ctor: '_Tuple2', _0: eventName, _1: channelName},
+					socket.events)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$on = F4(
+	function (eventName, channelName, onReceive, socket) {
+		return _elm_lang$core$Native_Utils.update(
+			socket,
+			{
+				events: A3(
+					_elm_lang$core$Dict$insert,
+					{ctor: '_Tuple2', _0: eventName, _1: channelName},
+					onReceive,
+					socket.events)
+			});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$push = F2(
+	function (push_, socket) {
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Native_Utils.update(
+				socket,
+				{
+					pushes: A3(_elm_lang$core$Dict$insert, socket.ref, push_, socket.pushes),
+					ref: socket.ref + 1
+				}),
+			_1: A4(_fbonetti$elm_phoenix_socket$Phoenix_Socket$send, socket, push_.event, push_.channel, push_.payload)
+		};
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$heartbeat = function (socket) {
+	var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'heartbeat', 'phoenix');
+	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, socket);
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$leave = F2(
+	function (channelName, socket) {
+		var _p4 = A2(_elm_lang$core$Dict$get, channelName, socket.channels);
+		if (_p4.ctor === 'Just') {
+			var _p5 = _p4._0;
+			if (_elm_lang$core$Native_Utils.eq(_p5.state, _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joining) || _elm_lang$core$Native_Utils.eq(_p5.state, _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joined)) {
+				var channel_ = _elm_lang$core$Native_Utils.update(
+					_p5,
+					{state: _fbonetti$elm_phoenix_socket$Phoenix_Channel$Leaving, leaveRef: socket.ref});
+				var socket_ = _elm_lang$core$Native_Utils.update(
+					socket,
+					{
+						channels: A3(_elm_lang$core$Dict$insert, channelName, channel_, socket.channels)
+					});
+				var push_ = A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'phx_leave', _p5.name);
+				return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, socket_);
+			} else {
+				return {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none};
+			}
+		} else {
+			return {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$joinChannel = F2(
+	function (channel, socket) {
+		var channel_ = _elm_lang$core$Native_Utils.update(
+			channel,
+			{state: _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joining, joinRef: socket.ref});
+		var socket_ = _elm_lang$core$Native_Utils.update(
+			socket,
+			{
+				channels: A3(_elm_lang$core$Dict$insert, channel.name, channel_, socket.channels)
+			});
+		var push_ = A5(_fbonetti$elm_phoenix_socket$Phoenix_Push$Push, 'phx_join', channel.name, channel.payload, channel.onJoin, channel.onError);
+		return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$push, push_, socket_);
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$join = F2(
+	function (channel, socket) {
+		var _p6 = A2(_elm_lang$core$Dict$get, channel.name, socket.channels);
+		if (_p6.ctor === 'Just') {
+			var _p7 = _p6._0.state;
+			return (_elm_lang$core$Native_Utils.eq(_p7, _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joined) || _elm_lang$core$Native_Utils.eq(_p7, _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joining)) ? {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none} : A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$joinChannel, channel, socket);
+		} else {
+			return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$joinChannel, channel, socket);
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$withoutHeartbeat = function (socket) {
+	return _elm_lang$core$Native_Utils.update(
+		socket,
+		{withoutHeartbeat: true});
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$withHeartbeatInterval = F2(
+	function (intervalSeconds, socket) {
+		return _elm_lang$core$Native_Utils.update(
+			socket,
+			{heartbeatIntervalSeconds: intervalSeconds});
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$withDebug = function (socket) {
+	return _elm_lang$core$Native_Utils.update(
+		socket,
+		{debug: true});
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$update = F2(
+	function (msg, socket) {
+		var _p8 = msg;
+		switch (_p8.ctor) {
+			case 'ChannelErrored':
+				var channels = A3(
+					_elm_lang$core$Dict$update,
+					_p8._0,
+					_elm_lang$core$Maybe$map(
+						_fbonetti$elm_phoenix_socket$Phoenix_Channel$setState(_fbonetti$elm_phoenix_socket$Phoenix_Channel$Errored)),
+					socket.channels);
+				var socket_ = _elm_lang$core$Native_Utils.update(
+					socket,
+					{channels: channels});
+				return {ctor: '_Tuple2', _0: socket_, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'ChannelClosed':
+				var _p11 = _p8._0;
+				var _p9 = A2(_elm_lang$core$Dict$get, _p11, socket.channels);
+				if (_p9.ctor === 'Just') {
+					var _p10 = _p9._0;
+					var pushes = A2(_elm_lang$core$Dict$remove, _p10.joinRef, socket.pushes);
+					var channels = A3(
+						_elm_lang$core$Dict$insert,
+						_p11,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Channel$setState, _fbonetti$elm_phoenix_socket$Phoenix_Channel$Closed, _p10),
+						socket.channels);
+					var socket_ = _elm_lang$core$Native_Utils.update(
+						socket,
+						{channels: channels, pushes: pushes});
+					return {ctor: '_Tuple2', _0: socket_, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'ChannelJoined':
+				var _p14 = _p8._0;
+				var _p12 = A2(_elm_lang$core$Dict$get, _p14, socket.channels);
+				if (_p12.ctor === 'Just') {
+					var _p13 = _p12._0;
+					var pushes = A2(_elm_lang$core$Dict$remove, _p13.joinRef, socket.pushes);
+					var channels = A3(
+						_elm_lang$core$Dict$insert,
+						_p14,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Channel$setState, _fbonetti$elm_phoenix_socket$Phoenix_Channel$Joined, _p13),
+						socket.channels);
+					var socket_ = _elm_lang$core$Native_Utils.update(
+						socket,
+						{channels: channels, pushes: pushes});
+					return {ctor: '_Tuple2', _0: socket_, _1: _elm_lang$core$Platform_Cmd$none};
+				} else {
+					return {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+			case 'Heartbeat':
+				return _fbonetti$elm_phoenix_socket$Phoenix_Socket$heartbeat(socket);
+			default:
+				return {ctor: '_Tuple2', _0: socket, _1: _elm_lang$core$Platform_Cmd$none};
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$init = function (path) {
+	return {
+		path: path,
+		debug: false,
+		channels: _elm_lang$core$Dict$fromList(
+			{ctor: '[]'}),
+		events: _elm_lang$core$Dict$fromList(
+			{ctor: '[]'}),
+		pushes: _elm_lang$core$Dict$fromList(
+			{ctor: '[]'}),
+		ref: 0,
+		heartbeatIntervalSeconds: 30,
+		withoutHeartbeat: false
+	};
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$Socket = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {path: a, debug: b, channels: c, events: d, pushes: e, ref: f, heartbeatIntervalSeconds: g, withoutHeartbeat: h};
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$Heartbeat = function (a) {
+	return {ctor: 'Heartbeat', _0: a};
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$heartbeatSubscription = function (socket) {
+	return socket.withoutHeartbeat ? _elm_lang$core$Platform_Sub$none : A2(_elm_lang$core$Time$every, _elm_lang$core$Time$second * socket.heartbeatIntervalSeconds, _fbonetti$elm_phoenix_socket$Phoenix_Socket$Heartbeat);
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$ReceiveReply = F2(
+	function (a, b) {
+		return {ctor: 'ReceiveReply', _0: a, _1: b};
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelJoined = function (a) {
+	return {ctor: 'ChannelJoined', _0: a};
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelClosed = function (a) {
+	return {ctor: 'ChannelClosed', _0: a};
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelErrored = function (a) {
+	return {ctor: 'ChannelErrored', _0: a};
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$ExternalMsg = function (a) {
+	return {ctor: 'ExternalMsg', _0: a};
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp = {ctor: 'NoOp'};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$handleInternalPhxReply = F2(
+	function (socket, message) {
+		var msg = A2(
+			_elm_lang$core$Maybe$andThen,
+			function (_p15) {
+				var _p16 = _p15;
+				return A2(
+					_elm_lang$core$Maybe$andThen,
+					function (ref) {
+						return A2(
+							_elm_lang$core$Maybe$andThen,
+							function (channel) {
+								return _elm_lang$core$Native_Utils.eq(_p16._0, 'ok') ? (_elm_lang$core$Native_Utils.eq(ref, channel.joinRef) ? _elm_lang$core$Maybe$Just(
+									_fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelJoined(message.topic)) : (_elm_lang$core$Native_Utils.eq(ref, channel.leaveRef) ? _elm_lang$core$Maybe$Just(
+									_fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelClosed(message.topic)) : _elm_lang$core$Maybe$Nothing)) : _elm_lang$core$Maybe$Nothing;
+							},
+							A2(_elm_lang$core$Dict$get, message.topic, socket.channels));
+					},
+					message.ref);
 			},
-			_1: {ctor: '[]'}
-		}),
-	my_hand: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-			_1: {
+			_elm_lang$core$Result$toMaybe(
+				A2(_elm_lang$core$Json_Decode$decodeValue, _fbonetti$elm_phoenix_socket$Phoenix_Socket$replyDecoder, message.payload)));
+		return A2(_elm_lang$core$Maybe$withDefault, _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp, msg);
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$mapInternalMsgs = F2(
+	function (socket, maybeMessage) {
+		var _p17 = maybeMessage;
+		if (_p17.ctor === 'Just') {
+			var _p19 = _p17._0;
+			var message = socket.debug ? A2(_elm_lang$core$Debug$log, 'Phoenix message', _p19) : _p19;
+			var _p18 = message.event;
+			switch (_p18) {
+				case 'phx_reply':
+					return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$handleInternalPhxReply, socket, message);
+				case 'phx_error':
+					return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelErrored(message.topic);
+				case 'phx_close':
+					return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ChannelClosed(message.topic);
+				default:
+					return _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp;
+			}
+		} else {
+			return _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp;
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$internalMsgs = function (socket) {
+	return A2(
+		_elm_lang$core$Platform_Sub$map,
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$mapInternalMsgs(socket),
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$phoenixMessages(socket));
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$handlePhxReply = F2(
+	function (socket, message) {
+		var msg = A2(
+			_elm_lang$core$Maybe$andThen,
+			function (_p20) {
+				var _p21 = _p20;
+				var _p25 = _p21._1;
+				return A2(
+					_elm_lang$core$Maybe$andThen,
+					function (ref) {
+						return A2(
+							_elm_lang$core$Maybe$andThen,
+							function (push) {
+								var _p22 = _p21._0;
+								switch (_p22) {
+									case 'ok':
+										return A2(
+											_elm_lang$core$Maybe$map,
+											function (f) {
+												return function (_p23) {
+													return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ExternalMsg(
+														f(_p23));
+												}(_p25);
+											},
+											push.onOk);
+									case 'error':
+										return A2(
+											_elm_lang$core$Maybe$map,
+											function (f) {
+												return function (_p24) {
+													return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ExternalMsg(
+														f(_p24));
+												}(_p25);
+											},
+											push.onError);
+									default:
+										return _elm_lang$core$Maybe$Nothing;
+								}
+							},
+							A2(_elm_lang$core$Dict$get, ref, socket.pushes));
+					},
+					message.ref);
+			},
+			_elm_lang$core$Result$toMaybe(
+				A2(_elm_lang$core$Json_Decode$decodeValue, _fbonetti$elm_phoenix_socket$Phoenix_Socket$replyDecoder, message.payload)));
+		return A2(_elm_lang$core$Maybe$withDefault, _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp, msg);
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$handleEvent = F2(
+	function (socket, message) {
+		var _p26 = A2(
+			_elm_lang$core$Dict$get,
+			{ctor: '_Tuple2', _0: message.event, _1: message.topic},
+			socket.events);
+		if (_p26.ctor === 'Just') {
+			return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ExternalMsg(
+				_p26._0(message.payload));
+		} else {
+			return _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp;
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$mapExternalMsgs = F2(
+	function (socket, maybeMessage) {
+		var _p27 = maybeMessage;
+		if (_p27.ctor === 'Just') {
+			var _p31 = _p27._0;
+			var _p28 = _p31.event;
+			switch (_p28) {
+				case 'phx_reply':
+					return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$handlePhxReply, socket, _p31);
+				case 'phx_error':
+					var channel = A2(_elm_lang$core$Dict$get, _p31.topic, socket.channels);
+					var onError = A2(
+						_elm_lang$core$Maybe$andThen,
+						function (_) {
+							return _.onError;
+						},
+						channel);
+					var msg = A2(
+						_elm_lang$core$Maybe$map,
+						function (f) {
+							return function (_p29) {
+								return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ExternalMsg(
+									f(_p29));
+							}(_p31.payload);
+						},
+						onError);
+					return A2(_elm_lang$core$Maybe$withDefault, _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp, msg);
+				case 'phx_close':
+					var channel = A2(_elm_lang$core$Dict$get, _p31.topic, socket.channels);
+					var onClose = A2(
+						_elm_lang$core$Maybe$andThen,
+						function (_) {
+							return _.onClose;
+						},
+						channel);
+					var msg = A2(
+						_elm_lang$core$Maybe$map,
+						function (f) {
+							return function (_p30) {
+								return _fbonetti$elm_phoenix_socket$Phoenix_Socket$ExternalMsg(
+									f(_p30));
+							}(_p31.payload);
+						},
+						onClose);
+					return A2(_elm_lang$core$Maybe$withDefault, _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp, msg);
+				default:
+					return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$handleEvent, socket, _p31);
+			}
+		} else {
+			return _fbonetti$elm_phoenix_socket$Phoenix_Socket$NoOp;
+		}
+	});
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$externalMsgs = function (socket) {
+	return A2(
+		_elm_lang$core$Platform_Sub$map,
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$mapExternalMsgs(socket),
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$phoenixMessages(socket));
+};
+var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
+	function (socket, fn) {
+		return function (_p32) {
+			return A2(
+				_elm_lang$core$Platform_Sub$map,
+				_fbonetti$elm_phoenix_socket$Phoenix_Socket$mapAll(fn),
+				_elm_lang$core$Platform_Sub$batch(_p32));
+		}(
+			{
 				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+				_0: _fbonetti$elm_phoenix_socket$Phoenix_Socket$internalMsgs(socket),
 				_1: {
 					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
+					_0: _fbonetti$elm_phoenix_socket$Phoenix_Socket$externalMsgs(socket),
+					_1: {
+						ctor: '::',
+						_0: _fbonetti$elm_phoenix_socket$Phoenix_Socket$heartbeatSubscription(socket),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	});
+
+var _user$project$HanabiUi$viewRegistered = F2(
+	function (userName, model) {
+		return _elm_lang$html$Html$text('Hi!');
+	});
+var _user$project$HanabiUi$initSocket = A2(
+	_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
+	_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:lobby'),
+	_fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://localhost:4000/socket/websocket'));
+var _user$project$HanabiUi$Model = F2(
+	function (a, b) {
+		return {user: a, phxSocket: b};
+	});
+var _user$project$HanabiUi$Response = F3(
+	function (a, b, c) {
+		return {success: a, userName: b, message: c};
+	});
+var _user$project$HanabiUi$responseDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$HanabiUi$Response,
+	A2(_elm_lang$core$Json_Decode$field, 'success', _elm_lang$core$Json_Decode$bool),
+	A2(_elm_lang$core$Json_Decode$field, 'userName', _elm_lang$core$Json_Decode$string),
+	A2(_elm_lang$core$Json_Decode$field, 'message', _elm_lang$core$Json_Decode$string));
+var _user$project$HanabiUi$Registered = function (a) {
+	return {ctor: 'Registered', _0: a};
+};
+var _user$project$HanabiUi$Unregistered = function (a) {
+	return {ctor: 'Unregistered', _0: a};
+};
+var _user$project$HanabiUi$PhoenixMsg = function (a) {
+	return {ctor: 'PhoenixMsg', _0: a};
+};
+var _user$project$HanabiUi$init = function () {
+	var _p0 = _user$project$HanabiUi$initSocket;
+	var phxSocket = _p0._0;
+	var joinCmd = _p0._1;
+	return {
+		ctor: '_Tuple2',
+		_0: {
+			user: _user$project$HanabiUi$Unregistered(''),
+			phxSocket: phxSocket
+		},
+		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, joinCmd)
+	};
+}();
+var _user$project$HanabiUi$subscriptions = function (model) {
+	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$HanabiUi$PhoenixMsg);
+};
+var _user$project$HanabiUi$HandleRegisterResponse = function (a) {
+	return {ctor: 'HandleRegisterResponse', _0: a};
+};
+var _user$project$HanabiUi$update = F2(
+	function (msg, model) {
+		var _p1 = msg;
+		switch (_p1.ctor) {
+			case 'NoOp':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'EnterUserName':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							user: _user$project$HanabiUi$Unregistered(_p1._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Register':
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(_p1._0)
+						},
+						_1: {ctor: '[]'}
+					});
+				var _p2 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					model.phxSocket,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
+						_user$project$HanabiUi$HandleRegisterResponse,
+						A2(
+							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+							payload,
+							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:lobby'))));
+				var phxSocket = _p2._0;
+				var registerCmd = _p2._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
+				};
+			case 'HandleRegisterResponse':
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p1._0);
+				var _p3 = result;
+				if (_p3.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								user: _user$project$HanabiUi$Registered(_p3._0.userName)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								user: _user$project$HanabiUi$Unregistered('')
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				}
+			default:
+				var _p4 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p1._0, model.phxSocket);
+				var phxSocket = _p4._0;
+				var phxCmd = _p4._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, phxCmd)
+				};
+		}
+	});
+var _user$project$HanabiUi$Register = function (a) {
+	return {ctor: 'Register', _0: a};
+};
+var _user$project$HanabiUi$EnterUserName = function (a) {
+	return {ctor: 'EnterUserName', _0: a};
+};
+var _user$project$HanabiUi$viewUnregistered = function (userName) {
+	return A2(
+		_elm_lang$html$Html$form,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Events$onSubmit(
+				_user$project$HanabiUi$Register(userName)),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$label,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$for('user_name'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('Name:'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$input,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$id('user_name'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$name('user_name'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$value(userName),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Events$onInput(_user$project$HanabiUi$EnterUserName),
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$button,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$type_('submit'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('Register'),
+							_1: {ctor: '[]'}
+						}),
 					_1: {ctor: '[]'}
 				}
 			}
-		}
-	},
-	my_turn: false
+		});
 };
-var _user$project$HanabiUi$Fireworks = F5(
-	function (a, b, c, d, e) {
-		return {blue: a, green: b, red: c, white: d, yellow: e};
-	});
-var _user$project$HanabiUi$fireworkDecoder = A6(
-	_elm_lang$core$Json_Decode$map5,
-	_user$project$HanabiUi$Fireworks,
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'blue',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'green',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'red',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'white',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'yellow',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
-var _user$project$HanabiUi$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {clocks: a, discards: b, draw_pile: c, fireworks: d, fuses: e, hands: f, my_hand: g, my_turn: h};
-	});
-var _user$project$HanabiUi$gameDecoder = A9(
-	_elm_lang$core$Json_Decode$map8,
-	_user$project$HanabiUi$Model,
-	A2(_elm_lang$core$Json_Decode$field, 'clocks', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'discards', _user$project$HanabiUi$handDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'draw_pile', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'fireworks', _user$project$HanabiUi$fireworkDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'fuses', _elm_lang$core$Json_Decode$int),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'hands',
-		_elm_lang$core$Json_Decode$dict(_user$project$HanabiUi$handDecoder)),
-	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _user$project$HanabiUi$handDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'my_turn', _elm_lang$core$Json_Decode$bool));
-var _user$project$HanabiUi$init = function (values) {
-	return F2(
-		function (v0, v1) {
-			return {ctor: '_Tuple2', _0: v0, _1: v1};
-		})(
-		A2(
-			_elm_lang$core$Result$withDefault,
-			_user$project$HanabiUi$defaultModel,
-			A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$gameDecoder, values)))(_elm_lang$core$Platform_Cmd$none);
+var _user$project$HanabiUi$view = function (model) {
+	var _p5 = model.user;
+	if (_p5.ctor === 'Unregistered') {
+		return _user$project$HanabiUi$viewUnregistered(_p5._0);
+	} else {
+		return A2(_user$project$HanabiUi$viewRegistered, _p5._0, model);
+	}
 };
-var _user$project$HanabiUi$main = _elm_lang$html$Html$programWithFlags(
-	{init: _user$project$HanabiUi$init, view: _user$project$HanabiUi$view, update: _user$project$HanabiUi$update, subscriptions: _user$project$HanabiUi$subscriptions})(_elm_lang$core$Json_Decode$value);
+var _user$project$HanabiUi$main = _elm_lang$html$Html$program(
+	{init: _user$project$HanabiUi$init, view: _user$project$HanabiUi$view, update: _user$project$HanabiUi$update, subscriptions: _user$project$HanabiUi$subscriptions})();
 var _user$project$HanabiUi$NoOp = {ctor: 'NoOp'};
 
 var Elm = {};
