@@ -26,7 +26,8 @@ main =
 
 type User
     = Unregistered String
-    | Registered String
+    | Registered String String
+    | Waiting String
 
 
 type alias Model =
@@ -44,7 +45,7 @@ init =
         ( { user = Unregistered ""
           , phxSocket = phxSocket
           }
-        , Cmd.map PhoenixMsg joinCmd
+        , Cmd.map SharedMsg (Cmd.map PhoenixMsg joinCmd)
         )
 
 
@@ -73,20 +74,94 @@ responseDecoder =
         (Json.Decode.field "message" Json.Decode.string)
 
 
-type Msg
-    = NoOp
-    | EnterUserName String
+type UnregisteredMessage
+    = EnterUserName String
     | Register String
     | HandleRegisterResponse Json.Encode.Value
-    | PhoenixMsg (Phoenix.Socket.Msg Msg)
+
+
+type RegisteredMessage
+    = ChoosePlayerCount String
+    | JoinGame String String
+    | HandleJoinGameResponse Json.Encode.Value
+
+
+type SharedMessage
+    = PhoenixMsg (Phoenix.Socket.Msg Msg)
+
+
+type Msg
+    = UnregisteredMsg UnregisteredMessage
+    | RegisteredMsg RegisteredMessage
+    | SharedMsg SharedMessage
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        NoOp ->
-            ( model, Cmd.none )
+    case model.user of
+        Unregistered userName ->
+            case msg of
+                UnregisteredMsg unregisteredMsg ->
+                    let
+                        (newModel, sharedMessage) = updateUnregistered unregisteredMsg userName model
+                    in
+                        (newModel, Cmd.map SharedMsg sharedMessage)
 
+                RegisteredMsg _ -> (model, Cmd.none)
+
+                SharedMsg sharedmsg ->
+                    let
+                        (newModel, sharedMessage) = updateShared sharedmsg model
+                    in
+                        (newModel, Cmd.map SharedMsg sharedMessage)
+
+
+        Registered userName playerCount ->
+            case msg of
+                UnregisteredMsg _  -> (model, Cmd.none)
+
+                RegisteredMsg registeredMsg ->
+                    let
+                        (newModel, sharedMessage) = updateRegistered registeredMsg userName playerCount model
+                    in
+                        (newModel, Cmd.map SharedMsg sharedMessage)
+
+                SharedMsg sharedmsg ->
+                    let
+                        (newModel, sharedMessage) = updateShared sharedmsg model
+                    in
+                        (newModel, Cmd.map SharedMsg sharedMessage)
+
+        Waiting userName ->
+            case msg of
+                UnregisteredMsg _  -> (model, Cmd.none)
+
+                RegisteredMsg _ -> (model, Cmd.none)
+
+                SharedMsg sharedmsg ->
+                    let
+                        (newModel, sharedMessage) = updateShared sharedmsg model
+                    in
+                        (newModel, Cmd.map SharedMsg sharedMessage)
+
+
+updateShared : SharedMessage -> Model -> (Model, Cmd SharedMessage)
+updateShared msg model =
+    case msg of
+        PhoenixMsg msg ->
+            let
+                ( phxSocket, phxCmd ) =
+                    Phoenix.Socket.update msg model.phxSocket
+            in
+                ( { model | phxSocket = phxSocket }
+                , Cmd.map PhoenixMsg phxCmd
+                )
+
+
+
+updateUnregistered : UnregisteredMessage -> String -> Model -> (Model, Cmd SharedMessage)
+updateUnregistered msg userName model =
+    case msg of
         EnterUserName userName ->
             ( { model | user = Unregistered userName }, Cmd.none )
 
@@ -99,7 +174,7 @@ update msg model =
                 ( phxSocket, registerCmd ) =
                     Phoenix.Push.init "register" "game:lobby"
                         |> Phoenix.Push.withPayload payload
-                        |> Phoenix.Push.onOk HandleRegisterResponse
+                        |> Phoenix.Push.onOk (\resp -> UnregisteredMsg (HandleRegisterResponse resp))
                         |> (flip Phoenix.Socket.push model.phxSocket)
             in
                 ( { model | phxSocket = phxSocket }
@@ -113,23 +188,49 @@ update msg model =
             in
                 case result of
                     Ok response ->
-                        ( { model | user = Registered response.userName }
+                        ( { model | user = Registered response.userName "2" }
                         , Cmd.none
                         )
 
                     Err message ->
                         ( { model | user = Unregistered "" }, Cmd.none )
 
-        PhoenixMsg msg ->
+
+
+updateRegistered : RegisteredMessage -> String -> String -> Model -> (Model, Cmd SharedMessage)
+updateRegistered msg userName playerCount model =
+    case msg of
+        ChoosePlayerCount newPlayerCount ->
+            ({model | user = Registered userName newPlayerCount}, Cmd.none)
+        JoinGame newUserName newPlayerCount ->
             let
-                ( phxSocket, phxCmd ) =
-                    Phoenix.Socket.update msg model.phxSocket
+                payload =
+                    Json.Encode.object
+                        [ ( "userName", Json.Encode.string newUserName )
+                        , ( "playerCount", Json.Encode.string newPlayerCount )
+                        ]
+
+                ( phxSocket, registerCmd ) =
+                    Phoenix.Push.init "join" "game:lobby"
+                        |> Phoenix.Push.withPayload payload
+                        |> Phoenix.Push.onOk (\resp -> RegisteredMsg (HandleJoinGameResponse resp))
+                        |> (flip Phoenix.Socket.push model.phxSocket)
             in
                 ( { model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg phxCmd
+                , Cmd.map PhoenixMsg registerCmd
                 )
 
+        HandleJoinGameResponse json ->
+            let
+                result =
+                    Json.Decode.decodeValue responseDecoder json
+            in
+                case result of
+                    Ok response ->
+                        ( { model | user = Waiting response.userName }, Cmd.none )
 
+                    Err message ->
+                        ( model, Cmd.none )
 
 -- VIEW
 
@@ -138,13 +239,16 @@ view : Model -> Html Msg
 view model =
     case model.user of
         Unregistered userName ->
-            viewUnregistered userName
+            Html.map UnregisteredMsg (viewUnregistered userName)
 
-        Registered userName ->
-            viewRegistered userName model
+        Registered userName playerCount ->
+            Html.map RegisteredMsg (viewRegistered userName playerCount model)
+
+        Waiting userName ->
+            viewWaiting userName model
 
 
-viewUnregistered : String -> Html Msg
+viewUnregistered : String -> Html UnregisteredMessage
 viewUnregistered userName =
     Html.form [ onSubmit (Register userName)]
         [ label [ for "user_name" ]
@@ -161,15 +265,29 @@ viewUnregistered userName =
         ]
 
 
-viewRegistered : String -> Model -> Html Msg
-viewRegistered userName model =
-    text "Hi!"
+viewRegistered : String -> String -> Model -> Html RegisteredMessage
+viewRegistered userName playerCount model =
+    Html.form [ onSubmit (JoinGame userName playerCount)]
+        [ p [ ] [ text ("Hi " ++ userName) ]
+        , p [ ] [ text ("Join a ")
+                , select [ onInput ChoosePlayerCount ] (selectOptions playerCount)
+                , text (" player game.") ]
+        , button [ type_ "submit" ] [ text "Join Game"]]
 
 
+selectOptions : String -> List (Html RegisteredMessage)
+selectOptions playerCount =
+    ["2", "3", "4", "5"]
+        |> List.map (\i -> option [selected (i == playerCount), value i] [text i])
+
+
+viewWaiting : String -> Model -> Html Msg
+viewWaiting userName model =
+    div [ ] [ text "Waiting for more players. Have a nice glass of water and enjoy the weather." ]
 
 -- SUBSCRIPTIONS
 
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Phoenix.Socket.listen model.phxSocket PhoenixMsg
+    Phoenix.Socket.listen model.phxSocket (\msg -> SharedMsg (PhoenixMsg msg))
