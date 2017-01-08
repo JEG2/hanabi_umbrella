@@ -11695,7 +11695,7 @@ var _user$project$HanabiUi$updatePlaying = F3(
 					A2(
 						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 						payload,
-						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:lobby')));
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:player')));
 				var phxSocket = _p4._0;
 				var registerCmd = _p4._1;
 				return {
@@ -11731,7 +11731,7 @@ var _user$project$HanabiUi$updatePlaying = F3(
 					A2(
 						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 						payload,
-						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:lobby')));
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:player')));
 				var phxSocket = _p5._0;
 				var registerCmd = _p5._1;
 				return {
@@ -11774,11 +11774,11 @@ var _user$project$HanabiUi$PlayingMsg = function (a) {
 };
 var _user$project$HanabiUi$initSocket = A2(
 	_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
-	_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:lobby'),
+	_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:player'),
 	A4(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
 		'game',
-		'game:lobby',
+		'game:player',
 		function (g) {
 			return _user$project$HanabiUi$PlayingMsg(
 				_user$project$HanabiUi$AssignGame(g));
@@ -11831,6 +11831,10 @@ var _user$project$HanabiUi$updateRegistered = F4(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'JoinGame':
+				var newPlayerCountInt = A2(
+					_elm_lang$core$Result$withDefault,
+					0,
+					_elm_lang$core$String$toInt(_p8._1));
 				var payload = _elm_lang$core$Json_Encode$object(
 					{
 						ctor: '::',
@@ -11844,7 +11848,7 @@ var _user$project$HanabiUi$updateRegistered = F4(
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'playerCount',
-								_1: _elm_lang$core$Json_Encode$string(_p8._1)
+								_1: _elm_lang$core$Json_Encode$int(newPlayerCountInt)
 							},
 							_1: {ctor: '[]'}
 						}
@@ -11862,7 +11866,7 @@ var _user$project$HanabiUi$updateRegistered = F4(
 						A2(
 							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 							payload,
-							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'join', 'game:lobby'))));
+							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'join', 'game:player'))));
 				var phxSocket = _p9._0;
 				var registerCmd = _p9._1;
 				return {
@@ -11931,7 +11935,7 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 						A2(
 							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 							payload,
-							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:lobby'))));
+							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:player'))));
 				var phxSocket = _p12._0;
 				var registerCmd = _p12._1;
 				return {

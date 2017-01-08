@@ -55,8 +55,8 @@ init =
 initSocket : ( Phoenix.Socket.Socket Msg, Cmd (Phoenix.Socket.Msg Msg) )
 initSocket =
     Phoenix.Socket.init "ws://localhost:4000/socket/websocket"
-        |> Phoenix.Socket.on "game" "game:lobby" (\g -> PlayingMsg (AssignGame g))
-        |> Phoenix.Socket.join (Phoenix.Channel.init "game:lobby")
+        |> Phoenix.Socket.on "game" "game:player" (\g -> PlayingMsg (AssignGame g))
+        |> Phoenix.Socket.join (Phoenix.Channel.init "game:player")
 
 
 
@@ -202,7 +202,7 @@ updateUnregistered msg userName model =
                         [ ( "userName", Json.Encode.string userName ) ]
 
                 ( phxSocket, registerCmd ) =
-                    Phoenix.Push.init "register" "game:lobby"
+                    Phoenix.Push.init "register" "game:player"
                         |> Phoenix.Push.withPayload payload
                         |> Phoenix.Push.onOk (\resp -> UnregisteredMsg (HandleRegisterResponse resp))
                         |> (flip Phoenix.Socket.push model.phxSocket)
@@ -238,14 +238,19 @@ updateRegistered msg userName playerCount model =
 
         JoinGame newUserName newPlayerCount ->
             let
+                newPlayerCountInt =
+                    newPlayerCount
+                        |> String.toInt
+                        |> Result.withDefault 0
+
                 payload =
                     Json.Encode.object
                         [ ( "userName", Json.Encode.string newUserName )
-                        , ( "playerCount", Json.Encode.string newPlayerCount )
+                        , ( "playerCount", Json.Encode.int newPlayerCountInt )
                         ]
 
                 ( phxSocket, registerCmd ) =
-                    Phoenix.Push.init "join" "game:lobby"
+                    Phoenix.Push.init "join" "game:player"
                         |> Phoenix.Push.withPayload payload
                         |> Phoenix.Push.onOk (\resp -> RegisteredMsg (HandleJoinGameResponse resp))
                         |> (flip Phoenix.Socket.push model.phxSocket)
@@ -288,7 +293,7 @@ updatePlaying msg userName model =
                                 ]
 
                         ( phxSocket, registerCmd ) =
-                            Phoenix.Push.init "discard" "game:lobby"
+                            Phoenix.Push.init "discard" "game:player"
                                 |> Phoenix.Push.withPayload payload
                                 |> (flip Phoenix.Socket.push model.phxSocket)
                     in
@@ -305,7 +310,7 @@ updatePlaying msg userName model =
                                 ]
 
                         ( phxSocket, registerCmd ) =
-                            Phoenix.Push.init "play" "game:lobby"
+                            Phoenix.Push.init "play" "game:player"
                                 |> Phoenix.Push.withPayload payload
                                 |> (flip Phoenix.Socket.push model.phxSocket)
                     in

@@ -2,7 +2,7 @@ defmodule HanabiUi.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "game:lobby", HanabiUi.LobbyChannel
+  channel "game:player", HanabiUi.PlayerChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket
