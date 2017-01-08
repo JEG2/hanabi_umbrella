@@ -15,7 +15,6 @@ instead to support the makers of great games!
 
 ## To Do
 
-* Bug:  Dual register via UI
 * Better error handling
 * Bug:  Race condition in subscribe/deal
 * Split Elm code (user/lobby and a file per TEA)

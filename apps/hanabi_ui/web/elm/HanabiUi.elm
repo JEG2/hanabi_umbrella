@@ -8,7 +8,6 @@ import Json.Encode
 import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
-
 import Game
 
 
@@ -58,7 +57,6 @@ initSocket =
     Phoenix.Socket.init "ws://localhost:4000/socket/websocket"
         |> Phoenix.Socket.on "game" "game:lobby" (\g -> PlayingMsg (AssignGame g))
         |> Phoenix.Socket.join (Phoenix.Channel.init "game:lobby")
-
 
 
 
@@ -115,59 +113,70 @@ update msg model =
             case msg of
                 UnregisteredMsg unregisteredMsg ->
                     let
-                        (newModel, sharedMessage) = updateUnregistered unregisteredMsg userName model
+                        ( newModel, sharedMessage ) =
+                            updateUnregistered unregisteredMsg userName model
                     in
-                        (newModel, Cmd.map SharedMsg sharedMessage)
+                        ( newModel, Cmd.map SharedMsg sharedMessage )
 
-                RegisteredMsg _ -> (model, Cmd.none)
+                RegisteredMsg _ ->
+                    ( model, Cmd.none )
 
-                PlayingMsg _ -> (model, Cmd.none)
+                PlayingMsg _ ->
+                    ( model, Cmd.none )
 
                 SharedMsg sharedmsg ->
                     let
-                        (newModel, sharedMessage) = updateShared sharedmsg model
+                        ( newModel, sharedMessage ) =
+                            updateShared sharedmsg model
                     in
-                        (newModel, Cmd.map SharedMsg sharedMessage)
-
+                        ( newModel, Cmd.map SharedMsg sharedMessage )
 
         Registered userName playerCount ->
             case msg of
-                UnregisteredMsg _  -> (model, Cmd.none)
+                UnregisteredMsg _ ->
+                    ( model, Cmd.none )
 
-                PlayingMsg _ -> (model, Cmd.none)
+                PlayingMsg _ ->
+                    ( model, Cmd.none )
 
                 RegisteredMsg registeredMsg ->
                     let
-                        (newModel, sharedMessage) = updateRegistered registeredMsg userName playerCount model
+                        ( newModel, sharedMessage ) =
+                            updateRegistered registeredMsg userName playerCount model
                     in
-                        (newModel, Cmd.map SharedMsg sharedMessage)
+                        ( newModel, Cmd.map SharedMsg sharedMessage )
 
                 SharedMsg sharedmsg ->
                     let
-                        (newModel, sharedMessage) = updateShared sharedmsg model
+                        ( newModel, sharedMessage ) =
+                            updateShared sharedmsg model
                     in
-                        (newModel, Cmd.map SharedMsg sharedMessage)
+                        ( newModel, Cmd.map SharedMsg sharedMessage )
 
         Playing userName ->
             case msg of
-                UnregisteredMsg _  -> (model, Cmd.none)
+                UnregisteredMsg _ ->
+                    ( model, Cmd.none )
 
-                RegisteredMsg _ -> (model, Cmd.none)
+                RegisteredMsg _ ->
+                    ( model, Cmd.none )
 
                 PlayingMsg playingMessage ->
                     let
-                        (newModel, sharedMessage) = updatePlaying playingMessage userName model
+                        ( newModel, sharedMessage ) =
+                            updatePlaying playingMessage userName model
                     in
-                        (newModel, Cmd.map SharedMsg sharedMessage)
+                        ( newModel, Cmd.map SharedMsg sharedMessage )
 
                 SharedMsg sharedmsg ->
                     let
-                        (newModel, sharedMessage) = updateShared sharedmsg model
+                        ( newModel, sharedMessage ) =
+                            updateShared sharedmsg model
                     in
-                        (newModel, Cmd.map SharedMsg sharedMessage)
+                        ( newModel, Cmd.map SharedMsg sharedMessage )
 
 
-updateShared : SharedMessage -> Model -> (Model, Cmd SharedMessage)
+updateShared : SharedMessage -> Model -> ( Model, Cmd SharedMessage )
 updateShared msg model =
     case msg of
         PhoenixMsg msg ->
@@ -180,8 +189,7 @@ updateShared msg model =
                 )
 
 
-
-updateUnregistered : UnregisteredMessage -> String -> Model -> (Model, Cmd SharedMessage)
+updateUnregistered : UnregisteredMessage -> String -> Model -> ( Model, Cmd SharedMessage )
 updateUnregistered msg userName model =
     case msg of
         EnterUserName userName ->
@@ -207,23 +215,27 @@ updateUnregistered msg userName model =
             let
                 result =
                     Json.Decode.decodeValue responseDecoder json
+                        |> Debug.log "result"
             in
                 case result of
                     Ok response ->
-                        ( { model | user = Registered response.userName "2" }
-                        , Cmd.none
-                        )
+                        if response.success then
+                            ( { model | user = Registered response.userName "2" }
+                            , Cmd.none
+                            )
+                        else
+                            ( { model | user = Unregistered "" }, Cmd.none )
 
                     Err message ->
                         ( { model | user = Unregistered "" }, Cmd.none )
 
 
-
-updateRegistered : RegisteredMessage -> String -> String -> Model -> (Model, Cmd SharedMessage)
+updateRegistered : RegisteredMessage -> String -> String -> Model -> ( Model, Cmd SharedMessage )
 updateRegistered msg userName playerCount model =
     case msg of
         ChoosePlayerCount newPlayerCount ->
-            ({model | user = Registered userName newPlayerCount}, Cmd.none)
+            ( { model | user = Registered userName newPlayerCount }, Cmd.none )
+
         JoinGame newUserName newPlayerCount ->
             let
                 payload =
@@ -255,14 +267,15 @@ updateRegistered msg userName playerCount model =
                         ( model, Cmd.none )
 
 
-updatePlaying : PlayingMessage -> String -> Model -> (Model, Cmd SharedMessage)
+updatePlaying : PlayingMessage -> String -> Model -> ( Model, Cmd SharedMessage )
 updatePlaying msg userName model =
     case msg of
         AssignGame json ->
             let
-                newGame = json |> Json.Decode.decodeValue Game.gameDecoder |> Result.toMaybe
+                newGame =
+                    json |> Json.Decode.decodeValue Game.gameDecoder |> Result.toMaybe
             in
-                ({model | game = newGame }, Cmd.none)
+                ( { model | game = newGame }, Cmd.none )
 
         GameMsg gameMsg ->
             case gameMsg of
@@ -301,6 +314,7 @@ updatePlaying msg userName model =
                         )
 
 
+
 -- VIEW
 
 
@@ -319,7 +333,7 @@ view model =
 
 viewUnregistered : String -> Html UnregisteredMessage
 viewUnregistered userName =
-    Html.form [ onSubmit (Register userName)]
+    Html.form [ onSubmit (Register userName) ]
         [ label [ for "user_name" ]
             [ text "Name:" ]
         , input
@@ -336,18 +350,21 @@ viewUnregistered userName =
 
 viewRegistered : String -> String -> Model -> Html RegisteredMessage
 viewRegistered userName playerCount model =
-    Html.form [ onSubmit (JoinGame userName playerCount)]
-        [ p [ ] [ text ("Hi " ++ userName) ]
-        , p [ ] [ text ("Join a ")
-                , select [ onInput ChoosePlayerCount ] (selectOptions playerCount)
-                , text (" player game.") ]
-        , button [ type_ "submit" ] [ text "Join Game"]]
+    Html.form [ onSubmit (JoinGame userName playerCount) ]
+        [ p [] [ text ("Hi " ++ userName) ]
+        , p []
+            [ text ("Join a ")
+            , select [ onInput ChoosePlayerCount ] (selectOptions playerCount)
+            , text (" player game.")
+            ]
+        , button [ type_ "submit" ] [ text "Join Game" ]
+        ]
 
 
 selectOptions : String -> List (Html RegisteredMessage)
 selectOptions playerCount =
-    ["2", "3", "4", "5"]
-        |> List.map (\i -> option [selected (i == playerCount), value i] [text i])
+    [ "2", "3", "4", "5" ]
+        |> List.map (\i -> option [ selected (i == playerCount), value i ] [ text i ])
 
 
 viewPlaying : String -> Model -> Html PlayingMessage
@@ -355,8 +372,10 @@ viewPlaying userName model =
     case model.game of
         Just game ->
             Html.map GameMsg (Game.view game)
+
         Nothing ->
-            div [ ] [ text "Waiting for more players. Have a nice glass of water and enjoy the weather." ]
+            div [] [ text "Waiting for more players. Have a nice glass of water and enjoy the weather." ]
+
 
 
 -- SUBSCRIPTIONS

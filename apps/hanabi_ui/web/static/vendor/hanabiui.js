@@ -11942,15 +11942,27 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
 				};
 			default:
-				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p11._0);
+				var result = A2(
+					_elm_lang$core$Debug$log,
+					'result',
+					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p11._0));
 				var _p13 = result;
 				if (_p13.ctor === 'Ok') {
-					return {
+					var _p14 = _p13._0;
+					return _p14.success ? {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								user: A2(_user$project$HanabiUi$Registered, _p13._0.userName, '2')
+								user: A2(_user$project$HanabiUi$Registered, _p14.userName, '2')
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					} : {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								user: _user$project$HanabiUi$Unregistered('')
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11969,26 +11981,13 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 	});
 var _user$project$HanabiUi$update = F2(
 	function (msg, model) {
-		var _p14 = model.user;
-		switch (_p14.ctor) {
+		var _p15 = model.user;
+		switch (_p15.ctor) {
 			case 'Unregistered':
-				var _p15 = msg;
-				switch (_p15.ctor) {
+				var _p16 = msg;
+				switch (_p16.ctor) {
 					case 'UnregisteredMsg':
-						var _p16 = A3(_user$project$HanabiUi$updateUnregistered, _p15._0, _p14._0, model);
-						var newModel = _p16._0;
-						var sharedMessage = _p16._1;
-						return {
-							ctor: '_Tuple2',
-							_0: newModel,
-							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
-						};
-					case 'RegisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'PlayingMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					default:
-						var _p17 = A2(_user$project$HanabiUi$updateShared, _p15._0, model);
+						var _p17 = A3(_user$project$HanabiUi$updateUnregistered, _p16._0, _p15._0, model);
 						var newModel = _p17._0;
 						var sharedMessage = _p17._1;
 						return {
@@ -11996,25 +11995,29 @@ var _user$project$HanabiUi$update = F2(
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
-				}
-			case 'Registered':
-				var _p18 = msg;
-				switch (_p18.ctor) {
-					case 'UnregisteredMsg':
+					case 'RegisteredMsg':
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					case 'PlayingMsg':
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'RegisteredMsg':
-						var _p19 = A4(_user$project$HanabiUi$updateRegistered, _p18._0, _p14._0, _p14._1, model);
-						var newModel = _p19._0;
-						var sharedMessage = _p19._1;
+					default:
+						var _p18 = A2(_user$project$HanabiUi$updateShared, _p16._0, model);
+						var newModel = _p18._0;
+						var sharedMessage = _p18._1;
 						return {
 							ctor: '_Tuple2',
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
-					default:
-						var _p20 = A2(_user$project$HanabiUi$updateShared, _p18._0, model);
+				}
+			case 'Registered':
+				var _p19 = msg;
+				switch (_p19.ctor) {
+					case 'UnregisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'PlayingMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'RegisteredMsg':
+						var _p20 = A4(_user$project$HanabiUi$updateRegistered, _p19._0, _p15._0, _p15._1, model);
 						var newModel = _p20._0;
 						var sharedMessage = _p20._1;
 						return {
@@ -12022,27 +12025,36 @@ var _user$project$HanabiUi$update = F2(
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
+					default:
+						var _p21 = A2(_user$project$HanabiUi$updateShared, _p19._0, model);
+						var newModel = _p21._0;
+						var sharedMessage = _p21._1;
+						return {
+							ctor: '_Tuple2',
+							_0: newModel,
+							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
+						};
 				}
 			default:
-				var _p21 = msg;
-				switch (_p21.ctor) {
+				var _p22 = msg;
+				switch (_p22.ctor) {
 					case 'UnregisteredMsg':
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					case 'RegisteredMsg':
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					case 'PlayingMsg':
-						var _p22 = A3(_user$project$HanabiUi$updatePlaying, _p21._0, _p14._0, model);
-						var newModel = _p22._0;
-						var sharedMessage = _p22._1;
+						var _p23 = A3(_user$project$HanabiUi$updatePlaying, _p22._0, _p15._0, model);
+						var newModel = _p23._0;
+						var sharedMessage = _p23._1;
 						return {
 							ctor: '_Tuple2',
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
 					default:
-						var _p23 = A2(_user$project$HanabiUi$updateShared, _p21._0, model);
-						var newModel = _p23._0;
-						var sharedMessage = _p23._1;
+						var _p24 = A2(_user$project$HanabiUi$updateShared, _p22._0, model);
+						var newModel = _p24._0;
+						var sharedMessage = _p24._1;
 						return {
 							ctor: '_Tuple2',
 							_0: newModel,
@@ -12052,23 +12064,23 @@ var _user$project$HanabiUi$update = F2(
 		}
 	});
 var _user$project$HanabiUi$view = function (model) {
-	var _p24 = model.user;
-	switch (_p24.ctor) {
+	var _p25 = model.user;
+	switch (_p25.ctor) {
 		case 'Unregistered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$UnregisteredMsg,
-				_user$project$HanabiUi$viewUnregistered(_p24._0));
+				_user$project$HanabiUi$viewUnregistered(_p25._0));
 		case 'Registered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$RegisteredMsg,
-				A3(_user$project$HanabiUi$viewRegistered, _p24._0, _p24._1, model));
+				A3(_user$project$HanabiUi$viewRegistered, _p25._0, _p25._1, model));
 		default:
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$PlayingMsg,
-				A2(_user$project$HanabiUi$viewPlaying, _p24._0, model));
+				A2(_user$project$HanabiUi$viewPlaying, _p25._0, model));
 	}
 };
 var _user$project$HanabiUi$main = _elm_lang$html$Html$program(
