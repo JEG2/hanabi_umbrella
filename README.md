@@ -23,5 +23,4 @@ instead to support the makers of great games!
 * Prepare upgrade feature
 * Practice and automate hot code reloading
 * Handle game end?
-* Draw discard pile
 * Submit actions from UI
