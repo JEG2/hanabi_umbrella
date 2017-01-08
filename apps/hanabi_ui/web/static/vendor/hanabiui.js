@@ -11298,13 +11298,13 @@ var _user$project$Update$updateRegistered = F4(
 							payload,
 							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'join', 'game:lobby'))));
 				var phxSocket = _p4._0;
-				var registerCmd = _p4._1;
+				var joinCmd = _p4._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Update$PhoenixMsg, registerCmd)
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$Update$PhoenixMsg, joinCmd)
 				};
 			default:
 				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Update$responseDecoder, _p3._0);

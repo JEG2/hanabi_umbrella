@@ -216,7 +216,7 @@ updateRegistered msg userName playerCount model =
                         , ( "playerCount", Json.Encode.string newPlayerCount )
                         ]
 
-                ( phxSocket, registerCmd ) =
+                ( phxSocket, joinCmd ) =
                     Phoenix.Push.init "join" "game:lobby"
                         |> Phoenix.Push.withPayload payload
                         |> Phoenix.Push.onOk
@@ -226,7 +226,7 @@ updateRegistered msg userName playerCount model =
                         |> (flip Phoenix.Socket.push model.phxSocket)
             in
                 ( { model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg registerCmd
+                , Cmd.map PhoenixMsg joinCmd
                 )
 
         HandleJoinGameResponse json ->
