@@ -6,7 +6,7 @@ defmodule MatchMakerTest do
   test "new users are registered by process" do
     assert is_nil(MatchMaker.user("NewUser"))
     assert MatchMaker.register("NewUser") == :ok
-    assert MatchMaker.user("NewUser") == self
+    assert MatchMaker.user("NewUser") == self()
   end
 
   test "registration fails if a username is unavailable" do
@@ -15,7 +15,7 @@ defmodule MatchMakerTest do
   end
 
   test "users are unregistered on disconnect" do
-    test = self
+    test = self()
     {user, ref} = spawn_monitor(fn ->
       MatchMaker.register("Temp")
       send(test, :registered)
@@ -36,12 +36,12 @@ defmodule MatchMakerTest do
   test "a game is started as needed on join" do
     assert MatchMaker.register("LoneGamer") == :ok
     assert(
-      MatchMaker.join_game("LoneGamer", 4) == {:waiting, %{"LoneGamer" => self}}
+      MatchMaker.join_game("LoneGamer", 4) == {:waiting, %{"LoneGamer" => self()}}
     )
   end
 
   test "existing games are joined" do
-    test = self
+    test = self()
     pid = spawn(fn ->
       MatchMaker.register("FirstPlayer")
       MatchMaker.join_game("FirstPlayer", 3)
@@ -53,12 +53,12 @@ defmodule MatchMakerTest do
 
     assert_receive :joined
     assert MatchMaker.register("SecondPlayer") == :ok
-    players = {:waiting, %{"FirstPlayer" => pid, "SecondPlayer" => self}}
+    players = {:waiting, %{"FirstPlayer" => pid, "SecondPlayer" => self()}}
     assert MatchMaker.join_game("SecondPlayer", 3) == players
   end
 
   test "filling a game removes it" do
-    test = self
+    test = self()
     pid = spawn(fn ->
       MatchMaker.register("PlayerOne")
       MatchMaker.join_game("PlayerOne", 2)
@@ -70,15 +70,15 @@ defmodule MatchMakerTest do
 
     assert_receive :joined
     assert MatchMaker.register("PlayerTwo") == :ok
-    players = {:ready, %{"PlayerOne" => pid, "PlayerTwo" => self}}
+    players = {:ready, %{"PlayerOne" => pid, "PlayerTwo" => self()}}
     assert MatchMaker.join_game("PlayerTwo", 2) == players
 
-    players = {:waiting, %{"PlayerTwo" => self}}
+    players = {:waiting, %{"PlayerTwo" => self()}}
     assert MatchMaker.join_game("PlayerTwo", 2) == players
   end
 
   test "games are left on disconnect" do
-    test = self
+    test = self()
     {user, ref} = spawn_monitor(fn ->
       MatchMaker.register("TempPlayer")
       MatchMaker.join_game("TempPlayer", 5)
@@ -92,7 +92,7 @@ defmodule MatchMakerTest do
     send(user, :finish)
     assert_receive {:DOWN, ^ref, :process, ^user, :normal}
     MatchMaker.register("AfterTempPlayer")  # ensure it has processed DOWN message
-    players = {:waiting, %{"AfterTempPlayer" => self}}
+    players = {:waiting, %{"AfterTempPlayer" => self()}}
     assert MatchMaker.join_game("AfterTempPlayer", 5) == players
   end
 
