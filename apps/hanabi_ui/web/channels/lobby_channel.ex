@@ -41,7 +41,7 @@ defmodule HanabiUi.LobbyChannel do
               message: "You are waiting for a game."
             }
           }
-        {:waiting, players} ->
+        {:waiting, _players} ->
           {
             :ok,
             %{
@@ -97,7 +97,7 @@ defmodule HanabiUi.LobbyChannel do
     case result do
       {:ok, game_id, _player_names, _seed} ->
         players
-        |> Enum.each(fn {player_name, pid} -> send(pid, {:game_started, game_id}) end)
+        |> Enum.each(fn {_player_name, pid} -> send(pid, {:game_started, game_id}) end)
         HanabiEngine.GameManager.deal(game_id)
 
       {:error, message} ->
