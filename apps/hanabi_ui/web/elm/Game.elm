@@ -1,28 +1,24 @@
-module Game exposing(Model, gameDecoder, view, Msg)
+module Game exposing(Model, gameDecoder, view, Msg(..))
 
-import Html exposing (program, text, Html, div)
-import Json.Decode exposing (..)
+import Html exposing (program, text, Html, div, button)
+import Json.Decode as JD exposing (..)
+import Json.Encode exposing (string, int)
 import Dict exposing (Dict)
 import Html.Attributes exposing (class)
-import Svg exposing (svg, Svg, rect, g)
+import Svg exposing (svg, Svg, rect, g, text, text_)
+import Svg.Events exposing (onClick)
 import Svg.Attributes exposing (height, width, class, x, y, rx, ry, cx, cy, r, style)
 
 
--- main =
---   Html.programWithFlags
---     { init = init
---     , view = view
---     , update = update
---     , subscriptions = subscriptions
---     }
-
-
 type Msg
-    = NoOp
+    = Discard Int
+    | Play Int
 
 
 type alias Tile = (Maybe String, Maybe Int)
+
 type alias Hand = List Tile
+
 type alias Fireworks =
     { blue : Maybe Int
     , green : Maybe Int
@@ -30,6 +26,7 @@ type alias Fireworks =
     , white : Maybe Int
     , yellow : Maybe Int
     }
+
 type alias Model =
     { clocks : Int
     , discards : List Tile
@@ -42,38 +39,17 @@ type alias Model =
     }
 
 
-init : Value -> (Model, Cmd Msg)
-init values =
-    (values
-        |> decodeValue gameDecoder
-        |> Result.withDefault defaultModel
-        |> (,))
-    <| Cmd.none
-
-
-defaultModel : Model
-defaultModel =
-    { clocks = 0
-    , discards = []
-    , draw_pile = 0
-    , fireworks = {blue = Nothing, green = Nothing, red = Nothing, white = Nothing, yellow = Nothing}
-    , fuses = 0
-    , hands = Dict.fromList [("Jon", [])]
-    , my_hand = [(Nothing, Nothing), (Nothing, Nothing), (Nothing, Nothing), (Nothing, Nothing)]
-    , my_turn = False}
-
-
 gameDecoder : Decoder Model
 gameDecoder =
     map8 Model
-        (field "clocks" int)
+        (field "clocks" JD.int)
         (field "discards" handDecoder)
-        (field "draw_pile" int)
+        (field "draw_pile" JD.int)
         (field "fireworks" fireworkDecoder)
-        (field "fuses" int)
-        (field "hands" (dict (handDecoder)))
+        (field "fuses" JD.int)
+        (field "hands" (JD.dict (handDecoder)))
         (field "my_hand" handDecoder)
-        (field "my_turn" bool)
+        (field "my_turn" JD.bool)
 
 
 handDecoder : Decoder Hand
@@ -84,18 +60,18 @@ handDecoder =
 tileDecoder : Decoder Tile
 tileDecoder =
     map2 (,)
-        (index 0 (nullable string))
-        (index 1 (nullable int))
+        (index 0 (nullable JD.string))
+        (index 1 (nullable JD.int))
 
 
 fireworkDecoder : Decoder Fireworks
 fireworkDecoder =
     map5 Fireworks
-        (field "blue" (nullable int))
-        (field "green" (nullable int))
-        (field "red" (nullable int))
-        (field "white" (nullable int))
-        (field "yellow" (nullable int))
+        (field "blue" (nullable JD.int))
+        (field "green" (nullable JD.int))
+        (field "red" (nullable JD.int))
+        (field "white" (nullable JD.int))
+        (field "yellow" (nullable JD.int))
 
 
 subscriptions : Model -> Sub Msg
@@ -103,20 +79,16 @@ subscriptions model =
     Sub.none
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
-update msg model =
-    (model, Cmd.none)
-
-
 view : Model -> Html Msg
 view model =
-    div [ ] [ div [ Html.Attributes.class "draw"] [ text ("Remaining Tiles: " ++ toString model.draw_pile)]
-            , div [ Html.Attributes.class "fuses"] [ text ("Fuses: " ++ toString model.fuses)]
-            , div [ Html.Attributes.class "timers"] [ text ("Clocks: " ++ toString model.clocks)]
+    div [ ] [ div [ Html.Attributes.class "draw"] [ Html.text ("Remaining Tiles: " ++ toString model.draw_pile)]
+            , div [ Html.Attributes.class "fuses"] [ Html.text ("Fuses: " ++ toString model.fuses)]
+            , div [ Html.Attributes.class "timers"] [ Html.text ("Clocks: " ++ toString model.clocks)]
+            , div [ Html.Attributes.class "turn"] [ Html.text ("My Turn: " ++ toString model.my_turn)]
             , div [ Html.Attributes.class "fireworks"]
                   [ renderFireworkPile model.fireworks (100,60,10)]
             , div [ Html.Attributes.class "player-container" ]
-                  [ renderPlayerHand model.my_hand (100,60,10) "player" ]
+                  [ renderPlayerHand model.my_hand (100,60,15) "player" ]
             , div [ Html.Attributes.class "team-container" ]
                   (renderTeamHands model.hands (100,60,10))
             , div [ Html.Attributes.class "discards-container" ]
@@ -165,21 +137,25 @@ renderDiscardPile hand dimensions =
 renderTeamHands : Dict String Hand -> (Int, Int, Int) -> List (Svg a)
 renderTeamHands hands dimensions =
     hands
-        |> Dict.map (teamHand dimensions)
+        |> Dict.map (renderTeamHand dimensions)
         |> Dict.values
 
 
-teamHand : (Int, Int, Int) -> String -> Hand -> Svg a
-teamHand dimensions name hand =
-    renderPlayerHand hand dimensions name
+renderTeamHand : (Int, Int, Int) -> String -> Hand -> Svg a
+renderTeamHand (width, height, padding) name hand =
+    div [] [ div [] [Html.text (name ++ "'s hand:") ]
+           , Svg.svg [ Svg.Attributes.height (handHeight height padding)
+                     , Svg.Attributes.width (handWidth width padding)
+                     , Svg.Attributes.class (name ++ "-hand") ]
+                     (List.indexedMap (drawTile (width,height,padding)) hand)]
 
 
-renderPlayerHand : Hand -> (Int, Int, Int) -> String -> Svg a
+renderPlayerHand : Hand -> (Int, Int, Int) -> String -> Html Msg
 renderPlayerHand hand (width, height, padding) name  =
-    Svg.svg [ Svg.Attributes.height (handHeight height padding)
-            , Svg.Attributes.width (handWidth width padding)
-            , Svg.Attributes.class (name ++ "-hand") ]
-            (List.indexedMap (drawTile (width,height,padding)) hand)
+    div [] [ Svg.svg [ Svg.Attributes.height (handHeight height padding)
+                     , Svg.Attributes.width (handWidth width padding)
+                     , Svg.Attributes.class (name ++ "-hand") ]
+                     (List.indexedMap (drawPlayerTile (width,height,padding)) hand)]
 
 
 handHeight : Int -> Int -> String
@@ -209,6 +185,34 @@ drawTile (w, h, padding) idx (color, number) =
                     ] [])
              , renderFirework xpos ypos (color, number)
              ]
+
+
+drawPlayerTile : (Int, Int, Int) -> Int -> Tile -> Svg Msg
+drawPlayerTile (w, h, padding) idx (color, number) =
+    let
+        xpos = tileXpos w padding idx
+        ypos = padding
+    in
+        g [] [ (rect [ width (toString w)
+                    , height (toString h)
+                    , y (toString ypos)
+                    , x (toString xpos)
+                    , rx "10" --("toString padding)
+                    , ry "10" -- (toString padding)
+                    ] [])
+             , renderFirework xpos ypos (color, number)
+             , discardButton xpos ypos idx
+             , playButton xpos ypos idx
+             ]
+
+
+discardButton : Int -> Int -> Int -> Svg Msg
+discardButton xpos ypos idx =
+    Svg.text_ [ x (toString xpos), y (toString ypos), onClick (Discard idx)] [ (Svg.text "Discard") ]
+
+playButton : Int -> Int -> Int -> Svg Msg
+playButton xpos ypos idx =
+    Svg.text_ [ x (toString (xpos + 75)), y (toString ypos), onClick (Play idx)] [ (Svg.text "Play") ]
 
 
 tileXpos : Int -> Int -> Int -> Int

@@ -9013,6 +9013,34 @@ var _elm_lang$svg$Svg_Attributes$accumulate = _elm_lang$virtual_dom$VirtualDom$a
 var _elm_lang$svg$Svg_Attributes$accelerate = _elm_lang$virtual_dom$VirtualDom$attribute('accelerate');
 var _elm_lang$svg$Svg_Attributes$accentHeight = _elm_lang$virtual_dom$VirtualDom$attribute('accent-height');
 
+var _elm_lang$svg$Svg_Events$on = _elm_lang$virtual_dom$VirtualDom$on;
+var _elm_lang$svg$Svg_Events$simpleOn = F2(
+	function (name, msg) {
+		return A2(
+			_elm_lang$svg$Svg_Events$on,
+			name,
+			_elm_lang$core$Json_Decode$succeed(msg));
+	});
+var _elm_lang$svg$Svg_Events$onBegin = _elm_lang$svg$Svg_Events$simpleOn('begin');
+var _elm_lang$svg$Svg_Events$onEnd = _elm_lang$svg$Svg_Events$simpleOn('end');
+var _elm_lang$svg$Svg_Events$onRepeat = _elm_lang$svg$Svg_Events$simpleOn('repeat');
+var _elm_lang$svg$Svg_Events$onAbort = _elm_lang$svg$Svg_Events$simpleOn('abort');
+var _elm_lang$svg$Svg_Events$onError = _elm_lang$svg$Svg_Events$simpleOn('error');
+var _elm_lang$svg$Svg_Events$onResize = _elm_lang$svg$Svg_Events$simpleOn('resize');
+var _elm_lang$svg$Svg_Events$onScroll = _elm_lang$svg$Svg_Events$simpleOn('scroll');
+var _elm_lang$svg$Svg_Events$onLoad = _elm_lang$svg$Svg_Events$simpleOn('load');
+var _elm_lang$svg$Svg_Events$onUnload = _elm_lang$svg$Svg_Events$simpleOn('unload');
+var _elm_lang$svg$Svg_Events$onZoom = _elm_lang$svg$Svg_Events$simpleOn('zoom');
+var _elm_lang$svg$Svg_Events$onActivate = _elm_lang$svg$Svg_Events$simpleOn('activate');
+var _elm_lang$svg$Svg_Events$onClick = _elm_lang$svg$Svg_Events$simpleOn('click');
+var _elm_lang$svg$Svg_Events$onFocusIn = _elm_lang$svg$Svg_Events$simpleOn('focusin');
+var _elm_lang$svg$Svg_Events$onFocusOut = _elm_lang$svg$Svg_Events$simpleOn('focusout');
+var _elm_lang$svg$Svg_Events$onMouseDown = _elm_lang$svg$Svg_Events$simpleOn('mousedown');
+var _elm_lang$svg$Svg_Events$onMouseMove = _elm_lang$svg$Svg_Events$simpleOn('mousemove');
+var _elm_lang$svg$Svg_Events$onMouseOut = _elm_lang$svg$Svg_Events$simpleOn('mouseout');
+var _elm_lang$svg$Svg_Events$onMouseOver = _elm_lang$svg$Svg_Events$simpleOn('mouseover');
+var _elm_lang$svg$Svg_Events$onMouseUp = _elm_lang$svg$Svg_Events$simpleOn('mouseup');
+
 var _elm_lang$websocket$Native_WebSocket = function() {
 
 function open(url, settings)
@@ -10710,46 +10738,61 @@ var _user$project$Game$handHeight = F2(
 	function (height, padding) {
 		return _elm_lang$core$Basics$toString((padding + height) + padding);
 	});
-var _user$project$Game$renderPlayerHand = F3(
-	function (hand, _p10, name) {
+var _user$project$Game$renderTeamHand = F3(
+	function (_p10, name, hand) {
 		var _p11 = _p10;
 		var _p14 = _p11._0;
 		var _p13 = _p11._2;
 		var _p12 = _p11._1;
 		return A2(
-			_elm_lang$svg$Svg$svg,
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: _elm_lang$svg$Svg_Attributes$height(
-					A2(_user$project$Game$handHeight, _p12, _p13)),
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(_elm_lang$core$Basics_ops['++'], name, '\'s hand:')),
+						_1: {ctor: '[]'}
+					}),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$svg$Svg_Attributes$width(
-						A2(_user$project$Game$handWidth, _p14, _p13)),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$class(
-							A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
-						_1: {ctor: '[]'}
-					}
+					_0: A2(
+						_elm_lang$svg$Svg$svg,
+						{
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$height(
+								A2(_user$project$Game$handHeight, _p12, _p13)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$width(
+									A2(_user$project$Game$handWidth, _p14, _p13)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$class(
+										A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
+									_1: {ctor: '[]'}
+								}
+							}
+						},
+						A2(
+							_elm_lang$core$List$indexedMap,
+							_user$project$Game$drawTile(
+								{ctor: '_Tuple3', _0: _p14, _1: _p12, _2: _p13}),
+							hand)),
+					_1: {ctor: '[]'}
 				}
-			},
-			A2(
-				_elm_lang$core$List$indexedMap,
-				_user$project$Game$drawTile(
-					{ctor: '_Tuple3', _0: _p14, _1: _p12, _2: _p13}),
-				hand));
-	});
-var _user$project$Game$teamHand = F3(
-	function (dimensions, name, hand) {
-		return A3(_user$project$Game$renderPlayerHand, hand, dimensions, name);
+			});
 	});
 var _user$project$Game$renderTeamHands = F2(
 	function (hands, dimensions) {
 		return _elm_lang$core$Dict$values(
 			A2(
 				_elm_lang$core$Dict$map,
-				_user$project$Game$teamHand(dimensions),
+				_user$project$Game$renderTeamHand(dimensions),
 				hands));
 	});
 var _user$project$Game$renderDiscardPile = F2(
@@ -10911,6 +10954,228 @@ var _user$project$Game$renderFireworkPile = F2(
 				}
 			});
 	});
+var _user$project$Game$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$none;
+};
+var _user$project$Game$tileDecoder = A3(
+	_elm_lang$core$Json_Decode$map2,
+	F2(
+		function (v0, v1) {
+			return {ctor: '_Tuple2', _0: v0, _1: v1};
+		}),
+	A2(
+		_elm_lang$core$Json_Decode$index,
+		0,
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string)),
+	A2(
+		_elm_lang$core$Json_Decode$index,
+		1,
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
+var _user$project$Game$handDecoder = _elm_lang$core$Json_Decode$list(_user$project$Game$tileDecoder);
+var _user$project$Game$Fireworks = F5(
+	function (a, b, c, d, e) {
+		return {blue: a, green: b, red: c, white: d, yellow: e};
+	});
+var _user$project$Game$fireworkDecoder = A6(
+	_elm_lang$core$Json_Decode$map5,
+	_user$project$Game$Fireworks,
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'blue',
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'green',
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'red',
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'white',
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'yellow',
+		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
+var _user$project$Game$Model = F8(
+	function (a, b, c, d, e, f, g, h) {
+		return {clocks: a, discards: b, draw_pile: c, fireworks: d, fuses: e, hands: f, my_hand: g, my_turn: h};
+	});
+var _user$project$Game$gameDecoder = A9(
+	_elm_lang$core$Json_Decode$map8,
+	_user$project$Game$Model,
+	A2(_elm_lang$core$Json_Decode$field, 'clocks', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'discards', _user$project$Game$handDecoder),
+	A2(_elm_lang$core$Json_Decode$field, 'draw_pile', _elm_lang$core$Json_Decode$int),
+	A2(_elm_lang$core$Json_Decode$field, 'fireworks', _user$project$Game$fireworkDecoder),
+	A2(_elm_lang$core$Json_Decode$field, 'fuses', _elm_lang$core$Json_Decode$int),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'hands',
+		_elm_lang$core$Json_Decode$dict(_user$project$Game$handDecoder)),
+	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _user$project$Game$handDecoder),
+	A2(_elm_lang$core$Json_Decode$field, 'my_turn', _elm_lang$core$Json_Decode$bool));
+var _user$project$Game$Play = function (a) {
+	return {ctor: 'Play', _0: a};
+};
+var _user$project$Game$playButton = F3(
+	function (xpos, ypos, idx) {
+		return A2(
+			_elm_lang$svg$Svg$text_,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$x(
+					_elm_lang$core$Basics$toString(xpos + 75)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$y(
+						_elm_lang$core$Basics$toString(ypos)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Events$onClick(
+							_user$project$Game$Play(idx)),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg$text('Play'),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$Game$Discard = function (a) {
+	return {ctor: 'Discard', _0: a};
+};
+var _user$project$Game$discardButton = F3(
+	function (xpos, ypos, idx) {
+		return A2(
+			_elm_lang$svg$Svg$text_,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$x(
+					_elm_lang$core$Basics$toString(xpos)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$y(
+						_elm_lang$core$Basics$toString(ypos)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Events$onClick(
+							_user$project$Game$Discard(idx)),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg$text('Discard'),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$Game$drawPlayerTile = F3(
+	function (_p29, idx, _p28) {
+		var _p30 = _p29;
+		var _p33 = _p30._0;
+		var _p32 = _p30._2;
+		var _p31 = _p28;
+		var ypos = _p32;
+		var xpos = A3(_user$project$Game$tileXpos, _p33, _p32, idx);
+		return A2(
+			_elm_lang$svg$Svg$g,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$svg$Svg$rect,
+					{
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$width(
+							_elm_lang$core$Basics$toString(_p33)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$height(
+								_elm_lang$core$Basics$toString(_p30._1)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$y(
+									_elm_lang$core$Basics$toString(ypos)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$x(
+										_elm_lang$core$Basics$toString(xpos)),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Attributes$rx('10'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$svg$Svg_Attributes$ry('10'),
+											_1: {ctor: '[]'}
+										}
+									}
+								}
+							}
+						}
+					},
+					{ctor: '[]'}),
+				_1: {
+					ctor: '::',
+					_0: A3(
+						_user$project$Game$renderFirework,
+						xpos,
+						ypos,
+						{ctor: '_Tuple2', _0: _p31._0, _1: _p31._1}),
+					_1: {
+						ctor: '::',
+						_0: A3(_user$project$Game$discardButton, xpos, ypos, idx),
+						_1: {
+							ctor: '::',
+							_0: A3(_user$project$Game$playButton, xpos, ypos, idx),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			});
+	});
+var _user$project$Game$renderPlayerHand = F3(
+	function (hand, _p34, name) {
+		var _p35 = _p34;
+		var _p38 = _p35._0;
+		var _p37 = _p35._2;
+		var _p36 = _p35._1;
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$svg$Svg$svg,
+					{
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$height(
+							A2(_user$project$Game$handHeight, _p36, _p37)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$width(
+								A2(_user$project$Game$handWidth, _p38, _p37)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$class(
+									A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
+								_1: {ctor: '[]'}
+							}
+						}
+					},
+					A2(
+						_elm_lang$core$List$indexedMap,
+						_user$project$Game$drawPlayerTile(
+							{ctor: '_Tuple3', _0: _p38, _1: _p36, _2: _p37}),
+						hand)),
+				_1: {ctor: '[]'}
+			});
+	});
 var _user$project$Game$view = function (model) {
 	return A2(
 		_elm_lang$html$Html$div,
@@ -10975,15 +11240,16 @@ var _user$project$Game$view = function (model) {
 							_elm_lang$html$Html$div,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('fireworks'),
+								_0: _elm_lang$html$Html_Attributes$class('turn'),
 								_1: {ctor: '[]'}
 							},
 							{
 								ctor: '::',
-								_0: A2(
-									_user$project$Game$renderFireworkPile,
-									model.fireworks,
-									{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'My Turn: ',
+										_elm_lang$core$Basics$toString(model.my_turn))),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -10992,16 +11258,15 @@ var _user$project$Game$view = function (model) {
 								_elm_lang$html$Html$div,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('player-container'),
+									_0: _elm_lang$html$Html_Attributes$class('fireworks'),
 									_1: {ctor: '[]'}
 								},
 								{
 									ctor: '::',
-									_0: A3(
-										_user$project$Game$renderPlayerHand,
-										model.my_hand,
-										{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10},
-										'player'),
+									_0: A2(
+										_user$project$Game$renderFireworkPile,
+										model.fireworks,
+										{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
 									_1: {ctor: '[]'}
 								}),
 							_1: {
@@ -11010,31 +11275,50 @@ var _user$project$Game$view = function (model) {
 									_elm_lang$html$Html$div,
 									{
 										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('team-container'),
+										_0: _elm_lang$html$Html_Attributes$class('player-container'),
 										_1: {ctor: '[]'}
 									},
-									A2(
-										_user$project$Game$renderTeamHands,
-										model.hands,
-										{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10})),
+									{
+										ctor: '::',
+										_0: A3(
+											_user$project$Game$renderPlayerHand,
+											model.my_hand,
+											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 15},
+											'player'),
+										_1: {ctor: '[]'}
+									}),
 								_1: {
 									ctor: '::',
 									_0: A2(
 										_elm_lang$html$Html$div,
 										{
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('discards-container'),
+											_0: _elm_lang$html$Html_Attributes$class('team-container'),
 											_1: {ctor: '[]'}
 										},
-										{
-											ctor: '::',
-											_0: A2(
-												_user$project$Game$renderDiscardPile,
-												model.discards,
-												{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
+										A2(
+											_user$project$Game$renderTeamHands,
+											model.hands,
+											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10})),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('discards-container'),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: A2(
+													_user$project$Game$renderDiscardPile,
+													model.discards,
+													{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {ctor: '[]'}
+									}
 								}
 							}
 						}
@@ -11043,119 +11327,6 @@ var _user$project$Game$view = function (model) {
 			}
 		});
 };
-var _user$project$Game$update = F2(
-	function (msg, model) {
-		return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-	});
-var _user$project$Game$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
-};
-var _user$project$Game$tileDecoder = A3(
-	_elm_lang$core$Json_Decode$map2,
-	F2(
-		function (v0, v1) {
-			return {ctor: '_Tuple2', _0: v0, _1: v1};
-		}),
-	A2(
-		_elm_lang$core$Json_Decode$index,
-		0,
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$string)),
-	A2(
-		_elm_lang$core$Json_Decode$index,
-		1,
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
-var _user$project$Game$handDecoder = _elm_lang$core$Json_Decode$list(_user$project$Game$tileDecoder);
-var _user$project$Game$defaultModel = {
-	clocks: 0,
-	discards: {ctor: '[]'},
-	draw_pile: 0,
-	fireworks: {blue: _elm_lang$core$Maybe$Nothing, green: _elm_lang$core$Maybe$Nothing, red: _elm_lang$core$Maybe$Nothing, white: _elm_lang$core$Maybe$Nothing, yellow: _elm_lang$core$Maybe$Nothing},
-	fuses: 0,
-	hands: _elm_lang$core$Dict$fromList(
-		{
-			ctor: '::',
-			_0: {
-				ctor: '_Tuple2',
-				_0: 'Jon',
-				_1: {ctor: '[]'}
-			},
-			_1: {ctor: '[]'}
-		}),
-	my_hand: {
-		ctor: '::',
-		_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-		_1: {
-			ctor: '::',
-			_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-			_1: {
-				ctor: '::',
-				_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-				_1: {
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: _elm_lang$core$Maybe$Nothing, _1: _elm_lang$core$Maybe$Nothing},
-					_1: {ctor: '[]'}
-				}
-			}
-		}
-	},
-	my_turn: false
-};
-var _user$project$Game$Fireworks = F5(
-	function (a, b, c, d, e) {
-		return {blue: a, green: b, red: c, white: d, yellow: e};
-	});
-var _user$project$Game$fireworkDecoder = A6(
-	_elm_lang$core$Json_Decode$map5,
-	_user$project$Game$Fireworks,
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'blue',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'green',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'red',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'white',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'yellow',
-		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
-var _user$project$Game$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {clocks: a, discards: b, draw_pile: c, fireworks: d, fuses: e, hands: f, my_hand: g, my_turn: h};
-	});
-var _user$project$Game$gameDecoder = A9(
-	_elm_lang$core$Json_Decode$map8,
-	_user$project$Game$Model,
-	A2(_elm_lang$core$Json_Decode$field, 'clocks', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'discards', _user$project$Game$handDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'draw_pile', _elm_lang$core$Json_Decode$int),
-	A2(_elm_lang$core$Json_Decode$field, 'fireworks', _user$project$Game$fireworkDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'fuses', _elm_lang$core$Json_Decode$int),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'hands',
-		_elm_lang$core$Json_Decode$dict(_user$project$Game$handDecoder)),
-	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _user$project$Game$handDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'my_turn', _elm_lang$core$Json_Decode$bool));
-var _user$project$Game$init = function (values) {
-	return F2(
-		function (v0, v1) {
-			return {ctor: '_Tuple2', _0: v0, _1: v1};
-		})(
-		A2(
-			_elm_lang$core$Result$withDefault,
-			_user$project$Game$defaultModel,
-			A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, values)))(_elm_lang$core$Platform_Cmd$none);
-};
-var _user$project$Game$NoOp = {ctor: 'NoOp'};
 
 var _user$project$HanabiUi$selectOptions = function (playerCount) {
 	return A2(
@@ -11197,23 +11368,6 @@ var _user$project$HanabiUi$selectOptions = function (playerCount) {
 			}
 		});
 };
-var _user$project$HanabiUi$updatePlaying = F3(
-	function (msg, userName, model) {
-		var _p0 = msg;
-		if (_p0.ctor === 'AssignGame') {
-			var newGame = _elm_lang$core$Result$toMaybe(
-				A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, _p0._0));
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{game: newGame}),
-				_1: _elm_lang$core$Platform_Cmd$none
-			};
-		} else {
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-		}
-	});
 var _user$project$HanabiUi$Model = F3(
 	function (a, b, c) {
 		return {user: a, phxSocket: b, game: c};
@@ -11391,10 +11545,10 @@ var _user$project$HanabiUi$PhoenixMsg = function (a) {
 };
 var _user$project$HanabiUi$updateShared = F2(
 	function (msg, model) {
-		var _p1 = msg;
-		var _p2 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p1._0, model.phxSocket);
-		var phxSocket = _p2._0;
-		var phxCmd = _p2._1;
+		var _p0 = msg;
+		var _p1 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p0._0, model.phxSocket);
+		var phxSocket = _p1._0;
+		var phxCmd = _p1._1;
 		return {
 			ctor: '_Tuple2',
 			_0: _elm_lang$core$Native_Utils.update(
@@ -11403,17 +11557,107 @@ var _user$project$HanabiUi$updateShared = F2(
 			_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, phxCmd)
 		};
 	});
+var _user$project$HanabiUi$updatePlaying = F3(
+	function (msg, userName, model) {
+		var _p2 = msg;
+		if (_p2.ctor === 'AssignGame') {
+			var newGame = _elm_lang$core$Result$toMaybe(
+				A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, _p2._0));
+			return {
+				ctor: '_Tuple2',
+				_0: _elm_lang$core$Native_Utils.update(
+					model,
+					{game: newGame}),
+				_1: _elm_lang$core$Platform_Cmd$none
+			};
+		} else {
+			var _p3 = _p2._0;
+			if (_p3.ctor === 'Discard') {
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(userName)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'idx',
+								_1: _elm_lang$core$Json_Encode$int(_p3._0)
+							},
+							_1: {ctor: '[]'}
+						}
+					});
+				var _p4 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					model.phxSocket,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:lobby')));
+				var phxSocket = _p4._0;
+				var registerCmd = _p4._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
+				};
+			} else {
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(userName)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'idx',
+								_1: _elm_lang$core$Json_Encode$int(_p3._0)
+							},
+							_1: {ctor: '[]'}
+						}
+					});
+				var _p5 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					model.phxSocket,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:lobby')));
+				var phxSocket = _p5._0;
+				var registerCmd = _p5._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
+				};
+			}
+		}
+	});
 var _user$project$HanabiUi$GameMsg = function (a) {
 	return {ctor: 'GameMsg', _0: a};
 };
 var _user$project$HanabiUi$viewPlaying = F2(
 	function (userName, model) {
-		var _p3 = model.game;
-		if (_p3.ctor === 'Just') {
+		var _p6 = model.game;
+		if (_p6.ctor === 'Just') {
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$GameMsg,
-				_user$project$Game$view(_p3._0));
+				_user$project$Game$view(_p6._0));
 		} else {
 			return A2(
 				_elm_lang$html$Html$div,
@@ -11447,9 +11691,9 @@ var _user$project$HanabiUi$SharedMsg = function (a) {
 	return {ctor: 'SharedMsg', _0: a};
 };
 var _user$project$HanabiUi$init = function () {
-	var _p4 = _user$project$HanabiUi$initSocket;
-	var phxSocket = _p4._0;
-	var joinCmd = _p4._1;
+	var _p7 = _user$project$HanabiUi$initSocket;
+	var phxSocket = _p7._0;
+	var joinCmd = _p7._1;
 	return {
 		ctor: '_Tuple2',
 		_0: {
@@ -11477,15 +11721,15 @@ var _user$project$HanabiUi$RegisteredMsg = function (a) {
 };
 var _user$project$HanabiUi$updateRegistered = F4(
 	function (msg, userName, playerCount, model) {
-		var _p5 = msg;
-		switch (_p5.ctor) {
+		var _p8 = msg;
+		switch (_p8.ctor) {
 			case 'ChoosePlayerCount':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							user: A2(_user$project$HanabiUi$Registered, userName, _p5._0)
+							user: A2(_user$project$HanabiUi$Registered, userName, _p8._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -11496,19 +11740,19 @@ var _user$project$HanabiUi$updateRegistered = F4(
 						_0: {
 							ctor: '_Tuple2',
 							_0: 'userName',
-							_1: _elm_lang$core$Json_Encode$string(_p5._0)
+							_1: _elm_lang$core$Json_Encode$string(_p8._0)
 						},
 						_1: {
 							ctor: '::',
 							_0: {
 								ctor: '_Tuple2',
 								_0: 'playerCount',
-								_1: _elm_lang$core$Json_Encode$string(_p5._1)
+								_1: _elm_lang$core$Json_Encode$string(_p8._1)
 							},
 							_1: {ctor: '[]'}
 						}
 					});
-				var _p6 = A3(
+				var _p9 = A3(
 					_elm_lang$core$Basics$flip,
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
 					model.phxSocket,
@@ -11522,75 +11766,6 @@ var _user$project$HanabiUi$updateRegistered = F4(
 							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 							payload,
 							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'join', 'game:lobby'))));
-				var phxSocket = _p6._0;
-				var registerCmd = _p6._1;
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{phxSocket: phxSocket}),
-					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
-				};
-			default:
-				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p5._0);
-				var _p7 = result;
-				if (_p7.ctor === 'Ok') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								user: _user$project$HanabiUi$Playing(_p7._0.userName)
-							}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
-				} else {
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				}
-		}
-	});
-var _user$project$HanabiUi$UnregisteredMsg = function (a) {
-	return {ctor: 'UnregisteredMsg', _0: a};
-};
-var _user$project$HanabiUi$updateUnregistered = F3(
-	function (msg, userName, model) {
-		var _p8 = msg;
-		switch (_p8.ctor) {
-			case 'EnterUserName':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{
-							user: _user$project$HanabiUi$Unregistered(_p8._0)
-						}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			case 'Register':
-				var payload = _elm_lang$core$Json_Encode$object(
-					{
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'userName',
-							_1: _elm_lang$core$Json_Encode$string(_p8._0)
-						},
-						_1: {ctor: '[]'}
-					});
-				var _p9 = A3(
-					_elm_lang$core$Basics$flip,
-					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
-					model.phxSocket,
-					A2(
-						_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
-						function (resp) {
-							return _user$project$HanabiUi$UnregisteredMsg(
-								_user$project$HanabiUi$HandleRegisterResponse(resp));
-						},
-						A2(
-							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-							payload,
-							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:lobby'))));
 				var phxSocket = _p9._0;
 				var registerCmd = _p9._1;
 				return {
@@ -11609,7 +11784,76 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								user: A2(_user$project$HanabiUi$Registered, _p10._0.userName, '2')
+								user: _user$project$HanabiUi$Playing(_p10._0.userName)
+							}),
+						_1: _elm_lang$core$Platform_Cmd$none
+					};
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
+		}
+	});
+var _user$project$HanabiUi$UnregisteredMsg = function (a) {
+	return {ctor: 'UnregisteredMsg', _0: a};
+};
+var _user$project$HanabiUi$updateUnregistered = F3(
+	function (msg, userName, model) {
+		var _p11 = msg;
+		switch (_p11.ctor) {
+			case 'EnterUserName':
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{
+							user: _user$project$HanabiUi$Unregistered(_p11._0)
+						}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
+			case 'Register':
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(_p11._0)
+						},
+						_1: {ctor: '[]'}
+					});
+				var _p12 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					model.phxSocket,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$onOk,
+						function (resp) {
+							return _user$project$HanabiUi$UnregisteredMsg(
+								_user$project$HanabiUi$HandleRegisterResponse(resp));
+						},
+						A2(
+							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+							payload,
+							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:lobby'))));
+				var phxSocket = _p12._0;
+				var registerCmd = _p12._1;
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{phxSocket: phxSocket}),
+					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
+				};
+			default:
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p11._0);
+				var _p13 = result;
+				if (_p13.ctor === 'Ok') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								user: A2(_user$project$HanabiUi$Registered, _p13._0.userName, '2')
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11628,43 +11872,13 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 	});
 var _user$project$HanabiUi$update = F2(
 	function (msg, model) {
-		var _p11 = model.user;
-		switch (_p11.ctor) {
+		var _p14 = model.user;
+		switch (_p14.ctor) {
 			case 'Unregistered':
-				var _p12 = msg;
-				switch (_p12.ctor) {
-					case 'UnregisteredMsg':
-						var _p13 = A3(_user$project$HanabiUi$updateUnregistered, _p12._0, _p11._0, model);
-						var newModel = _p13._0;
-						var sharedMessage = _p13._1;
-						return {
-							ctor: '_Tuple2',
-							_0: newModel,
-							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
-						};
-					case 'RegisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'PlayingMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					default:
-						var _p14 = A2(_user$project$HanabiUi$updateShared, _p12._0, model);
-						var newModel = _p14._0;
-						var sharedMessage = _p14._1;
-						return {
-							ctor: '_Tuple2',
-							_0: newModel,
-							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
-						};
-				}
-			case 'Registered':
 				var _p15 = msg;
 				switch (_p15.ctor) {
 					case 'UnregisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'PlayingMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'RegisteredMsg':
-						var _p16 = A4(_user$project$HanabiUi$updateRegistered, _p15._0, _p11._0, _p11._1, model);
+						var _p16 = A3(_user$project$HanabiUi$updateUnregistered, _p15._0, _p14._0, model);
 						var newModel = _p16._0;
 						var sharedMessage = _p16._1;
 						return {
@@ -11672,6 +11886,10 @@ var _user$project$HanabiUi$update = F2(
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
+					case 'RegisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'PlayingMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					default:
 						var _p17 = A2(_user$project$HanabiUi$updateShared, _p15._0, model);
 						var newModel = _p17._0;
@@ -11682,15 +11900,15 @@ var _user$project$HanabiUi$update = F2(
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
 				}
-			default:
+			case 'Registered':
 				var _p18 = msg;
 				switch (_p18.ctor) {
 					case 'UnregisteredMsg':
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'RegisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					case 'PlayingMsg':
-						var _p19 = A3(_user$project$HanabiUi$updatePlaying, _p18._0, _p11._0, model);
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'RegisteredMsg':
+						var _p19 = A4(_user$project$HanabiUi$updateRegistered, _p18._0, _p14._0, _p14._1, model);
 						var newModel = _p19._0;
 						var sharedMessage = _p19._1;
 						return {
@@ -11708,26 +11926,52 @@ var _user$project$HanabiUi$update = F2(
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
 				}
+			default:
+				var _p21 = msg;
+				switch (_p21.ctor) {
+					case 'UnregisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'RegisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'PlayingMsg':
+						var _p22 = A3(_user$project$HanabiUi$updatePlaying, _p21._0, _p14._0, model);
+						var newModel = _p22._0;
+						var sharedMessage = _p22._1;
+						return {
+							ctor: '_Tuple2',
+							_0: newModel,
+							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
+						};
+					default:
+						var _p23 = A2(_user$project$HanabiUi$updateShared, _p21._0, model);
+						var newModel = _p23._0;
+						var sharedMessage = _p23._1;
+						return {
+							ctor: '_Tuple2',
+							_0: newModel,
+							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
+						};
+				}
 		}
 	});
 var _user$project$HanabiUi$view = function (model) {
-	var _p21 = model.user;
-	switch (_p21.ctor) {
+	var _p24 = model.user;
+	switch (_p24.ctor) {
 		case 'Unregistered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$UnregisteredMsg,
-				_user$project$HanabiUi$viewUnregistered(_p21._0));
+				_user$project$HanabiUi$viewUnregistered(_p24._0));
 		case 'Registered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$RegisteredMsg,
-				A3(_user$project$HanabiUi$viewRegistered, _p21._0, _p21._1, model));
+				A3(_user$project$HanabiUi$viewRegistered, _p24._0, _p24._1, model));
 		default:
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$PlayingMsg,
-				A2(_user$project$HanabiUi$viewPlaying, _p21._0, model));
+				A2(_user$project$HanabiUi$viewPlaying, _p24._0, model));
 	}
 };
 var _user$project$HanabiUi$main = _elm_lang$html$Html$program(

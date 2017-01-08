@@ -56,8 +56,19 @@ defmodule HanabiUi.LobbyChannel do
     {:reply, result, socket}
   end
 
+  def handle_in("discard", %{"userName" => user_name, "idx" => idx}, socket) do
+    HanabiEngine.GameManager.discard(socket.assigns.game_id, user_name, idx)
+    {:noreply, socket}
+  end
+
+  def handle_in("play", %{"userName" => user_name, "idx" => idx}, socket) do
+    HanabiEngine.GameManager.play(socket.assigns.game_id, user_name, idx)
+    {:noreply, socket}
+  end
+
   def handle_info({:game_started, game_id}, socket) do
     HanabiEngine.GameManager.subscribe(game_id)
+    socket = socket |> assign(:game_id, game_id)
     {:noreply, socket}
   end
 
@@ -67,6 +78,16 @@ defmodule HanabiUi.LobbyChannel do
   end
 
   def handle_info({:deal, :ok, game}, socket) do
+    push(socket, "game", HanabiEngine.Game.to_player_view(game, socket.assigns.user_name))
+    {:noreply, socket}
+  end
+
+  def handle_info({{:discard, _user_name, _idx}, :ok, game}, socket) do
+    push(socket, "game", HanabiEngine.Game.to_player_view(game, socket.assigns.user_name))
+    {:noreply, socket}
+  end
+
+  def handle_info({{:play, _user_name, _idx}, :ok, game}, socket) do
     push(socket, "game", HanabiEngine.Game.to_player_view(game, socket.assigns.user_name))
     {:noreply, socket}
   end

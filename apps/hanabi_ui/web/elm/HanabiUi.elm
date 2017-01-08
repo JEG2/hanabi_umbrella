@@ -262,9 +262,44 @@ updatePlaying msg userName model =
             let
                 newGame = json |> Json.Decode.decodeValue Game.gameDecoder |> Result.toMaybe
             in
-                ( {model | game = newGame }, Cmd.none)
+                ({model | game = newGame }, Cmd.none)
 
-        GameMsg gameMsg -> ( model, Cmd.none )
+        GameMsg gameMsg ->
+            case gameMsg of
+                Game.Discard idx ->
+                    let
+                        payload =
+                            Json.Encode.object
+                                [ ( "userName", Json.Encode.string userName )
+                                , ( "idx", Json.Encode.int idx )
+                                ]
+
+                        ( phxSocket, registerCmd ) =
+                            Phoenix.Push.init "discard" "game:lobby"
+                                |> Phoenix.Push.withPayload payload
+                                |> (flip Phoenix.Socket.push model.phxSocket)
+                    in
+                        ( { model | phxSocket = phxSocket }
+                        , Cmd.map PhoenixMsg registerCmd
+                        )
+
+                Game.Play idx ->
+                    let
+                        payload =
+                            Json.Encode.object
+                                [ ( "userName", Json.Encode.string userName )
+                                , ( "idx", Json.Encode.int idx )
+                                ]
+
+                        ( phxSocket, registerCmd ) =
+                            Phoenix.Push.init "play" "game:lobby"
+                                |> Phoenix.Push.withPayload payload
+                                |> (flip Phoenix.Socket.push model.phxSocket)
+                    in
+                        ( { model | phxSocket = phxSocket }
+                        , Cmd.map PhoenixMsg registerCmd
+                        )
+
 
 -- VIEW
 
