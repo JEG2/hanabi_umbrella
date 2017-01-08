@@ -43,7 +43,8 @@ exports.config = {
     watched: [
       "web/static",
       "test/static",
-      "web/elm/HanabiUi.elm"
+      "web/elm/HanabiUi.elm",
+      "web/elm/Game.elm"
     ],
 
     // Where to compile files to

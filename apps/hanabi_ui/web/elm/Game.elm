@@ -1,4 +1,4 @@
-module HanabiUi exposing(main)
+module Game exposing(Model, gameDecoder, view, Msg)
 
 import Html exposing (program, text, Html, div)
 import Json.Decode exposing (..)
@@ -8,13 +8,13 @@ import Svg exposing (svg, Svg, rect, g)
 import Svg.Attributes exposing (height, width, class, x, y, rx, ry, cx, cy, r, style)
 
 
-main =
-  Html.programWithFlags
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = subscriptions
-    }
+-- main =
+--   Html.programWithFlags
+--     { init = init
+--     , view = view
+--     , update = update
+--     , subscriptions = subscriptions
+--     }
 
 
 type Msg

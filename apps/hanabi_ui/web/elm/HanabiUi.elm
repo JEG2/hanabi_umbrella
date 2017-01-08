@@ -9,6 +9,8 @@ import Phoenix.Socket
 import Phoenix.Channel
 import Phoenix.Push
 
+import Game
+
 
 main : Program Never Model Msg
 main =
@@ -27,12 +29,13 @@ main =
 type User
     = Unregistered String
     | Registered String String
-    | Waiting String
+    | Playing String
 
 
 type alias Model =
     { user : User
     , phxSocket : Phoenix.Socket.Socket Msg
+    , game : Maybe Game.Model
     }
 
 
@@ -44,6 +47,7 @@ init =
     in
         ( { user = Unregistered ""
           , phxSocket = phxSocket
+          , game = Nothing
           }
         , Cmd.map SharedMsg (Cmd.map PhoenixMsg joinCmd)
         )
@@ -52,7 +56,9 @@ init =
 initSocket : ( Phoenix.Socket.Socket Msg, Cmd (Phoenix.Socket.Msg Msg) )
 initSocket =
     Phoenix.Socket.init "ws://localhost:4000/socket/websocket"
+        |> Phoenix.Socket.on "game" "game:lobby" (\g -> PlayingMsg (AssignGame g))
         |> Phoenix.Socket.join (Phoenix.Channel.init "game:lobby")
+
 
 
 
@@ -90,10 +96,16 @@ type SharedMessage
     = PhoenixMsg (Phoenix.Socket.Msg Msg)
 
 
+type PlayingMessage
+    = AssignGame Json.Encode.Value
+    | GameMsg Game.Msg
+
+
 type Msg
     = UnregisteredMsg UnregisteredMessage
     | RegisteredMsg RegisteredMessage
     | SharedMsg SharedMessage
+    | PlayingMsg PlayingMessage
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -109,6 +121,8 @@ update msg model =
 
                 RegisteredMsg _ -> (model, Cmd.none)
 
+                PlayingMsg _ -> (model, Cmd.none)
+
                 SharedMsg sharedmsg ->
                     let
                         (newModel, sharedMessage) = updateShared sharedmsg model
@@ -119,6 +133,8 @@ update msg model =
         Registered userName playerCount ->
             case msg of
                 UnregisteredMsg _  -> (model, Cmd.none)
+
+                PlayingMsg _ -> (model, Cmd.none)
 
                 RegisteredMsg registeredMsg ->
                     let
@@ -132,11 +148,17 @@ update msg model =
                     in
                         (newModel, Cmd.map SharedMsg sharedMessage)
 
-        Waiting userName ->
+        Playing userName ->
             case msg of
                 UnregisteredMsg _  -> (model, Cmd.none)
 
                 RegisteredMsg _ -> (model, Cmd.none)
+
+                PlayingMsg playingMessage ->
+                    let
+                        (newModel, sharedMessage) = updatePlaying playingMessage userName model
+                    in
+                        (newModel, Cmd.map SharedMsg sharedMessage)
 
                 SharedMsg sharedmsg ->
                     let
@@ -227,10 +249,22 @@ updateRegistered msg userName playerCount model =
             in
                 case result of
                     Ok response ->
-                        ( { model | user = Waiting response.userName }, Cmd.none )
+                        ( { model | user = Playing response.userName }, Cmd.none )
 
                     Err message ->
                         ( model, Cmd.none )
+
+
+updatePlaying : PlayingMessage -> String -> Model -> (Model, Cmd SharedMessage)
+updatePlaying msg userName model =
+    case msg of
+        AssignGame json ->
+            let
+                newGame = json |> Json.Decode.decodeValue Game.gameDecoder |> Result.toMaybe
+            in
+                ( {model | game = newGame }, Cmd.none)
+
+        GameMsg gameMsg -> ( model, Cmd.none )
 
 -- VIEW
 
@@ -244,8 +278,8 @@ view model =
         Registered userName playerCount ->
             Html.map RegisteredMsg (viewRegistered userName playerCount model)
 
-        Waiting userName ->
-            viewWaiting userName model
+        Playing userName ->
+            Html.map PlayingMsg (viewPlaying userName model)
 
 
 viewUnregistered : String -> Html UnregisteredMessage
@@ -281,9 +315,14 @@ selectOptions playerCount =
         |> List.map (\i -> option [selected (i == playerCount), value i] [text i])
 
 
-viewWaiting : String -> Model -> Html Msg
-viewWaiting userName model =
-    div [ ] [ text "Waiting for more players. Have a nice glass of water and enjoy the weather." ]
+viewPlaying : String -> Model -> Html PlayingMessage
+viewPlaying userName model =
+    case model.game of
+        Just game ->
+            Html.map GameMsg (Game.view game)
+        Nothing ->
+            div [ ] [ text "Waiting for more players. Have a nice glass of water and enjoy the weather." ]
+
 
 -- SUBSCRIPTIONS
 
