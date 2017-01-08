@@ -88,7 +88,7 @@ view model =
             , div [ Html.Attributes.class "fireworks"]
                   [ renderFireworkPile model.fireworks (100,60,10)]
             , div [ Html.Attributes.class "player-container" ]
-                  [ renderPlayerHand model.my_hand (100,60,15) "player" ]
+                  [ renderPlayerHand model.my_hand (100,60,15) "player" model.my_turn]
             , div [ Html.Attributes.class "team-container" ]
                   (renderTeamHands model.hands (100,60,10))
             , div [ Html.Attributes.class "discards-container" ]
@@ -130,8 +130,12 @@ drawFireworkTile (w, h, padding) idx (color, number) =
 
 
 renderDiscardPile : Hand -> (Int, Int, Int) -> Svg a
-renderDiscardPile hand dimensions =
-    g [ ] [ ]
+renderDiscardPile hand (width,height,padding) =
+    div [] [ div [] [Html.text ("Discards:") ]
+           , Svg.svg [ Svg.Attributes.height (handHeight height padding)
+                     , Svg.Attributes.width (handWidth width padding)
+                     , Svg.Attributes.class ("discards") ]
+                     (List.indexedMap (drawTile (width,height,padding)) hand)]
 
 
 renderTeamHands : Dict String Hand -> (Int, Int, Int) -> List (Svg a)
@@ -150,12 +154,12 @@ renderTeamHand (width, height, padding) name hand =
                      (List.indexedMap (drawTile (width,height,padding)) hand)]
 
 
-renderPlayerHand : Hand -> (Int, Int, Int) -> String -> Html Msg
-renderPlayerHand hand (width, height, padding) name  =
+renderPlayerHand : Hand -> (Int, Int, Int) -> String -> Bool -> Html Msg
+renderPlayerHand hand (width, height, padding) name  my_turn =
     div [] [ Svg.svg [ Svg.Attributes.height (handHeight height padding)
                      , Svg.Attributes.width (handWidth width padding)
                      , Svg.Attributes.class (name ++ "-hand") ]
-                     (List.indexedMap (drawPlayerTile (width,height,padding)) hand)]
+                     (List.indexedMap (drawPlayerTile (width,height,padding) my_turn) hand)]
 
 
 handHeight : Int -> Int -> String
@@ -187,23 +191,37 @@ drawTile (w, h, padding) idx (color, number) =
              ]
 
 
-drawPlayerTile : (Int, Int, Int) -> Int -> Tile -> Svg Msg
-drawPlayerTile (w, h, padding) idx (color, number) =
+drawPlayerTile : (Int, Int, Int) -> Bool -> Int -> Tile -> Svg Msg
+drawPlayerTile (w, h, padding) my_turn idx (color, number) =
     let
         xpos = tileXpos w padding idx
         ypos = padding
     in
-        g [] [ (rect [ width (toString w)
-                    , height (toString h)
-                    , y (toString ypos)
-                    , x (toString xpos)
-                    , rx "10" --("toString padding)
-                    , ry "10" -- (toString padding)
-                    ] [])
-             , renderFirework xpos ypos (color, number)
-             , discardButton xpos ypos idx
-             , playButton xpos ypos idx
-             ]
+        case my_turn of
+            True ->
+                g [] [ (rect [ width (toString w)
+                             , height (toString h)
+                             , y (toString ypos)
+                             , x (toString xpos)
+                             , rx "10" --("toString padding)
+                             , ry "10" -- (toString padding)
+                             ] [])
+                     , renderFirework xpos ypos (color, number)
+                     , discardButton xpos ypos idx
+                     , playButton xpos ypos idx
+                     ]
+
+            False ->
+                g [] [ (rect [ width (toString w)
+                             , height (toString h)
+                             , y (toString ypos)
+                             , x (toString xpos)
+                             , rx "10" --("toString padding)
+                             , ry "10" -- (toString padding)
+                             ] [])
+                     , renderFirework xpos ypos (color, number)
+                     ]
+
 
 
 discardButton : Int -> Int -> Int -> Svg Msg
