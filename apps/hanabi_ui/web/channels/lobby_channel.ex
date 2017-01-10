@@ -23,26 +23,50 @@ defmodule HanabiUi.LobbyChannel do
     %{"userName" => user_name, "playerCount" => player_count},
     socket
   ) do
-    result =
+    {result, new_socket} =
       case HanabiEngine.MatchMaker.join_game(user_name, player_count) do
         {:ready, players} ->
           start_game(players)
-          succeed(user_name, "You are waiting for a game.")
+          {
+            succeed(user_name, "You are waiting for a game."),
+            assign(socket, :player_acknowledgements, player_count)
+          }
         {:waiting, _players} ->
-          succeed(user_name, "You are waiting for a game.")
+          {succeed(user_name, "You are waiting for a game."), socket}
         {:error, message} ->
-          {:ok, fail(user_name, message)}
+          {{:ok, fail(user_name, message)}, socket}
       end
-    {:reply, result, socket}
+    {:reply, result, new_socket}
   end
 
-  def handle_info({:game_started, game_id}, socket) do
+  def handle_info({:game_started, game_id, pid}, socket) do
     Phoenix.PubSub.broadcast!(
       :players,
       "player:#{socket.assigns.uuid}",
-      {:game_started, socket.assigns.uuid, socket.assigns.user_name, game_id}
+      {
+        :game_started,
+        socket.assigns.uuid,
+        socket.assigns.user_name,
+        game_id,
+        pid
+      }
     )
-    {:noreply, socket}
+    new_socket = assign(socket, :game_id, game_id)
+    {:noreply, new_socket}
+  end
+  def handle_info(:player_acknowledgement, socket) do
+    new_socket =
+      if socket.assigns.player_acknowledgements == 1 do
+        HanabiEngine.GameManager.deal(socket.assigns.game_id)
+        socket
+      else
+        assign(
+          socket,
+          :player_acknowledgements,
+          socket.assigns.player_acknowledgements - 1
+        )
+      end
+    {:noreply, new_socket}
   end
   def handle_info({:game_start_error, message, player_name}, socket) do
     push(socket, "game_start_error", fail(player_name, message))
@@ -64,9 +88,8 @@ defmodule HanabiUi.LobbyChannel do
     case result do
       {:ok, game_id, _player_names, _seed} ->
         Enum.each(players, fn {_player_name, pid} ->
-          send(pid, {:game_started, game_id})
+          send(pid, {:game_started, game_id, self()})
         end)
-        HanabiEngine.GameManager.deal(game_id)
       {:error, message} ->
         Enum.each(players, fn {player_name, pid} ->
           send(pid, {:game_start_error, message, player_name})

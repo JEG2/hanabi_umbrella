@@ -15,11 +15,10 @@ instead to support the makers of great games!
 
 ## To Do
 
-* Better error handling
-* Bug:  Race condition in subscribe/deal
-* Split Elm code (user/lobby and a file per TEA)
 * Add storage
 * Prepare upgrade feature
 * Practice and automate hot code reloading
+* Better error handling
 * Handle game end?
+* Split Elm code (user/lobby and a file per TEA)
 * Submit actions from UI

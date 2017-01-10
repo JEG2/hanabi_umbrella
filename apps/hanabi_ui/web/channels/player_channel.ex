@@ -29,10 +29,11 @@ defmodule HanabiUi.PlayerChannel do
     {:noreply, socket}
   end
 
-  def handle_info({:game_started, uuid, user_name, game_id}, socket) do
+  def handle_info({:game_started, uuid, user_name, game_id, pid}, socket) do
     new_socket =
       if socket.assigns.uuid == uuid do
         HanabiEngine.GameManager.subscribe(game_id)
+        send(pid, :player_acknowledgement)
         socket
         |> assign(:user_name, user_name)
         |> assign(:game_id, game_id)
