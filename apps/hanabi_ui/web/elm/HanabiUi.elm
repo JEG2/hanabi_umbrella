@@ -54,9 +54,20 @@ init =
 
 initSocket : ( Phoenix.Socket.Socket Msg, Cmd (Phoenix.Socket.Msg Msg) )
 initSocket =
-    Phoenix.Socket.init "ws://localhost:4000/socket/websocket"
-        |> Phoenix.Socket.on "game" "game:player" (\g -> PlayingMsg (AssignGame g))
-        |> Phoenix.Socket.join (Phoenix.Channel.init "game:player")
+    let
+        ( lobbySocket, lobbyJoinCmd ) =
+            Phoenix.Socket.init "ws://localhost:4000/socket/websocket"
+                |> Phoenix.Socket.join (Phoenix.Channel.init "game:lobby")
+
+        ( gameSocket, gameJoinCmd ) =
+            lobbySocket
+                |> Phoenix.Socket.on
+                    "game"
+                    "game:player"
+                    (\g -> PlayingMsg (AssignGame g))
+                |> Phoenix.Socket.join (Phoenix.Channel.init "game:player")
+    in
+        ( gameSocket, Cmd.batch [ lobbyJoinCmd, gameJoinCmd ] )
 
 
 
@@ -202,7 +213,7 @@ updateUnregistered msg userName model =
                         [ ( "userName", Json.Encode.string userName ) ]
 
                 ( phxSocket, registerCmd ) =
-                    Phoenix.Push.init "register" "game:player"
+                    Phoenix.Push.init "register" "game:lobby"
                         |> Phoenix.Push.withPayload payload
                         |> Phoenix.Push.onOk (\resp -> UnregisteredMsg (HandleRegisterResponse resp))
                         |> (flip Phoenix.Socket.push model.phxSocket)
@@ -250,7 +261,7 @@ updateRegistered msg userName playerCount model =
                         ]
 
                 ( phxSocket, registerCmd ) =
-                    Phoenix.Push.init "join" "game:player"
+                    Phoenix.Push.init "join" "game:lobby"
                         |> Phoenix.Push.withPayload payload
                         |> Phoenix.Push.onOk (\resp -> RegisteredMsg (HandleJoinGameResponse resp))
                         |> (flip Phoenix.Socket.push model.phxSocket)

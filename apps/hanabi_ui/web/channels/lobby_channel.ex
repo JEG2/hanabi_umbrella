@@ -1,0 +1,76 @@
+defmodule HanabiUi.LobbyChannel do
+  use Phoenix.Channel
+
+  def join("game:lobby", _message, socket), do: {:ok, socket}
+  def join(_topic, _params, _socket), do: {:error, %{reason: "no such topic"}}
+
+  def handle_in("register", %{"userName" => user_name}, socket) do
+    {new_socket, result} =
+      case HanabiEngine.MatchMaker.register(user_name) do
+        :ok ->
+          {
+            assign(socket, :user_name, user_name),
+            succeed(user_name, "Registered as #{user_name}")
+          }
+        {:error, message} ->
+          {socket, fail(user_name, message)}
+      end
+    {:reply, result, new_socket}
+  end
+
+  def handle_in(
+    "join",
+    %{"userName" => user_name, "playerCount" => player_count},
+    socket
+  ) do
+    result =
+      case HanabiEngine.MatchMaker.join_game(user_name, player_count) do
+        {:ready, players} ->
+          start_game(players)
+          succeed(user_name, "You are waiting for a game.")
+        {:waiting, _players} ->
+          succeed(user_name, "You are waiting for a game.")
+        {:error, message} ->
+          {:ok, fail(user_name, message)}
+      end
+    {:reply, result, socket}
+  end
+
+  def handle_info({:game_started, game_id}, socket) do
+    Phoenix.PubSub.broadcast!(
+      :players,
+      "player:#{socket.assigns.uuid}",
+      {:game_started, socket.assigns.uuid, socket.assigns.user_name, game_id}
+    )
+    {:noreply, socket}
+  end
+  def handle_info({:game_start_error, message, player_name}, socket) do
+    push(socket, "game_start_error", fail(player_name, message))
+    {:noreply, socket}
+  end
+
+  ### Helpers ###
+
+  defp succeed(user_name, message) do
+    {:ok, %{success: true, userName: user_name, message: message}}
+  end
+
+  defp fail(user_name, message) do
+    {:ok, %{success: false, userName: user_name, message: message}}
+  end
+
+  defp start_game(players) do
+    result = HanabiEngine.GameManager.start_new(Map.keys(players))
+    case result do
+      {:ok, game_id, _player_names, _seed} ->
+        Enum.each(players, fn {_player_name, pid} ->
+          send(pid, {:game_started, game_id})
+        end)
+        HanabiEngine.GameManager.deal(game_id)
+      {:error, message} ->
+        Enum.each(players, fn {player_name, pid} ->
+          send(pid, {:game_start_error, message, player_name})
+        end)
+    end
+  end
+end

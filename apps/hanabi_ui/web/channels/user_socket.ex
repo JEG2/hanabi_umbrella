@@ -2,6 +2,7 @@ defmodule HanabiUi.UserSocket do
   use Phoenix.Socket
 
   ## Channels
+  channel "game:lobby", HanabiUi.LobbyChannel
   channel "game:player", HanabiUi.PlayerChannel
 
   ## Transports
@@ -20,7 +21,8 @@ defmodule HanabiUi.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(_params, socket) do
-    {:ok, socket}
+    new_socket = assign(socket, :uuid, UUID.uuid1())
+    {:ok, new_socket}
   end
 
   # Socket id's are topics that allow you to identify all sockets for a given user:

@@ -11772,25 +11772,49 @@ var _user$project$HanabiUi$AssignGame = function (a) {
 var _user$project$HanabiUi$PlayingMsg = function (a) {
 	return {ctor: 'PlayingMsg', _0: a};
 };
-var _user$project$HanabiUi$initSocket = A2(
-	_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
-	_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:player'),
-	A4(
-		_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
-		'game',
-		'game:player',
-		function (g) {
-			return _user$project$HanabiUi$PlayingMsg(
-				_user$project$HanabiUi$AssignGame(g));
-		},
-		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://localhost:4000/socket/websocket')));
+var _user$project$HanabiUi$initSocket = function () {
+	var _p7 = A2(
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
+		_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:lobby'),
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://localhost:4000/socket/websocket'));
+	var lobbySocket = _p7._0;
+	var lobbyJoinCmd = _p7._1;
+	var _p8 = A2(
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
+		_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:player'),
+		A4(
+			_fbonetti$elm_phoenix_socket$Phoenix_Socket$on,
+			'game',
+			'game:player',
+			function (g) {
+				return _user$project$HanabiUi$PlayingMsg(
+					_user$project$HanabiUi$AssignGame(g));
+			},
+			lobbySocket));
+	var gameSocket = _p8._0;
+	var gameJoinCmd = _p8._1;
+	return {
+		ctor: '_Tuple2',
+		_0: gameSocket,
+		_1: _elm_lang$core$Platform_Cmd$batch(
+			{
+				ctor: '::',
+				_0: lobbyJoinCmd,
+				_1: {
+					ctor: '::',
+					_0: gameJoinCmd,
+					_1: {ctor: '[]'}
+				}
+			})
+	};
+}();
 var _user$project$HanabiUi$SharedMsg = function (a) {
 	return {ctor: 'SharedMsg', _0: a};
 };
 var _user$project$HanabiUi$init = function () {
-	var _p7 = _user$project$HanabiUi$initSocket;
-	var phxSocket = _p7._0;
-	var joinCmd = _p7._1;
+	var _p9 = _user$project$HanabiUi$initSocket;
+	var phxSocket = _p9._0;
+	var joinCmd = _p9._1;
 	return {
 		ctor: '_Tuple2',
 		_0: {
@@ -11818,15 +11842,15 @@ var _user$project$HanabiUi$RegisteredMsg = function (a) {
 };
 var _user$project$HanabiUi$updateRegistered = F4(
 	function (msg, userName, playerCount, model) {
-		var _p8 = msg;
-		switch (_p8.ctor) {
+		var _p10 = msg;
+		switch (_p10.ctor) {
 			case 'ChoosePlayerCount':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							user: A2(_user$project$HanabiUi$Registered, userName, _p8._0)
+							user: A2(_user$project$HanabiUi$Registered, userName, _p10._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -11834,14 +11858,14 @@ var _user$project$HanabiUi$updateRegistered = F4(
 				var newPlayerCountInt = A2(
 					_elm_lang$core$Result$withDefault,
 					0,
-					_elm_lang$core$String$toInt(_p8._1));
+					_elm_lang$core$String$toInt(_p10._1));
 				var payload = _elm_lang$core$Json_Encode$object(
 					{
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
 							_0: 'userName',
-							_1: _elm_lang$core$Json_Encode$string(_p8._0)
+							_1: _elm_lang$core$Json_Encode$string(_p10._0)
 						},
 						_1: {
 							ctor: '::',
@@ -11853,7 +11877,7 @@ var _user$project$HanabiUi$updateRegistered = F4(
 							_1: {ctor: '[]'}
 						}
 					});
-				var _p9 = A3(
+				var _p11 = A3(
 					_elm_lang$core$Basics$flip,
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
 					model.phxSocket,
@@ -11866,9 +11890,9 @@ var _user$project$HanabiUi$updateRegistered = F4(
 						A2(
 							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 							payload,
-							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'join', 'game:player'))));
-				var phxSocket = _p9._0;
-				var registerCmd = _p9._1;
+							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'join', 'game:lobby'))));
+				var phxSocket = _p11._0;
+				var registerCmd = _p11._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -11877,15 +11901,15 @@ var _user$project$HanabiUi$updateRegistered = F4(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
 				};
 			default:
-				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p8._0);
-				var _p10 = result;
-				if (_p10.ctor === 'Ok') {
+				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p10._0);
+				var _p12 = result;
+				if (_p12.ctor === 'Ok') {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								user: _user$project$HanabiUi$Playing(_p10._0.userName)
+								user: _user$project$HanabiUi$Playing(_p12._0.userName)
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
@@ -11899,15 +11923,15 @@ var _user$project$HanabiUi$UnregisteredMsg = function (a) {
 };
 var _user$project$HanabiUi$updateUnregistered = F3(
 	function (msg, userName, model) {
-		var _p11 = msg;
-		switch (_p11.ctor) {
+		var _p13 = msg;
+		switch (_p13.ctor) {
 			case 'EnterUserName':
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
 						model,
 						{
-							user: _user$project$HanabiUi$Unregistered(_p11._0)
+							user: _user$project$HanabiUi$Unregistered(_p13._0)
 						}),
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
@@ -11918,11 +11942,11 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 						_0: {
 							ctor: '_Tuple2',
 							_0: 'userName',
-							_1: _elm_lang$core$Json_Encode$string(_p11._0)
+							_1: _elm_lang$core$Json_Encode$string(_p13._0)
 						},
 						_1: {ctor: '[]'}
 					});
-				var _p12 = A3(
+				var _p14 = A3(
 					_elm_lang$core$Basics$flip,
 					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
 					model.phxSocket,
@@ -11935,9 +11959,9 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 						A2(
 							_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
 							payload,
-							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:player'))));
-				var phxSocket = _p12._0;
-				var registerCmd = _p12._1;
+							A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'register', 'game:lobby'))));
+				var phxSocket = _p14._0;
+				var registerCmd = _p14._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -11949,16 +11973,16 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 				var result = A2(
 					_elm_lang$core$Debug$log,
 					'result',
-					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p11._0));
-				var _p13 = result;
-				if (_p13.ctor === 'Ok') {
-					var _p14 = _p13._0;
-					return _p14.success ? {
+					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$HanabiUi$responseDecoder, _p13._0));
+				var _p15 = result;
+				if (_p15.ctor === 'Ok') {
+					var _p16 = _p15._0;
+					return _p16.success ? {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								user: A2(_user$project$HanabiUi$Registered, _p14.userName, '2')
+								user: A2(_user$project$HanabiUi$Registered, _p16.userName, '2')
 							}),
 						_1: _elm_lang$core$Platform_Cmd$none
 					} : {
@@ -11985,15 +12009,15 @@ var _user$project$HanabiUi$updateUnregistered = F3(
 	});
 var _user$project$HanabiUi$update = F2(
 	function (msg, model) {
-		var _p15 = model.user;
-		switch (_p15.ctor) {
+		var _p17 = model.user;
+		switch (_p17.ctor) {
 			case 'Unregistered':
-				var _p16 = msg;
-				switch (_p16.ctor) {
+				var _p18 = msg;
+				switch (_p18.ctor) {
 					case 'UnregisteredMsg':
-						var _p17 = A3(_user$project$HanabiUi$updateUnregistered, _p16._0, _p15._0, model);
-						var newModel = _p17._0;
-						var sharedMessage = _p17._1;
+						var _p19 = A3(_user$project$HanabiUi$updateUnregistered, _p18._0, _p17._0, model);
+						var newModel = _p19._0;
+						var sharedMessage = _p19._1;
 						return {
 							ctor: '_Tuple2',
 							_0: newModel,
@@ -12004,24 +12028,7 @@ var _user$project$HanabiUi$update = F2(
 					case 'PlayingMsg':
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					default:
-						var _p18 = A2(_user$project$HanabiUi$updateShared, _p16._0, model);
-						var newModel = _p18._0;
-						var sharedMessage = _p18._1;
-						return {
-							ctor: '_Tuple2',
-							_0: newModel,
-							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
-						};
-				}
-			case 'Registered':
-				var _p19 = msg;
-				switch (_p19.ctor) {
-					case 'UnregisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'PlayingMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'RegisteredMsg':
-						var _p20 = A4(_user$project$HanabiUi$updateRegistered, _p19._0, _p15._0, _p15._1, model);
+						var _p20 = A2(_user$project$HanabiUi$updateShared, _p18._0, model);
 						var newModel = _p20._0;
 						var sharedMessage = _p20._1;
 						return {
@@ -12029,25 +12036,25 @@ var _user$project$HanabiUi$update = F2(
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
-					default:
-						var _p21 = A2(_user$project$HanabiUi$updateShared, _p19._0, model);
-						var newModel = _p21._0;
-						var sharedMessage = _p21._1;
+				}
+			case 'Registered':
+				var _p21 = msg;
+				switch (_p21.ctor) {
+					case 'UnregisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'PlayingMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'RegisteredMsg':
+						var _p22 = A4(_user$project$HanabiUi$updateRegistered, _p21._0, _p17._0, _p17._1, model);
+						var newModel = _p22._0;
+						var sharedMessage = _p22._1;
 						return {
 							ctor: '_Tuple2',
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
-				}
-			default:
-				var _p22 = msg;
-				switch (_p22.ctor) {
-					case 'UnregisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'RegisteredMsg':
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					case 'PlayingMsg':
-						var _p23 = A3(_user$project$HanabiUi$updatePlaying, _p22._0, _p15._0, model);
+					default:
+						var _p23 = A2(_user$project$HanabiUi$updateShared, _p21._0, model);
 						var newModel = _p23._0;
 						var sharedMessage = _p23._1;
 						return {
@@ -12055,10 +12062,27 @@ var _user$project$HanabiUi$update = F2(
 							_0: newModel,
 							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
 						};
+				}
+			default:
+				var _p24 = msg;
+				switch (_p24.ctor) {
+					case 'UnregisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'RegisteredMsg':
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					case 'PlayingMsg':
+						var _p25 = A3(_user$project$HanabiUi$updatePlaying, _p24._0, _p17._0, model);
+						var newModel = _p25._0;
+						var sharedMessage = _p25._1;
+						return {
+							ctor: '_Tuple2',
+							_0: newModel,
+							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$SharedMsg, sharedMessage)
+						};
 					default:
-						var _p24 = A2(_user$project$HanabiUi$updateShared, _p22._0, model);
-						var newModel = _p24._0;
-						var sharedMessage = _p24._1;
+						var _p26 = A2(_user$project$HanabiUi$updateShared, _p24._0, model);
+						var newModel = _p26._0;
+						var sharedMessage = _p26._1;
 						return {
 							ctor: '_Tuple2',
 							_0: newModel,
@@ -12068,23 +12092,23 @@ var _user$project$HanabiUi$update = F2(
 		}
 	});
 var _user$project$HanabiUi$view = function (model) {
-	var _p25 = model.user;
-	switch (_p25.ctor) {
+	var _p27 = model.user;
+	switch (_p27.ctor) {
 		case 'Unregistered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$UnregisteredMsg,
-				_user$project$HanabiUi$viewUnregistered(_p25._0));
+				_user$project$HanabiUi$viewUnregistered(_p27._0));
 		case 'Registered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$RegisteredMsg,
-				A3(_user$project$HanabiUi$viewRegistered, _p25._0, _p25._1, model));
+				A3(_user$project$HanabiUi$viewRegistered, _p27._0, _p27._1, model));
 		default:
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$PlayingMsg,
-				A2(_user$project$HanabiUi$viewPlaying, _p25._0, model));
+				A2(_user$project$HanabiUi$viewPlaying, _p27._0, model));
 	}
 };
 var _user$project$HanabiUi$main = _elm_lang$html$Html$program(

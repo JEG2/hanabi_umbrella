@@ -9,6 +9,7 @@ defmodule HanabiUi do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
+      supervisor(Phoenix.PubSub.PG2, [:players, [ ]]),
       supervisor(HanabiUi.Endpoint, []),
       # Start your own worker by calling: HanabiUi.Worker.start_link(arg1, arg2, arg3)
       # worker(HanabiUi.Worker, [arg1, arg2, arg3]),

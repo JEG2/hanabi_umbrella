@@ -18,7 +18,6 @@ instead to support the makers of great games!
 * Better error handling
 * Bug:  Race condition in subscribe/deal
 * Split Elm code (user/lobby and a file per TEA)
-* Split Channel lobby/games
 * Add storage
 * Prepare upgrade feature
 * Practice and automate hot code reloading
