@@ -1,0 +1,2 @@
+defmodule HanabiStorage do
+end
