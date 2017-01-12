@@ -7,7 +7,8 @@ defmodule HanabiStorage.Repo.Migrations.CreateGames do
       add :event, :string
       add :players, {:array, :string}
       add :seed, :binary
-      add :created_at, :utc_datetime
+      add :inserted_at, :utc_datetime
     end
+    create index(:games, ~w[players inserted_at]a)
   end
 end

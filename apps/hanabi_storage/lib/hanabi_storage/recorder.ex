@@ -1,7 +1,8 @@
 defmodule HanabiStorage.Recorder do
   use GenServer
+  require Logger
 
-  alias HanabiStorage.{Game, Repo}
+  alias HanabiStorage.{Game, Move, Repo}
 
   ### Client ###
 
@@ -16,8 +17,29 @@ defmodule HanabiStorage.Recorder do
   ### Server ###
 
   def handle_call({:start_game, id, players, seed}, _from, nil) do
-    Game.start_changeset(id, players, seed)
+    HanabiEngine.GameManager.subscribe(id)
+    Game.started_changeset(id, players, seed)
     |> Repo.insert!
     {:reply, :ok, nil}
+  end
+
+  def handle_info({{:hint, player, to, hint}, :ok, game_id, _game}, nil) do
+    Move.changeset(game_id, "hint", [player, to, hint])
+    |> Repo.insert!
+    {:noreply, nil}
+  end
+  def handle_info({{:discard, player, index}, :ok, game_id, _game}, nil) do
+    Move.changeset(game_id, "discard", [player, index])
+    |> Repo.insert!
+    {:noreply, nil}
+  end
+  def handle_info({{:play, player, index}, :ok, game_id, _game}, nil) do
+    Move.changeset(game_id, "play", [player, index])
+    |> Repo.insert!
+    {:noreply, nil}
+  end
+  def handle_info(message, nil) do
+    Logger.debug "Unsaved message:  #{inspect message}"
+    {:noreply, nil}
   end
 end

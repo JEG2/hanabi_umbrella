@@ -39,7 +39,8 @@ defmodule HanabiStorage.Mixfile do
   defp deps do
     [
       {:postgrex, "~> 0.13.0"},
-      {:ecto, "~> 2.1"}
+      {:ecto, "~> 2.1"},
+      {:hanabi_engine, in_umbrella: true}
     ]
   end
 end

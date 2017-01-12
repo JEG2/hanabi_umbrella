@@ -1,5 +1,6 @@
 defmodule HanabiUi.LobbyChannel do
   use Phoenix.Channel
+  require Logger
 
   def join("game:lobby", _message, socket), do: {:ok, socket}
   def join(_topic, _params, _socket), do: {:error, %{reason: "no such topic"}}
@@ -72,6 +73,10 @@ defmodule HanabiUi.LobbyChannel do
     push(socket, "game_start_error", fail(player_name, message))
     {:noreply, socket}
   end
+  def handle_info(message, socket) do
+    Logger.debug "Unexpected message:  #{inspect message}"
+    {:noreply, socket}
+  end
 
   ### Helpers ###
 
@@ -84,7 +89,11 @@ defmodule HanabiUi.LobbyChannel do
   end
 
   defp start_game(players) do
-    result = HanabiEngine.GameManager.start_new(Map.keys(players))
+    result =
+      players
+      |> Map.keys
+      |> Enum.sort
+      |> HanabiEngine.GameManager.start_new
     case result do
       {:ok, game_id, player_names, seed} ->
         HanabiStorage.Recorder.start_game(game_id, player_names, seed)

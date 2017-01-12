@@ -154,6 +154,6 @@ defmodule HanabiEngine.GameManager do
   ### Helpers ###
 
   defp publish(id, move, reply, game) do
-    PubSub.broadcast(:hanabi, "game:#{id}:events", {move, reply, game})
+    PubSub.broadcast(:hanabi, "game:#{id}:events", {move, reply, id, game})
   end
 end

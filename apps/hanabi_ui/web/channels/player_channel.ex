@@ -1,5 +1,6 @@
 defmodule HanabiUi.PlayerChannel do
   use Phoenix.Channel
+  require Logger
 
   def join("game:player", _message, socket) do
     Phoenix.PubSub.subscribe(:players, "player:#{socket.assigns.uuid}")
@@ -16,15 +17,15 @@ defmodule HanabiUi.PlayerChannel do
     {:noreply, socket}
   end
 
-  def handle_info({:deal, :ok, game}, socket) do
+  def handle_info({:deal, :ok, _game_id, game}, socket) do
     update_game_ui(game, socket)
     {:noreply, socket}
   end
-  def handle_info({{:discard, _user_name, _idx}, :ok, game}, socket) do
+  def handle_info({{:discard, _user_name, _idx}, :ok, _game_id, game}, socket) do
     update_game_ui(game, socket)
     {:noreply, socket}
   end
-  def handle_info({{:play, _user_name, _idx}, :ok, game}, socket) do
+  def handle_info({{:play, _user_name, _idx}, :ok, _game_id, game}, socket) do
     update_game_ui(game, socket)
     {:noreply, socket}
   end
@@ -41,6 +42,11 @@ defmodule HanabiUi.PlayerChannel do
         socket
       end
     {:noreply, new_socket}
+  end
+
+  def handle_info(message, socket) do
+    Logger.debug "Unexpected message:  #{inspect message}"
+    {:noreply, socket}
   end
 
   ### Helpers ###

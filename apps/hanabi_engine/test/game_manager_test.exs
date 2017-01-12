@@ -32,7 +32,7 @@ defmodule GameManagerTest do
     {:ok, _game} = GameManager.start("TestDeal", ~w[A B])
     GameManager.subscribe("TestDeal")
     GameManager.deal("TestDeal")
-    assert_receive {:deal, :ok, game}
+    assert_receive {:deal, :ok, "TestDeal", game}
     assert length(game.draw_pile) == 40
   end
 
@@ -41,7 +41,7 @@ defmodule GameManagerTest do
     {:ok, _game} = GameManager.start("TestSeed", ~w[A B], seed)
     GameManager.subscribe("TestSeed")
     GameManager.deal("TestSeed")
-    assert_receive {:deal, :ok, game}
+    assert_receive {:deal, :ok, "TestSeed", game}
     bs_hand = game.hands |> Map.fetch!("B")
     assert bs_hand == [red: 4, blue: 5, red: 2, white: 4, blue: 2]
   end
@@ -58,13 +58,13 @@ defmodule GameManagerTest do
       {:ok, _game} = GameManager.start(game_id, ~w[A B], seed)
       GameManager.subscribe(game_id)
       GameManager.deal(game_id)
-      assert_receive {:deal, :ok, game}
+      assert_receive {:deal, :ok, ^game_id, game}
       {:ok, id: game_id, game: game}
     end
 
     test "hints are given by publishing the named message", %{id: id} do
       GameManager.hint(id, "A", "B", :red)
-      assert_receive {{:hint, "A", "B", :red}, :ok, game}
+      assert_receive {{:hint, "A", "B", :red}, :ok, ^id, game}
       bs_knowns = game.knowns |> Map.fetch!("B")
       hint = [{:red, nil}, {nil, nil}, {:red, nil}, {nil, nil}, {nil, nil}]
       assert bs_knowns == hint
@@ -72,13 +72,13 @@ defmodule GameManagerTest do
 
     test "discards are made by publishing the named message", %{id: id} do
       GameManager.discard(id, "A", 0)
-      assert_receive {{:discard, "A", 0}, :ok, game}
+      assert_receive {{:discard, "A", 0}, :ok, ^id, game}
       assert game.discards == [green: 4]
     end
 
     test "plays are made by publishing the named message", %{id: id} do
       GameManager.play(id, "A", 4)
-      assert_receive {{:play, "A", 4}, :ok, game}
+      assert_receive {{:play, "A", 4}, :ok, ^id, game}
       assert game.fireworks.green == 1
     end
 
@@ -88,6 +88,7 @@ defmodule GameManagerTest do
       assert_receive {
         {:hint, "B", "A", 1},
         {:error, "It's not B's turn."},
+        ^id,
         game
       }
       assert dealt_game == game
