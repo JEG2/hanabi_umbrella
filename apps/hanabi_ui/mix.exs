@@ -20,8 +20,19 @@ defmodule HanabiUi.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {HanabiUi, []},
-     applications: [:phoenix, :phoenix_pubsub, :phoenix_html, :cowboy, :logger, :gettext, :hanabi_engine]]
+    [
+      mod: {HanabiUi, []},
+      applications: [
+        :phoenix,
+        :phoenix_pubsub,
+        :phoenix_html,
+        :cowboy,
+        :logger,
+        :gettext,
+        :hanabi_engine,
+        :hanabi_storage
+      ]
+    ]
   end
 
   # Specifies which paths to compile per environment.
@@ -32,13 +43,16 @@ defmodule HanabiUi.Mixfile do
   #
   # Type `mix help deps` for examples and options.
   defp deps do
-    [{:phoenix, "~> 1.2.0"},
-     {:phoenix_pubsub, "~> 1.0"},
-     {:phoenix_html, "~> 2.6"},
-     {:phoenix_live_reload, "~> 1.0", only: :dev},
-     {:gettext, "~> 0.11"},
-     {:cowboy, "~> 1.0"},
-     {:uuid, "~> 1.1"},
-     {:hanabi_engine, in_umbrella: true}]
+    [
+      {:phoenix, "~> 1.2.0"},
+      {:phoenix_pubsub, "~> 1.0"},
+      {:phoenix_html, "~> 2.6"},
+      {:phoenix_live_reload, "~> 1.0", only: :dev},
+      {:gettext, "~> 0.11"},
+      {:cowboy, "~> 1.0"},
+      {:uuid, "~> 1.1"},
+      {:hanabi_engine, in_umbrella: true},
+      {:hanabi_storage, in_umbrella: true}
+    ]
   end
 end
