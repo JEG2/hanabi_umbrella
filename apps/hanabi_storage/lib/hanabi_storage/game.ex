@@ -1,24 +1,25 @@
 defmodule HanabiStorage.Game do
   use Ecto.Schema
   import Ecto.Changeset
+  alias HanabiStorage.SerializedField
 
-  @primary_key {:id, Ecto.UUID, [ ]}
   schema "games" do
-    has_many :moves, HanabiStorage.Move
-
+    field :uuid, Ecto.UUID
     field :event, :string
     field :players, {:array, :string}
-    field :seed, :binary
+    field :seed, SerializedField
     field :inserted_at, :utc_datetime
+
+    has_many :moves, HanabiStorage.Move, foreign_key: :game_id, references: :uuid
   end
 
-  def started_changeset(id, players, seed) do
+  def started_changeset(game_id, players, seed) do
     normalized_params =
       %{
-        id: id,
+        uuid: game_id,
         event: "started",
-        players: Enum.sort(players),
-        seed: :erlang.term_to_binary(seed),
+        players: players,
+        seed: seed,
         inserted_at: DateTime.utc_now
       }
     %__MODULE__{ }

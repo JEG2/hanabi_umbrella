@@ -96,7 +96,7 @@ defmodule HanabiUi.LobbyChannel do
       |> HanabiEngine.GameManager.start_new
     case result do
       {:ok, game_id, player_names, seed} ->
-        HanabiStorage.Recorder.start_game(game_id, player_names, seed)
+        HanabiStorage.Recorder.start_game(game_id, Enum.sort(player_names), seed)
         Enum.each(players, fn {_player_name, pid} ->
           send(pid, {:game_started, game_id, self()})
         end)

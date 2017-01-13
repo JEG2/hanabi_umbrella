@@ -2,8 +2,8 @@ defmodule HanabiStorage.Repo.Migrations.CreateGames do
   use Ecto.Migration
 
   def change do
-    create table(:games, primary_key: false) do
-      add :id, :uuid, primary_key: true
+    create table(:games) do
+      add :uuid, :uuid
       add :event, :string
       add :players, {:array, :string}
       add :seed, :binary

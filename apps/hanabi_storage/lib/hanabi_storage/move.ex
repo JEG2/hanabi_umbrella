@@ -1,12 +1,12 @@
 defmodule HanabiStorage.Move do
   use Ecto.Schema
   import Ecto.Changeset
+  alias HanabiStorage.SerializedField
 
   schema "moves" do
-    belongs_to :game, HanabiStorage.Game, type: Ecto.UUID
-
+    field :game_id, Ecto.UUID
     field :play, :string
-    field :arguments, :binary
+    field :arguments, SerializedField
     field :inserted_at, :utc_datetime
   end
 
