@@ -418,148 +418,54 @@ renderFirework xpos ypos ( color, number ) =
 renderOne : Int -> Int -> Maybe String -> Svg a
 renderOne xpos ypos color =
     g []
-        [ (Svg.circle
-            [ cx (toString (xpos + 20))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
+        [ renderCircle (xpos + 20) (ypos + 20) color
         ]
 
 
 renderTwo : Int -> Int -> Maybe String -> Svg a
 renderTwo xpos ypos color =
     g []
-        [ (Svg.circle
-            [ cx (toString (xpos + 30))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 50))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
         ]
 
 
 renderThree : Int -> Int -> Maybe String -> Svg a
 renderThree xpos ypos color =
     g []
-        [ (Svg.circle
-            [ cx (toString (xpos + 30))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 50))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 70))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        , renderCircle (xpos + 70) (ypos + 20) color
         ]
 
 
 renderFour : Int -> Int -> Maybe String -> Svg a
 renderFour xpos ypos color =
     g []
-        [ (Svg.circle
-            [ cx (toString (xpos + 30))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 50))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 70))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 50))
-            , cy (toString (ypos + 40))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        , renderCircle (xpos + 70) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 40) color
         ]
 
 
 renderFive : Int -> Int -> Maybe String -> Svg a
 renderFive xpos ypos color =
     g []
-        [ (Svg.circle
-            [ cx (toString (xpos + 30))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 50))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 70))
-            , cy (toString (ypos + 20))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 50))
-            , cy (toString (ypos + 40))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
-        , (Svg.circle
-            [ cx (toString (xpos + 30))
-            , cy (toString (ypos + 40))
-            , r "5"
-            , style ("fill: " ++ (Maybe.withDefault "black" color))
-            ]
-            []
-          )
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        , renderCircle (xpos + 70) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 40) color
+        , renderCircle (xpos + 30) (ypos + 40) color
         ]
+
+
+renderCircle : Int -> Int -> Maybe String -> Svg a
+renderCircle x y color =
+    Svg.circle
+        [ cx (toString x)
+        , cy (toString y)
+        , r "5"
+        , style ("fill: " ++ (Maybe.withDefault "black" color))
+        ]
+        []

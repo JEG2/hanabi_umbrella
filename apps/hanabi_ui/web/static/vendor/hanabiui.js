@@ -10175,6 +10175,35 @@ var _fbonetti$elm_phoenix_socket$Phoenix_Socket$listen = F2(
 			});
 	});
 
+var _user$project$Game$renderCircle = F3(
+	function (x, y, color) {
+		return A2(
+			_elm_lang$svg$Svg$circle,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Attributes$cx(
+					_elm_lang$core$Basics$toString(x)),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$svg$Svg_Attributes$cy(
+						_elm_lang$core$Basics$toString(y)),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$r('5'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$style(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									'fill: ',
+									A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
+							_1: {ctor: '[]'}
+						}
+					}
+				}
+			},
+			{ctor: '[]'});
+	});
 var _user$project$Game$renderFive = F3(
 	function (xpos, ypos, color) {
 		return A2(
@@ -10182,144 +10211,19 @@ var _user$project$Game$renderFive = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
+				_0: A3(_user$project$Game$renderCircle, xpos + 30, ypos + 20, color),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: A3(_user$project$Game$renderCircle, xpos + 50, ypos + 20, color),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$svg$Svg$circle,
-							{
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cx(
-									_elm_lang$core$Basics$toString(xpos + 70)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cy(
-										_elm_lang$core$Basics$toString(ypos + 20)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$r('5'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'fill: ',
-													A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							},
-							{ctor: '[]'}),
+						_0: A3(_user$project$Game$renderCircle, xpos + 70, ypos + 20, color),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$svg$Svg$circle,
-								{
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cx(
-										_elm_lang$core$Basics$toString(xpos + 50)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$cy(
-											_elm_lang$core$Basics$toString(ypos + 40)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$r('5'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style(
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														'fill: ',
-														A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
+							_0: A3(_user$project$Game$renderCircle, xpos + 50, ypos + 40, color),
 							_1: {
 								ctor: '::',
-								_0: A2(
-									_elm_lang$svg$Svg$circle,
-									{
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$cx(
-											_elm_lang$core$Basics$toString(xpos + 30)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$cy(
-												_elm_lang$core$Basics$toString(ypos + 40)),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$r('5'),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$svg$Svg_Attributes$style(
-														A2(
-															_elm_lang$core$Basics_ops['++'],
-															'fill: ',
-															A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									},
-									{ctor: '[]'}),
+								_0: A3(_user$project$Game$renderCircle, xpos + 30, ypos + 40, color),
 								_1: {ctor: '[]'}
 							}
 						}
@@ -10334,116 +10238,16 @@ var _user$project$Game$renderFour = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
+				_0: A3(_user$project$Game$renderCircle, xpos + 30, ypos + 20, color),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: A3(_user$project$Game$renderCircle, xpos + 50, ypos + 20, color),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$svg$Svg$circle,
-							{
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cx(
-									_elm_lang$core$Basics$toString(xpos + 70)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cy(
-										_elm_lang$core$Basics$toString(ypos + 20)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$r('5'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'fill: ',
-													A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							},
-							{ctor: '[]'}),
+						_0: A3(_user$project$Game$renderCircle, xpos + 70, ypos + 20, color),
 						_1: {
 							ctor: '::',
-							_0: A2(
-								_elm_lang$svg$Svg$circle,
-								{
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cx(
-										_elm_lang$core$Basics$toString(xpos + 50)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$cy(
-											_elm_lang$core$Basics$toString(ypos + 40)),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$r('5'),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$svg$Svg_Attributes$style(
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														'fill: ',
-														A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-												_1: {ctor: '[]'}
-											}
-										}
-									}
-								},
-								{ctor: '[]'}),
+							_0: A3(_user$project$Game$renderCircle, xpos + 50, ypos + 40, color),
 							_1: {ctor: '[]'}
 						}
 					}
@@ -10457,88 +10261,13 @@ var _user$project$Game$renderThree = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
+				_0: A3(_user$project$Game$renderCircle, xpos + 30, ypos + 20, color),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: A3(_user$project$Game$renderCircle, xpos + 50, ypos + 20, color),
 					_1: {
 						ctor: '::',
-						_0: A2(
-							_elm_lang$svg$Svg$circle,
-							{
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cx(
-									_elm_lang$core$Basics$toString(xpos + 70)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$cy(
-										_elm_lang$core$Basics$toString(ypos + 20)),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$r('5'),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$svg$Svg_Attributes$style(
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'fill: ',
-													A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-											_1: {ctor: '[]'}
-										}
-									}
-								}
-							},
-							{ctor: '[]'}),
+						_0: A3(_user$project$Game$renderCircle, xpos + 70, ypos + 20, color),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -10551,60 +10280,10 @@ var _user$project$Game$renderTwo = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 30)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
+				_0: A3(_user$project$Game$renderCircle, xpos + 30, ypos + 20, color),
 				_1: {
 					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$circle,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cx(
-								_elm_lang$core$Basics$toString(xpos + 50)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$cy(
-									_elm_lang$core$Basics$toString(ypos + 20)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$r('5'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Attributes$style(
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'fill: ',
-												A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						},
-						{ctor: '[]'}),
+					_0: A3(_user$project$Game$renderCircle, xpos + 50, ypos + 20, color),
 					_1: {ctor: '[]'}
 				}
 			});
@@ -10616,32 +10295,7 @@ var _user$project$Game$renderOne = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A2(
-					_elm_lang$svg$Svg$circle,
-					{
-						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$cx(
-							_elm_lang$core$Basics$toString(xpos + 20)),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$cy(
-								_elm_lang$core$Basics$toString(ypos + 20)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$r('5'),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$style(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'fill: ',
-											A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					},
-					{ctor: '[]'}),
+				_0: A3(_user$project$Game$renderCircle, xpos + 20, ypos + 20, color),
 				_1: {ctor: '[]'}
 			});
 	});
