@@ -10945,10 +10945,8 @@ var _user$project$Game$myDataDecoder = A4(
 	_user$project$Game$MyData,
 	A2(_elm_lang$core$Json_Decode$field, 'hand', _user$project$Game$handDecoder),
 	A2(_elm_lang$core$Json_Decode$field, 'turn', _elm_lang$core$Json_Decode$bool),
-	A2(
-		_elm_lang$core$Json_Decode$field,
-		'insights',
-		_elm_lang$core$Json_Decode$nullable(_user$project$Game$insightsDecoder)));
+	_elm_lang$core$Json_Decode$maybe(
+		A2(_elm_lang$core$Json_Decode$field, 'insights', _user$project$Game$insightsDecoder)));
 var _user$project$Game$gameDecoder = A8(
 	_elm_lang$core$Json_Decode$map7,
 	_user$project$Game$Model,
@@ -11183,24 +11181,8 @@ var _user$project$Game$drawPlayerTile = F4(
 							_0: A3(_user$project$Game$discardButton, xpos, ypos, idx),
 							_1: {
 								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$button,
-									{
-										ctor: '::',
-										_0: _elm_lang$svg$Svg_Events$onClick(
-											_user$project$Game$Discard(idx)),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('Discard'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A3(_user$project$Game$playButton, xpos, ypos, idx),
-									_1: {ctor: '[]'}
-								}
+								_0: A3(_user$project$Game$playButton, xpos, ypos, idx),
+								_1: {ctor: '[]'}
 							}
 						}
 					}

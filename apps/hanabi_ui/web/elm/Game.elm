@@ -103,7 +103,7 @@ myDataDecoder =
     map3 MyData
         (field "hand" handDecoder)
         (field "turn" JD.bool)
-        (field "insights" (nullable insightsDecoder))
+        (maybe (field "insights" insightsDecoder))
 
 
 insightsDecoder : Decoder (List (List String))
