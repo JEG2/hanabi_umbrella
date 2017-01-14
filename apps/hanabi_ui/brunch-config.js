@@ -44,7 +44,8 @@ exports.config = {
       "web/static",
       "test/static",
       "web/elm/HanabiUi.elm",
-      "web/elm/Game.elm"
+      "web/elm/Game.elm",
+      "web/elm/Registration.elm"
     ],
 
     // Where to compile files to
