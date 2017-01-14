@@ -33,4 +33,18 @@ defmodule HanabiStorage do
       game
     end
   end
+
+  def load(saved_game = %Game{ }) do
+    new_game =
+      saved_game.players
+      |> HanabiEngine.Game.new
+      |> HanabiEngine.Game.deal
+    Enum.reduce(saved_game.moves, new_game, fn move, game ->
+      apply(
+        HanabiEngine.Game,
+        String.to_atom(move.play),
+        [game | move.arguments]
+      )
+    end)
+  end
 end

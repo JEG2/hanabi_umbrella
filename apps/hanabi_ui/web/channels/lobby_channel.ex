@@ -100,44 +100,36 @@ defmodule HanabiUi.LobbyChannel do
             saved_game.uuid,
             sorted_names,
             saved_game.seed,
-            fn _players ->
-              new_game =
-                sorted_names
-                |> HanabiEngine.Game.new
-                |> HanabiEngine.Game.deal
-              Enum.reduce(saved_game.moves, new_game, fn move, game ->
-                apply(
-                  HanabiEngine.Game,
-                  String.to_atom(move.play),
-                  [game | move.arguments]
-                )
-              end)
-            end
+            fn _players -> HanabiStorage.load(saved_game) end
           )
         case result do
           success when is_tuple(success) and elem(success, 0) == :ok ->
             HanabiStorage.Recorder.record_game(saved_game.uuid)
-            Enum.each(players, fn {_player_name, pid} ->
-              send(pid, {:game_started, saved_game.uuid, self()})
-            end)
+            notify_players_of_game(players, saved_game.uuid)
           {:error, message} ->
-            Enum.each(players, fn {player_name, pid} ->
-              send(pid, {:game_start_error, message, player_name})
-            end)
+            notify_players_of_game_error(players, message)
         end
       _ ->
         result = HanabiEngine.GameManager.start_new(sorted_names)
         case result do
           {:ok, game_id, _player_names, seed} ->
             HanabiStorage.Recorder.start_game(game_id, sorted_names, seed)
-            Enum.each(players, fn {_player_name, pid} ->
-              send(pid, {:game_started, game_id, self()})
-            end)
+            notify_players_of_game(players, game_id)
           {:error, message} ->
-            Enum.each(players, fn {player_name, pid} ->
-              send(pid, {:game_start_error, message, player_name})
-            end)
+            notify_players_of_game_error(players, message)
         end
     end
+  end
+
+  defp notify_players_of_game(players, game_id) do
+    Enum.each(players, fn {_player_name, pid} ->
+      send(pid, {:game_started, game_id, self()})
+    end)
+  end
+
+  defp notify_players_of_game_error(players, message) do
+    Enum.each(players, fn {player_name, pid} ->
+      send(pid, {:game_start_error, message, player_name})
+    end)
   end
 end
