@@ -10426,7 +10426,7 @@ var _user$project$Game$renderOne = F3(
 			{ctor: '[]'},
 			{
 				ctor: '::',
-				_0: A3(_user$project$Game$renderCircle, xpos + 20, ypos + 20, color),
+				_0: A3(_user$project$Game$renderCircle, xpos + 30, ypos + 20, color),
 				_1: {ctor: '[]'}
 			});
 	});
@@ -10767,7 +10767,7 @@ var _user$project$Game$renderFireworkPile = F2(
 	});
 var _user$project$Game$shouldShowButtons = function (_p30) {
 	var _p31 = _p30;
-	return _p31.my_turn && (_elm_lang$core$Native_Utils.cmp(_p31.clocks, 0) > 0);
+	return _p31.my_data.turn && (_elm_lang$core$Native_Utils.cmp(_p31.clocks, 0) > 0);
 };
 var _user$project$Game$update = F4(
 	function (msg, userName, _p32, msgMapper) {
@@ -10888,6 +10888,8 @@ var _user$project$Game$update = F4(
 				};
 		}
 	});
+var _user$project$Game$insightsDecoder = _elm_lang$core$Json_Decode$list(
+	_elm_lang$core$Json_Decode$list(_elm_lang$core$Json_Decode$string));
 var _user$project$Game$tileDecoder = A3(
 	_elm_lang$core$Json_Decode$map2,
 	F2(
@@ -10930,12 +10932,25 @@ var _user$project$Game$fireworkDecoder = A6(
 		_elm_lang$core$Json_Decode$field,
 		'yellow',
 		_elm_lang$core$Json_Decode$nullable(_elm_lang$core$Json_Decode$int)));
-var _user$project$Game$Model = F8(
-	function (a, b, c, d, e, f, g, h) {
-		return {clocks: a, discards: b, draw_pile: c, fireworks: d, fuses: e, hands: f, my_hand: g, my_turn: h};
+var _user$project$Game$Model = F7(
+	function (a, b, c, d, e, f, g) {
+		return {clocks: a, discards: b, draw_pile: c, fireworks: d, fuses: e, hands: f, my_data: g};
 	});
-var _user$project$Game$gameDecoder = A9(
-	_elm_lang$core$Json_Decode$map8,
+var _user$project$Game$MyData = F3(
+	function (a, b, c) {
+		return {hand: a, turn: b, insights: c};
+	});
+var _user$project$Game$myDataDecoder = A4(
+	_elm_lang$core$Json_Decode$map3,
+	_user$project$Game$MyData,
+	A2(_elm_lang$core$Json_Decode$field, 'hand', _user$project$Game$handDecoder),
+	A2(_elm_lang$core$Json_Decode$field, 'turn', _elm_lang$core$Json_Decode$bool),
+	A2(
+		_elm_lang$core$Json_Decode$field,
+		'insights',
+		_elm_lang$core$Json_Decode$nullable(_user$project$Game$insightsDecoder)));
+var _user$project$Game$gameDecoder = A8(
+	_elm_lang$core$Json_Decode$map7,
 	_user$project$Game$Model,
 	A2(_elm_lang$core$Json_Decode$field, 'clocks', _elm_lang$core$Json_Decode$int),
 	A2(_elm_lang$core$Json_Decode$field, 'discards', _user$project$Game$handDecoder),
@@ -10946,8 +10961,7 @@ var _user$project$Game$gameDecoder = A9(
 		_elm_lang$core$Json_Decode$field,
 		'hands',
 		_elm_lang$core$Json_Decode$dict(_user$project$Game$handDecoder)),
-	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _user$project$Game$handDecoder),
-	A2(_elm_lang$core$Json_Decode$field, 'my_turn', _elm_lang$core$Json_Decode$bool));
+	A2(_elm_lang$core$Json_Decode$field, 'my_data', _user$project$Game$myDataDecoder));
 var _user$project$Game$Hint = F2(
 	function (a, b) {
 		return {ctor: 'Hint', _0: a, _1: b};
@@ -11169,8 +11183,24 @@ var _user$project$Game$drawPlayerTile = F4(
 							_0: A3(_user$project$Game$discardButton, xpos, ypos, idx),
 							_1: {
 								ctor: '::',
-								_0: A3(_user$project$Game$playButton, xpos, ypos, idx),
-								_1: {ctor: '[]'}
+								_0: A2(
+									_elm_lang$html$Html$button,
+									{
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Events$onClick(
+											_user$project$Game$Discard(idx)),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('Discard'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A3(_user$project$Game$playButton, xpos, ypos, idx),
+									_1: {ctor: '[]'}
+								}
 							}
 						}
 					}
@@ -11337,7 +11367,7 @@ var _user$project$Game$view = function (model) {
 									A2(
 										_elm_lang$core$Basics_ops['++'],
 										'My Turn: ',
-										_elm_lang$core$Basics$toString(model.my_turn))),
+										_elm_lang$core$Basics$toString(model.my_data.turn))),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -11370,10 +11400,10 @@ var _user$project$Game$view = function (model) {
 										ctor: '::',
 										_0: A4(
 											_user$project$Game$renderPlayerHand,
-											model.my_hand,
+											model.my_data.hand,
 											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 15},
 											'player',
-											model.my_turn),
+											model.my_data.turn),
 										_1: {ctor: '[]'}
 									}),
 								_1: {

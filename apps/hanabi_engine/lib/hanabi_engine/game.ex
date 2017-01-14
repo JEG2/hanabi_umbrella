@@ -169,7 +169,8 @@ defmodule HanabiEngine.Game do
   def to_player_view(game, player) do
     my_data = %{
       hand: Map.fetch!(game.knowns, player),
-      turn: game.turn == player
+      turn: game.turn == player,
+      insights: nil
     }
     game
     |> Map.from_struct

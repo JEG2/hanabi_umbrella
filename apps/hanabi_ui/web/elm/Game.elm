@@ -53,22 +53,27 @@ type alias Model =
     , fireworks : Fireworks
     , fuses : Int
     , hands : Dict String Hand
-    , my_hand : Hand
-    , my_turn : Bool
+    , my_data : MyData
+    }
+
+
+type alias MyData =
+    { hand : Hand
+    , turn : Bool
+    , insights : Maybe (List (List String))
     }
 
 
 gameDecoder : Decoder Model
 gameDecoder =
-    map8 Model
+    map7 Model
         (field "clocks" JD.int)
         (field "discards" handDecoder)
         (field "draw_pile" JD.int)
         (field "fireworks" fireworkDecoder)
         (field "fuses" JD.int)
         (field "hands" (JD.dict handDecoder))
-        (field "my_hand" handDecoder)
-        (field "my_turn" JD.bool)
+        (field "my_data" myDataDecoder)
 
 
 handDecoder : Decoder Hand
@@ -91,6 +96,19 @@ fireworkDecoder =
         (field "red" (nullable JD.int))
         (field "white" (nullable JD.int))
         (field "yellow" (nullable JD.int))
+
+
+myDataDecoder : Decoder MyData
+myDataDecoder =
+    map3 MyData
+        (field "hand" handDecoder)
+        (field "turn" JD.bool)
+        (field "insights" (nullable insightsDecoder))
+
+
+insightsDecoder : Decoder (List (List String))
+insightsDecoder =
+    JD.list (JD.list JD.string)
 
 
 
@@ -176,21 +194,21 @@ view model =
             [ Html.text ("Clocks: " ++ toString model.clocks) ]
         , div
             [ Html.Attributes.class "turn" ]
-            [ Html.text ("My Turn: " ++ toString model.my_turn) ]
+            [ Html.text ("My Turn: " ++ toString model.my_data.turn) ]
         , div
             [ Html.Attributes.class "fireworks" ]
             [ renderFireworkPile model.fireworks ( 100, 60, 10 ) ]
         , div
             [ Html.Attributes.class "player-container" ]
             [ renderPlayerHand
-                model.my_hand
+                model.my_data.hand
                 ( 100, 60, 15 )
                 "player"
-                model.my_turn
+                model.my_data.turn
             ]
         , div
             [ Html.Attributes.class "team-container" ]
-            (renderTeamHands model.hands ( 100, 60, 10 ) (shouldShowButtons model) )
+            (renderTeamHands model.hands ( 100, 60, 10 ) (shouldShowButtons model))
         , div
             [ Html.Attributes.class "discards-container" ]
             [ renderDiscardPile model.discards ( 100, 60, 10 ) ]
@@ -198,8 +216,8 @@ view model =
 
 
 shouldShowButtons : Model -> Bool
-shouldShowButtons {my_turn, clocks} =
-        my_turn && (clocks > 0)
+shouldShowButtons { my_data, clocks } =
+    my_data.turn && (clocks > 0)
 
 
 renderFireworkPile : Fireworks -> ( Int, Int, Int ) -> Svg a
@@ -294,8 +312,11 @@ renderTeamHand ( width, height, padding ) hintCtrls name hand =
     let
         hints =
             case hintCtrls of
-                True -> hintButtons name hand
-                False -> []
+                True ->
+                    hintButtons name hand
+
+                False ->
+                    []
     in
         div []
             [ div [] [ Html.text (name ++ "'s hand:") ]
@@ -304,7 +325,7 @@ renderTeamHand ( width, height, padding ) hintCtrls name hand =
                 , Svg.Attributes.width (handWidth width padding)
                 , Svg.Attributes.class (name ++ "-hand")
                 ]
-                  (List.indexedMap (drawTile ( width, height, padding )) hand)
+                (List.indexedMap (drawTile ( width, height, padding )) hand)
             , div [] hints
             ]
 
@@ -323,13 +344,16 @@ renderButton name hint =
     button [ onClick (Hint name hint) ] [ Html.text hint ]
 
 
-tileAttributes : Tile -> List (String)
-tileAttributes (color, number) =
+tileAttributes : Tile -> List String
+tileAttributes ( color, number ) =
     let
-        c = Maybe.withDefault "" color
-        n = toString (Maybe.withDefault 0 number)
+        c =
+            Maybe.withDefault "" color
+
+        n =
+            toString (Maybe.withDefault 0 number)
     in
-        [c, n]
+        [ c, n ]
 
 
 renderPlayerHand : Hand -> ( Int, Int, Int ) -> String -> Bool -> Html Msg
@@ -478,7 +502,7 @@ renderFirework xpos ypos ( color, number ) =
 renderOne : Int -> Int -> Maybe String -> Svg a
 renderOne xpos ypos color =
     g []
-        [ renderCircle (xpos + 20) (ypos + 20) color
+        [ renderCircle (xpos + 30) (ypos + 20) color
         ]
 
 
