@@ -10994,6 +10994,82 @@ var _user$project$Game$renderFireworkPile = F2(
 				}
 			});
 	});
+var _user$project$Game$update = F4(
+	function (msg, userName, _p33, msgMapper) {
+		var _p34 = _p33;
+		var _p39 = _p34._1;
+		var _p38 = _p34._0;
+		var _p35 = msg;
+		if (_p35.ctor === 'Discard') {
+			var payload = _elm_lang$core$Json_Encode$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'userName',
+						_1: _elm_lang$core$Json_Encode$string(userName)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'idx',
+							_1: _elm_lang$core$Json_Encode$int(_p35._0)
+						},
+						_1: {ctor: '[]'}
+					}
+				});
+			var _p36 = A3(
+				_elm_lang$core$Basics$flip,
+				_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+				_p39,
+				A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+					payload,
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:player')));
+			var newSocket = _p36._0;
+			var gameCmd = _p36._1;
+			return {
+				ctor: '_Tuple2',
+				_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
+				_1: gameCmd
+			};
+		} else {
+			var payload = _elm_lang$core$Json_Encode$object(
+				{
+					ctor: '::',
+					_0: {
+						ctor: '_Tuple2',
+						_0: 'userName',
+						_1: _elm_lang$core$Json_Encode$string(userName)
+					},
+					_1: {
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'idx',
+							_1: _elm_lang$core$Json_Encode$int(_p35._0)
+						},
+						_1: {ctor: '[]'}
+					}
+				});
+			var _p37 = A3(
+				_elm_lang$core$Basics$flip,
+				_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+				_p39,
+				A2(
+					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+					payload,
+					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:player')));
+			var newSocket = _p37._0;
+			var gameCmd = _p37._1;
+			return {
+				ctor: '_Tuple2',
+				_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
+				_1: gameCmd
+			};
+		}
+	});
 var _user$project$Game$subscriptions = function (model) {
 	return _elm_lang$core$Platform_Sub$none;
 };
@@ -11116,18 +11192,18 @@ var _user$project$Game$discardButton = F3(
 			});
 	});
 var _user$project$Game$drawPlayerTile = F4(
-	function (_p34, my_turn, idx, _p33) {
-		var _p35 = _p34;
-		var _p42 = _p35._0;
-		var _p41 = _p35._2;
-		var _p40 = _p35._1;
-		var _p36 = _p33;
-		var _p39 = _p36._1;
-		var _p38 = _p36._0;
-		var ypos = _p41;
-		var xpos = A3(_user$project$Game$tileXpos, _p42, _p41, idx);
-		var _p37 = my_turn;
-		if (_p37 === true) {
+	function (_p41, my_turn, idx, _p40) {
+		var _p42 = _p41;
+		var _p49 = _p42._0;
+		var _p48 = _p42._2;
+		var _p47 = _p42._1;
+		var _p43 = _p40;
+		var _p46 = _p43._1;
+		var _p45 = _p43._0;
+		var ypos = _p48;
+		var xpos = A3(_user$project$Game$tileXpos, _p49, _p48, idx);
+		var _p44 = my_turn;
+		if (_p44 === true) {
 			return A2(
 				_elm_lang$svg$Svg$g,
 				{ctor: '[]'},
@@ -11138,11 +11214,11 @@ var _user$project$Game$drawPlayerTile = F4(
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
-								_elm_lang$core$Basics$toString(_p42)),
+								_elm_lang$core$Basics$toString(_p49)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$height(
-									_elm_lang$core$Basics$toString(_p40)),
+									_elm_lang$core$Basics$toString(_p47)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$y(
@@ -11171,7 +11247,7 @@ var _user$project$Game$drawPlayerTile = F4(
 							_user$project$Game$renderFirework,
 							xpos,
 							ypos,
-							{ctor: '_Tuple2', _0: _p38, _1: _p39}),
+							{ctor: '_Tuple2', _0: _p45, _1: _p46}),
 						_1: {
 							ctor: '::',
 							_0: A3(_user$project$Game$discardButton, xpos, ypos, idx),
@@ -11194,11 +11270,11 @@ var _user$project$Game$drawPlayerTile = F4(
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
-								_elm_lang$core$Basics$toString(_p42)),
+								_elm_lang$core$Basics$toString(_p49)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$height(
-									_elm_lang$core$Basics$toString(_p40)),
+									_elm_lang$core$Basics$toString(_p47)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$y(
@@ -11227,18 +11303,18 @@ var _user$project$Game$drawPlayerTile = F4(
 							_user$project$Game$renderFirework,
 							xpos,
 							ypos,
-							{ctor: '_Tuple2', _0: _p38, _1: _p39}),
+							{ctor: '_Tuple2', _0: _p45, _1: _p46}),
 						_1: {ctor: '[]'}
 					}
 				});
 		}
 	});
 var _user$project$Game$renderPlayerHand = F4(
-	function (hand, _p43, name, my_turn) {
-		var _p44 = _p43;
-		var _p47 = _p44._0;
-		var _p46 = _p44._2;
-		var _p45 = _p44._1;
+	function (hand, _p50, name, my_turn) {
+		var _p51 = _p50;
+		var _p54 = _p51._0;
+		var _p53 = _p51._2;
+		var _p52 = _p51._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -11249,11 +11325,11 @@ var _user$project$Game$renderPlayerHand = F4(
 					{
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$height(
-							A2(_user$project$Game$handHeight, _p45, _p46)),
+							A2(_user$project$Game$handHeight, _p52, _p53)),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
-								A2(_user$project$Game$handWidth, _p47, _p46)),
+								A2(_user$project$Game$handWidth, _p54, _p53)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$class(
@@ -11266,7 +11342,7 @@ var _user$project$Game$renderPlayerHand = F4(
 						_elm_lang$core$List$indexedMap,
 						A2(
 							_user$project$Game$drawPlayerTile,
-							{ctor: '_Tuple3', _0: _p47, _1: _p45, _2: _p46},
+							{ctor: '_Tuple3', _0: _p54, _1: _p52, _2: _p53},
 							my_turn),
 						hand)),
 				_1: {ctor: '[]'}
@@ -11871,14 +11947,6 @@ var _user$project$Registration$view = function (model) {
 	}
 };
 
-var _user$project$HanabiUi$userName = function (model) {
-	var _p0 = model.registration;
-	if (_p0.ctor === 'Complete') {
-		return _p0._0;
-	} else {
-		return 'Unregistered';
-	}
-};
 var _user$project$HanabiUi$Model = F3(
 	function (a, b, c) {
 		return {registration: a, phxSocket: b, game: c};
@@ -11886,98 +11954,22 @@ var _user$project$HanabiUi$Model = F3(
 var _user$project$HanabiUi$PhoenixMsg = function (a) {
 	return {ctor: 'PhoenixMsg', _0: a};
 };
-var _user$project$HanabiUi$updateGame = F2(
-	function (msg, model) {
-		var _p1 = msg;
-		if (_p1.ctor === 'Discard') {
-			var payload = _elm_lang$core$Json_Encode$object(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userName',
-						_1: _elm_lang$core$Json_Encode$string(
-							_user$project$HanabiUi$userName(model))
-					},
-					_1: {
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'idx',
-							_1: _elm_lang$core$Json_Encode$int(_p1._0)
-						},
-						_1: {ctor: '[]'}
-					}
-				});
-			var _p2 = A3(
-				_elm_lang$core$Basics$flip,
-				_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
-				model.phxSocket,
-				A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:player')));
-			var phxSocket = _p2._0;
-			var registerCmd = _p2._1;
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{phxSocket: phxSocket}),
-				_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
-			};
-		} else {
-			var payload = _elm_lang$core$Json_Encode$object(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userName',
-						_1: _elm_lang$core$Json_Encode$string(
-							_user$project$HanabiUi$userName(model))
-					},
-					_1: {
-						ctor: '::',
-						_0: {
-							ctor: '_Tuple2',
-							_0: 'idx',
-							_1: _elm_lang$core$Json_Encode$int(_p1._0)
-						},
-						_1: {ctor: '[]'}
-					}
-				});
-			var _p3 = A3(
-				_elm_lang$core$Basics$flip,
-				_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
-				model.phxSocket,
-				A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:player')));
-			var phxSocket = _p3._0;
-			var registerCmd = _p3._1;
-			return {
-				ctor: '_Tuple2',
-				_0: _elm_lang$core$Native_Utils.update(
-					model,
-					{phxSocket: phxSocket}),
-				_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registerCmd)
-			};
-		}
-	});
 var _user$project$HanabiUi$subscriptions = function (model) {
 	return A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$listen, model.phxSocket, _user$project$HanabiUi$PhoenixMsg);
 };
 var _user$project$HanabiUi$RegistrationMsg = function (a) {
 	return {ctor: 'RegistrationMsg', _0: a};
 };
+var _user$project$HanabiUi$GameMsg = function (a) {
+	return {ctor: 'GameMsg', _0: a};
+};
 var _user$project$HanabiUi$update = F2(
 	function (msg, model) {
-		var _p4 = msg;
-		switch (_p4.ctor) {
+		var _p0 = msg;
+		switch (_p0.ctor) {
 			case 'AssignGame':
 				var newGame = _elm_lang$core$Result$toMaybe(
-					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, _p4._0));
+					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, _p0._0));
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -11986,16 +11978,44 @@ var _user$project$HanabiUi$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'GameMsg':
-				return A2(_user$project$HanabiUi$updateGame, _p4._0, model);
+				var _p1 = model.game;
+				if (_p1.ctor === 'Just') {
+					var _p2 = model.registration;
+					if (_p2.ctor === 'Complete') {
+						var _p3 = A4(
+							_user$project$Game$update,
+							_p0._0,
+							_p2._0,
+							{ctor: '_Tuple2', _0: _p1._0, _1: model.phxSocket},
+							_user$project$HanabiUi$GameMsg);
+						var newGame = _p3._0._0;
+						var phxSocket = _p3._0._1;
+						var gameCmd = _p3._1;
+						return {
+							ctor: '_Tuple2',
+							_0: _elm_lang$core$Native_Utils.update(
+								model,
+								{
+									game: _elm_lang$core$Maybe$Just(newGame),
+									phxSocket: phxSocket
+								}),
+							_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, gameCmd)
+						};
+					} else {
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					}
+				} else {
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				}
 			case 'RegistrationMsg':
-				var _p5 = A3(
+				var _p4 = A3(
 					_user$project$Registration$update,
-					_p4._0,
+					_p0._0,
 					{ctor: '_Tuple2', _0: model.registration, _1: model.phxSocket},
 					_user$project$HanabiUi$RegistrationMsg);
-				var registration = _p5._0._0;
-				var phxSocket = _p5._0._1;
-				var registrationCmd = _p5._1;
+				var registration = _p4._0._0;
+				var phxSocket = _p4._0._1;
+				var registrationCmd = _p4._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -12004,9 +12024,9 @@ var _user$project$HanabiUi$update = F2(
 					_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, registrationCmd)
 				};
 			default:
-				var _p6 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p4._0, model.phxSocket);
-				var phxSocket = _p6._0;
-				var phxCmd = _p6._1;
+				var _p5 = A2(_fbonetti$elm_phoenix_socket$Phoenix_Socket$update, _p0._0, model.phxSocket);
+				var phxSocket = _p5._0;
+				var phxCmd = _p5._1;
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
@@ -12016,17 +12036,14 @@ var _user$project$HanabiUi$update = F2(
 				};
 		}
 	});
-var _user$project$HanabiUi$GameMsg = function (a) {
-	return {ctor: 'GameMsg', _0: a};
-};
 var _user$project$HanabiUi$viewPlaying = F2(
 	function (userName, model) {
-		var _p7 = model.game;
-		if (_p7.ctor === 'Just') {
+		var _p6 = model.game;
+		if (_p6.ctor === 'Just') {
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$HanabiUi$GameMsg,
-				_user$project$Game$view(_p7._0));
+				_user$project$Game$view(_p6._0));
 		} else {
 			return A2(
 				_elm_lang$html$Html$div,
@@ -12040,8 +12057,8 @@ var _user$project$HanabiUi$viewPlaying = F2(
 		}
 	});
 var _user$project$HanabiUi$view = function (model) {
-	var _p8 = model.registration;
-	switch (_p8.ctor) {
+	var _p7 = model.registration;
+	switch (_p7.ctor) {
 		case 'Unregistered':
 			return A2(
 				_elm_lang$html$Html$map,
@@ -12053,20 +12070,20 @@ var _user$project$HanabiUi$view = function (model) {
 				_user$project$HanabiUi$RegistrationMsg,
 				_user$project$Registration$view(model.registration));
 		default:
-			return A2(_user$project$HanabiUi$viewPlaying, _p8._0, model);
+			return A2(_user$project$HanabiUi$viewPlaying, _p7._0, model);
 	}
 };
 var _user$project$HanabiUi$AssignGame = function (a) {
 	return {ctor: 'AssignGame', _0: a};
 };
 var _user$project$HanabiUi$initSocket = function () {
-	var _p9 = A2(
+	var _p8 = A2(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
 		_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:lobby'),
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://localhost:4000/socket/websocket'));
-	var lobbySocket = _p9._0;
-	var lobbyJoinCmd = _p9._1;
-	var _p10 = A2(
+	var lobbySocket = _p8._0;
+	var lobbyJoinCmd = _p8._1;
+	var _p9 = A2(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
 		_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:player'),
 		A4(
@@ -12077,8 +12094,8 @@ var _user$project$HanabiUi$initSocket = function () {
 				return _user$project$HanabiUi$AssignGame(g);
 			},
 			lobbySocket));
-	var gameSocket = _p10._0;
-	var gameJoinCmd = _p10._1;
+	var gameSocket = _p9._0;
+	var gameJoinCmd = _p9._1;
 	return {
 		ctor: '_Tuple2',
 		_0: gameSocket,
@@ -12095,9 +12112,9 @@ var _user$project$HanabiUi$initSocket = function () {
 	};
 }();
 var _user$project$HanabiUi$init = function () {
-	var _p11 = _user$project$HanabiUi$initSocket;
-	var phxSocket = _p11._0;
-	var joinCmd = _p11._1;
+	var _p10 = _user$project$HanabiUi$initSocket;
+	var phxSocket = _p10._0;
+	var joinCmd = _p10._1;
 	return {
 		ctor: '_Tuple2',
 		_0: {registration: _user$project$Registration$init, phxSocket: phxSocket, game: _elm_lang$core$Maybe$Nothing},

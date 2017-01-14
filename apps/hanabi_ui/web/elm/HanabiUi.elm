@@ -1,13 +1,10 @@
 module HanabiUi exposing (main)
 
 import Html exposing (..)
-import Html.Attributes exposing (..)
-import Html.Events exposing (..)
 import Json.Decode
 import Json.Encode
 import Phoenix.Socket
 import Phoenix.Channel
-import Phoenix.Push
 
 import Game
 import Registration
@@ -90,7 +87,30 @@ update msg model =
                 ( { model | game = newGame }, Cmd.none )
 
         GameMsg gameMsg ->
-            updateGame gameMsg model
+            case model.game of
+                Just game ->
+                    case model.registration of
+                        Registration.Complete userName->
+                            let
+                                ( ( newGame, phxSocket ), gameCmd ) =
+                                    Game.update
+                                        gameMsg
+                                        userName
+                                        ( game, model.phxSocket )
+                                        GameMsg
+                            in
+                                ( { model
+                                  | game = Just newGame
+                                  , phxSocket = phxSocket
+                                  }
+                                , Cmd.map PhoenixMsg gameCmd
+                                )
+
+                        _ ->
+                            ( model, Cmd.none )
+
+                Nothing ->
+                    ( model, Cmd.none )
 
         RegistrationMsg registrationMsg ->
             let
@@ -112,50 +132,6 @@ update msg model =
                 ( { model | phxSocket = phxSocket }
                 , Cmd.map PhoenixMsg phxCmd
                 )
-
-
-updateGame msg model =
-    case msg of
-        Game.Discard idx ->
-            let
-                payload =
-                    Json.Encode.object
-                        [ ( "userName", Json.Encode.string (userName model) )
-                        , ( "idx", Json.Encode.int idx )
-                        ]
-
-                ( phxSocket, registerCmd ) =
-                    Phoenix.Push.init "discard" "game:player"
-                        |> Phoenix.Push.withPayload payload
-                        |> (flip Phoenix.Socket.push model.phxSocket)
-            in
-                ( { model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg registerCmd
-                )
-
-        Game.Play idx ->
-            let
-                payload =
-                    Json.Encode.object
-                        [ ( "userName", Json.Encode.string (userName model) )
-                        , ( "idx", Json.Encode.int idx )
-                        ]
-
-                ( phxSocket, registerCmd ) =
-                    Phoenix.Push.init "play" "game:player"
-                        |> Phoenix.Push.withPayload payload
-                        |> (flip Phoenix.Socket.push model.phxSocket)
-            in
-                ( { model | phxSocket = phxSocket }
-                , Cmd.map PhoenixMsg registerCmd
-                )
-
-
-userName : Model -> String
-userName model =
-    case model.registration of
-        Registration.Complete userName -> userName
-        _ -> "Unregistered"
 
 
 -- VIEW

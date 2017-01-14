@@ -1,18 +1,15 @@
-module Game exposing(Model, gameDecoder, view, Msg(..))
+module Game exposing(Model, gameDecoder, update, view, Msg(..))
 
+import Dict exposing (Dict)
 import Html exposing (program, text, Html, div, button)
+import Html.Attributes exposing (class)
 import Json.Decode as JD exposing (..)
 import Json.Encode exposing (string, int)
-import Dict exposing (Dict)
-import Html.Attributes exposing (class)
+import Phoenix.Socket
+import Phoenix.Push
 import Svg exposing (svg, Svg, rect, g, text, text_)
 import Svg.Events exposing (onClick)
 import Svg.Attributes exposing (height, width, class, x, y, rx, ry, cx, cy, r, style)
-
-
-type Msg
-    = Discard Int
-    | Play Int
 
 
 type alias Tile = (Maybe String, Maybe Int)
@@ -77,6 +74,50 @@ fireworkDecoder =
 subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.none
+
+
+type Msg
+    = Discard Int
+    | Play Int
+
+
+update :
+    Msg
+    -> String
+    -> ( Model, Phoenix.Socket.Socket msg )
+    -> (Msg -> msg)
+    -> ( ( Model, Phoenix.Socket.Socket msg ), Cmd (Phoenix.Socket.Msg msg) )
+update msg userName ( model, socket ) msgMapper =
+    case msg of
+        Discard idx ->
+            let
+                payload =
+                    Json.Encode.object
+                        [ ( "userName", Json.Encode.string userName )
+                        , ( "idx", Json.Encode.int idx )
+                        ]
+
+                ( newSocket, gameCmd ) =
+                    Phoenix.Push.init "discard" "game:player"
+                        |> Phoenix.Push.withPayload payload
+                        |> (flip Phoenix.Socket.push socket)
+            in
+                ( ( model, newSocket ), gameCmd )
+
+        Play idx ->
+            let
+                payload =
+                    Json.Encode.object
+                        [ ( "userName", Json.Encode.string userName )
+                        , ( "idx", Json.Encode.int idx )
+                        ]
+
+                ( newSocket, gameCmd ) =
+                    Phoenix.Push.init "play" "game:player"
+                        |> Phoenix.Push.withPayload payload
+                        |> (flip Phoenix.Socket.push socket)
+            in
+                ( ( model, newSocket ), gameCmd )
 
 
 view : Model -> Html Msg
