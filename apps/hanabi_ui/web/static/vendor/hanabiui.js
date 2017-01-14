@@ -11785,11 +11785,20 @@ var _user$project$Registration$updateUnregistered = F4(
 				var result = A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Registration$responseDecoder, _p3._0);
 				var _p6 = result;
 				if (_p6.ctor === 'Ok') {
-					return {
+					var _p7 = _p6._0;
+					return _p7.success ? {
 						ctor: '_Tuple2',
 						_0: {
 							ctor: '_Tuple2',
-							_0: A2(_user$project$Registration$InLobby, _p6._0.userName, '2'),
+							_0: A2(_user$project$Registration$InLobby, _p7.userName, '2'),
+							_1: socket
+						},
+						_1: _elm_lang$core$Platform_Cmd$none
+					} : {
+						ctor: '_Tuple2',
+						_0: {
+							ctor: '_Tuple2',
+							_0: _user$project$Registration$Unregistered(''),
 							_1: socket
 						},
 						_1: _elm_lang$core$Platform_Cmd$none
@@ -11808,55 +11817,55 @@ var _user$project$Registration$updateUnregistered = F4(
 		}
 	});
 var _user$project$Registration$update = F3(
-	function (msg, _p7, msgMapper) {
-		var _p8 = _p7;
-		var _p13 = _p8._1;
-		var _p12 = _p8._0;
-		var _p9 = _p12;
-		switch (_p9.ctor) {
+	function (msg, _p8, msgMapper) {
+		var _p9 = _p8;
+		var _p14 = _p9._1;
+		var _p13 = _p9._0;
+		var _p10 = _p13;
+		switch (_p10.ctor) {
 			case 'Unregistered':
-				var _p10 = msg;
-				if (_p10.ctor === 'UnregisteredMsg') {
-					return A4(_user$project$Registration$updateUnregistered, _p10._0, _p9._0, _p13, msgMapper);
+				var _p11 = msg;
+				if (_p11.ctor === 'UnregisteredMsg') {
+					return A4(_user$project$Registration$updateUnregistered, _p11._0, _p10._0, _p14, msgMapper);
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: {ctor: '_Tuple2', _0: _p12, _1: _p13},
+						_0: {ctor: '_Tuple2', _0: _p13, _1: _p14},
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				}
 			case 'InLobby':
-				var _p11 = msg;
-				if (_p11.ctor === 'UnregisteredMsg') {
+				var _p12 = msg;
+				if (_p12.ctor === 'UnregisteredMsg') {
 					return {
 						ctor: '_Tuple2',
-						_0: {ctor: '_Tuple2', _0: _p12, _1: _p13},
+						_0: {ctor: '_Tuple2', _0: _p13, _1: _p14},
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					return A5(_user$project$Registration$updateInLobby, _p11._0, _p9._0, _p9._1, _p13, msgMapper);
+					return A5(_user$project$Registration$updateInLobby, _p12._0, _p10._0, _p10._1, _p14, msgMapper);
 				}
 			default:
 				return {
 					ctor: '_Tuple2',
-					_0: {ctor: '_Tuple2', _0: _p12, _1: _p13},
+					_0: {ctor: '_Tuple2', _0: _p13, _1: _p14},
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 		}
 	});
 var _user$project$Registration$view = function (model) {
-	var _p14 = model;
-	switch (_p14.ctor) {
+	var _p15 = model;
+	switch (_p15.ctor) {
 		case 'Unregistered':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$Registration$UnregisteredMsg,
-				_user$project$Registration$viewUnregistered(_p14._0));
+				_user$project$Registration$viewUnregistered(_p15._0));
 		case 'InLobby':
 			return A2(
 				_elm_lang$html$Html$map,
 				_user$project$Registration$InLobbyMsg,
-				A3(_user$project$Registration$viewRegistered, _p14._0, _p14._1, model));
+				A3(_user$project$Registration$viewRegistered, _p15._0, _p15._1, model));
 		default:
 			return _elm_lang$html$Html$text('Registration complete.');
 	}

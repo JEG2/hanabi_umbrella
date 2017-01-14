@@ -138,9 +138,12 @@ updateUnregistered msg userName socket msgMapper =
             in
                 case result of
                     Ok response ->
-                        ( ( InLobby response.userName "2", socket )
-                        , Cmd.none
-                        )
+                        if response.success then
+                            ( ( InLobby response.userName "2", socket )
+                            , Cmd.none
+                            )
+                        else
+                            ( ( Unregistered "", socket ), Cmd.none )
 
                     Err message ->
                         ( ( Unregistered "", socket ), Cmd.none )
