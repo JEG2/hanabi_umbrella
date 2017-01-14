@@ -140,14 +140,11 @@ update msg model =
 view : Model -> Html Msg
 view model =
     case model.registration of
-        Registration.Unregistered _ ->
-            Html.map RegistrationMsg (Registration.view model.registration)
-
-        Registration.InLobby _ _ ->
-            Html.map RegistrationMsg (Registration.view model.registration)
-
         Registration.Complete userName ->
             viewPlaying userName model
+
+        _ ->
+            Html.map RegistrationMsg (Registration.view model.registration)
 
 
 viewPlaying : String -> Model -> Html Msg
