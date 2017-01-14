@@ -6169,6 +6169,137 @@ var _elm_lang$core$Tuple$first = function (_p6) {
 	return _p7._0;
 };
 
+var _elm_lang$core$Set$foldr = F3(
+	function (f, b, _p0) {
+		var _p1 = _p0;
+		return A3(
+			_elm_lang$core$Dict$foldr,
+			F3(
+				function (k, _p2, b) {
+					return A2(f, k, b);
+				}),
+			b,
+			_p1._0);
+	});
+var _elm_lang$core$Set$foldl = F3(
+	function (f, b, _p3) {
+		var _p4 = _p3;
+		return A3(
+			_elm_lang$core$Dict$foldl,
+			F3(
+				function (k, _p5, b) {
+					return A2(f, k, b);
+				}),
+			b,
+			_p4._0);
+	});
+var _elm_lang$core$Set$toList = function (_p6) {
+	var _p7 = _p6;
+	return _elm_lang$core$Dict$keys(_p7._0);
+};
+var _elm_lang$core$Set$size = function (_p8) {
+	var _p9 = _p8;
+	return _elm_lang$core$Dict$size(_p9._0);
+};
+var _elm_lang$core$Set$member = F2(
+	function (k, _p10) {
+		var _p11 = _p10;
+		return A2(_elm_lang$core$Dict$member, k, _p11._0);
+	});
+var _elm_lang$core$Set$isEmpty = function (_p12) {
+	var _p13 = _p12;
+	return _elm_lang$core$Dict$isEmpty(_p13._0);
+};
+var _elm_lang$core$Set$Set_elm_builtin = function (a) {
+	return {ctor: 'Set_elm_builtin', _0: a};
+};
+var _elm_lang$core$Set$empty = _elm_lang$core$Set$Set_elm_builtin(_elm_lang$core$Dict$empty);
+var _elm_lang$core$Set$singleton = function (k) {
+	return _elm_lang$core$Set$Set_elm_builtin(
+		A2(
+			_elm_lang$core$Dict$singleton,
+			k,
+			{ctor: '_Tuple0'}));
+};
+var _elm_lang$core$Set$insert = F2(
+	function (k, _p14) {
+		var _p15 = _p14;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A3(
+				_elm_lang$core$Dict$insert,
+				k,
+				{ctor: '_Tuple0'},
+				_p15._0));
+	});
+var _elm_lang$core$Set$fromList = function (xs) {
+	return A3(_elm_lang$core$List$foldl, _elm_lang$core$Set$insert, _elm_lang$core$Set$empty, xs);
+};
+var _elm_lang$core$Set$map = F2(
+	function (f, s) {
+		return _elm_lang$core$Set$fromList(
+			A2(
+				_elm_lang$core$List$map,
+				f,
+				_elm_lang$core$Set$toList(s)));
+	});
+var _elm_lang$core$Set$remove = F2(
+	function (k, _p16) {
+		var _p17 = _p16;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$remove, k, _p17._0));
+	});
+var _elm_lang$core$Set$union = F2(
+	function (_p19, _p18) {
+		var _p20 = _p19;
+		var _p21 = _p18;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$union, _p20._0, _p21._0));
+	});
+var _elm_lang$core$Set$intersect = F2(
+	function (_p23, _p22) {
+		var _p24 = _p23;
+		var _p25 = _p22;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$intersect, _p24._0, _p25._0));
+	});
+var _elm_lang$core$Set$diff = F2(
+	function (_p27, _p26) {
+		var _p28 = _p27;
+		var _p29 = _p26;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(_elm_lang$core$Dict$diff, _p28._0, _p29._0));
+	});
+var _elm_lang$core$Set$filter = F2(
+	function (p, _p30) {
+		var _p31 = _p30;
+		return _elm_lang$core$Set$Set_elm_builtin(
+			A2(
+				_elm_lang$core$Dict$filter,
+				F2(
+					function (k, _p32) {
+						return p(k);
+					}),
+				_p31._0));
+	});
+var _elm_lang$core$Set$partition = F2(
+	function (p, _p33) {
+		var _p34 = _p33;
+		var _p35 = A2(
+			_elm_lang$core$Dict$partition,
+			F2(
+				function (k, _p36) {
+					return p(k);
+				}),
+			_p34._0);
+		var p1 = _p35._0;
+		var p2 = _p35._1;
+		return {
+			ctor: '_Tuple2',
+			_0: _elm_lang$core$Set$Set_elm_builtin(p1),
+			_1: _elm_lang$core$Set$Set_elm_builtin(p2)
+		};
+	});
+
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrap;
 var _elm_lang$virtual_dom$VirtualDom_Debug$wrapWithFlags;
 
@@ -10196,7 +10327,7 @@ var _user$project$Game$renderCircle = F3(
 								A2(
 									_elm_lang$core$Basics_ops['++'],
 									'fill: ',
-									A2(_elm_lang$core$Maybe$withDefault, 'black', color))),
+									A2(_elm_lang$core$Maybe$withDefault, 'orange', color))),
 							_1: {ctor: '[]'}
 						}
 					}
@@ -10317,8 +10448,36 @@ var _user$project$Game$renderFirework = F3(
 				return A3(_user$project$Game$renderFive, xpos, ypos, _p3);
 			default:
 				return A2(
-					_elm_lang$svg$Svg$g,
-					{ctor: '[]'},
+					_elm_lang$svg$Svg$rect,
+					{
+						ctor: '::',
+						_0: _elm_lang$svg$Svg_Attributes$width(
+							_elm_lang$core$Basics$toString(30)),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$height(
+								_elm_lang$core$Basics$toString(10)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$x(
+									_elm_lang$core$Basics$toString(xpos + 20)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$y(
+										_elm_lang$core$Basics$toString(ypos + 20)),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$svg$Svg_Attributes$style(
+											A2(
+												_elm_lang$core$Basics_ops['++'],
+												'fill: ',
+												A2(_elm_lang$core$Maybe$withDefault, 'black', _p3))),
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					},
 					{ctor: '[]'});
 		}
 	});
@@ -10392,69 +10551,27 @@ var _user$project$Game$handHeight = F2(
 	function (height, padding) {
 		return _elm_lang$core$Basics$toString((padding + height) + padding);
 	});
-var _user$project$Game$renderTeamHand = F3(
-	function (_p10, name, hand) {
-		var _p11 = _p10;
-		var _p14 = _p11._0;
-		var _p13 = _p11._2;
-		var _p12 = _p11._1;
-		return A2(
-			_elm_lang$html$Html$div,
-			{ctor: '[]'},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{ctor: '[]'},
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(_elm_lang$core$Basics_ops['++'], name, '\'s hand:')),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$svg$Svg$svg,
-						{
-							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$height(
-								A2(_user$project$Game$handHeight, _p12, _p13)),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$width(
-									A2(_user$project$Game$handWidth, _p14, _p13)),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$svg$Svg_Attributes$class(
-										A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
-									_1: {ctor: '[]'}
-								}
-							}
-						},
-						A2(
-							_elm_lang$core$List$indexedMap,
-							_user$project$Game$drawTile(
-								{ctor: '_Tuple3', _0: _p14, _1: _p12, _2: _p13}),
-							hand)),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _user$project$Game$renderTeamHands = F2(
-	function (hands, dimensions) {
-		return _elm_lang$core$Dict$values(
-			A2(
-				_elm_lang$core$Dict$map,
-				_user$project$Game$renderTeamHand(dimensions),
-				hands));
-	});
+var _user$project$Game$tileAttributes = function (_p10) {
+	var _p11 = _p10;
+	var n = _elm_lang$core$Basics$toString(
+		A2(_elm_lang$core$Maybe$withDefault, 0, _p11._1));
+	var c = A2(_elm_lang$core$Maybe$withDefault, '', _p11._0);
+	return {
+		ctor: '::',
+		_0: c,
+		_1: {
+			ctor: '::',
+			_0: n,
+			_1: {ctor: '[]'}
+		}
+	};
+};
 var _user$project$Game$renderDiscardPile = F2(
-	function (hand, _p15) {
-		var _p16 = _p15;
-		var _p19 = _p16._0;
-		var _p18 = _p16._2;
-		var _p17 = _p16._1;
+	function (hand, _p12) {
+		var _p13 = _p12;
+		var _p16 = _p13._0;
+		var _p15 = _p13._2;
+		var _p14 = _p13._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -10475,11 +10592,11 @@ var _user$project$Game$renderDiscardPile = F2(
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$height(
-								A2(_user$project$Game$handHeight, _p17, _p18)),
+								A2(_user$project$Game$handHeight, _p14, _p15)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$width(
-									A2(_user$project$Game$handWidth, _p19, _p18)),
+									A2(_user$project$Game$handWidth, _p16, _p15)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$class('discards'),
@@ -10490,29 +10607,29 @@ var _user$project$Game$renderDiscardPile = F2(
 						A2(
 							_elm_lang$core$List$indexedMap,
 							_user$project$Game$drawTile(
-								{ctor: '_Tuple3', _0: _p19, _1: _p17, _2: _p18}),
+								{ctor: '_Tuple3', _0: _p16, _1: _p14, _2: _p15}),
 							hand)),
 					_1: {ctor: '[]'}
 				}
 			});
 	});
 var _user$project$Game$drawFireworkTile = F3(
-	function (_p21, idx, _p20) {
-		var _p22 = _p21;
-		var _p27 = _p22._2;
-		var _p26 = _p22._1;
-		var _p23 = _p20;
-		var _p25 = _p23._1;
+	function (_p18, idx, _p17) {
+		var _p19 = _p18;
+		var _p24 = _p19._2;
+		var _p23 = _p19._1;
+		var _p20 = _p17;
+		var _p22 = _p20._1;
 		var fillStyle = function () {
-			var _p24 = _p25;
-			if (_p24.ctor === 'Just') {
+			var _p21 = _p22;
+			if (_p21.ctor === 'Just') {
 				return '';
 			} else {
 				return 'fill-opacity:0.1';
 			}
 		}();
-		var ypos = A3(_user$project$Game$tileXpos, _p26, _p27, idx);
-		var xpos = _p27;
+		var ypos = A3(_user$project$Game$tileXpos, _p23, _p24, idx);
+		var xpos = _p24;
 		return A2(
 			_elm_lang$svg$Svg$g,
 			{ctor: '[]'},
@@ -10523,11 +10640,11 @@ var _user$project$Game$drawFireworkTile = F3(
 					{
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$width(
-							_elm_lang$core$Basics$toString(_p22._0)),
+							_elm_lang$core$Basics$toString(_p19._0)),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$height(
-								_elm_lang$core$Basics$toString(_p26)),
+								_elm_lang$core$Basics$toString(_p23)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$y(
@@ -10539,11 +10656,11 @@ var _user$project$Game$drawFireworkTile = F3(
 									_1: {
 										ctor: '::',
 										_0: _elm_lang$svg$Svg_Attributes$rx(
-											_elm_lang$core$Basics$toString(_p27)),
+											_elm_lang$core$Basics$toString(_p24)),
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$svg$Svg_Attributes$ry(
-												_elm_lang$core$Basics$toString(_p27)),
+												_elm_lang$core$Basics$toString(_p24)),
 											_1: {
 												ctor: '::',
 												_0: _elm_lang$svg$Svg_Attributes$style(fillStyle),
@@ -10562,27 +10679,27 @@ var _user$project$Game$drawFireworkTile = F3(
 						_user$project$Game$renderFirework,
 						xpos,
 						ypos,
-						{ctor: '_Tuple2', _0: _p23._0, _1: _p25}),
+						{ctor: '_Tuple2', _0: _p20._0, _1: _p22}),
 					_1: {ctor: '[]'}
 				}
 			});
 	});
 var _user$project$Game$renderFireworkPile = F2(
-	function (fireworks, _p28) {
-		var _p29 = _p28;
-		var _p32 = _p29._0;
-		var _p31 = _p29._2;
-		var _p30 = _p29._1;
+	function (fireworks, _p25) {
+		var _p26 = _p25;
+		var _p29 = _p26._0;
+		var _p28 = _p26._2;
+		var _p27 = _p26._1;
 		return A2(
 			_elm_lang$svg$Svg$svg,
 			{
 				ctor: '::',
 				_0: _elm_lang$svg$Svg_Attributes$height(
-					_elm_lang$core$Basics$toString(((_p30 + _p31) * 5) + _p31)),
+					_elm_lang$core$Basics$toString(((_p27 + _p28) * 5) + _p28)),
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$svg$Svg_Attributes$width(
-						_elm_lang$core$Basics$toString((_p31 + _p32) + _p31)),
+						_elm_lang$core$Basics$toString((_p28 + _p29) + _p28)),
 					_1: {ctor: '[]'}
 				}
 			},
@@ -10590,7 +10707,7 @@ var _user$project$Game$renderFireworkPile = F2(
 				ctor: '::',
 				_0: A3(
 					_user$project$Game$drawFireworkTile,
-					{ctor: '_Tuple3', _0: _p32, _1: _p30, _2: _p31},
+					{ctor: '_Tuple3', _0: _p29, _1: _p27, _2: _p28},
 					0,
 					{
 						ctor: '_Tuple2',
@@ -10601,7 +10718,7 @@ var _user$project$Game$renderFireworkPile = F2(
 					ctor: '::',
 					_0: A3(
 						_user$project$Game$drawFireworkTile,
-						{ctor: '_Tuple3', _0: _p32, _1: _p30, _2: _p31},
+						{ctor: '_Tuple3', _0: _p29, _1: _p27, _2: _p28},
 						1,
 						{
 							ctor: '_Tuple2',
@@ -10612,7 +10729,7 @@ var _user$project$Game$renderFireworkPile = F2(
 						ctor: '::',
 						_0: A3(
 							_user$project$Game$drawFireworkTile,
-							{ctor: '_Tuple3', _0: _p32, _1: _p30, _2: _p31},
+							{ctor: '_Tuple3', _0: _p29, _1: _p27, _2: _p28},
 							2,
 							{
 								ctor: '_Tuple2',
@@ -10623,7 +10740,7 @@ var _user$project$Game$renderFireworkPile = F2(
 							ctor: '::',
 							_0: A3(
 								_user$project$Game$drawFireworkTile,
-								{ctor: '_Tuple3', _0: _p32, _1: _p30, _2: _p31},
+								{ctor: '_Tuple3', _0: _p29, _1: _p27, _2: _p28},
 								3,
 								{
 									ctor: '_Tuple2',
@@ -10634,7 +10751,7 @@ var _user$project$Game$renderFireworkPile = F2(
 								ctor: '::',
 								_0: A3(
 									_user$project$Game$drawFireworkTile,
-									{ctor: '_Tuple3', _0: _p32, _1: _p30, _2: _p31},
+									{ctor: '_Tuple3', _0: _p29, _1: _p27, _2: _p28},
 									4,
 									{
 										ctor: '_Tuple2',
@@ -10648,80 +10765,127 @@ var _user$project$Game$renderFireworkPile = F2(
 				}
 			});
 	});
+var _user$project$Game$shouldShowButtons = function (_p30) {
+	var _p31 = _p30;
+	return _p31.my_turn && (_elm_lang$core$Native_Utils.cmp(_p31.clocks, 0) > 0);
+};
 var _user$project$Game$update = F4(
-	function (msg, userName, _p33, msgMapper) {
-		var _p34 = _p33;
-		var _p39 = _p34._1;
-		var _p38 = _p34._0;
-		var _p35 = msg;
-		if (_p35.ctor === 'Discard') {
-			var payload = _elm_lang$core$Json_Encode$object(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userName',
-						_1: _elm_lang$core$Json_Encode$string(userName)
-					},
-					_1: {
+	function (msg, userName, _p32, msgMapper) {
+		var _p33 = _p32;
+		var _p39 = _p33._1;
+		var _p38 = _p33._0;
+		var _p34 = msg;
+		switch (_p34.ctor) {
+			case 'Discard':
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'idx',
-							_1: _elm_lang$core$Json_Encode$int(_p35._0)
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(userName)
 						},
-						_1: {ctor: '[]'}
-					}
-				});
-			var _p36 = A3(
-				_elm_lang$core$Basics$flip,
-				_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
-				_p39,
-				A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:player')));
-			var newSocket = _p36._0;
-			var gameCmd = _p36._1;
-			return {
-				ctor: '_Tuple2',
-				_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
-				_1: gameCmd
-			};
-		} else {
-			var payload = _elm_lang$core$Json_Encode$object(
-				{
-					ctor: '::',
-					_0: {
-						ctor: '_Tuple2',
-						_0: 'userName',
-						_1: _elm_lang$core$Json_Encode$string(userName)
-					},
-					_1: {
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'idx',
+								_1: _elm_lang$core$Json_Encode$int(_p34._0)
+							},
+							_1: {ctor: '[]'}
+						}
+					});
+				var _p35 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					_p39,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'discard', 'game:player')));
+				var newSocket = _p35._0;
+				var gameCmd = _p35._1;
+				return {
+					ctor: '_Tuple2',
+					_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
+					_1: gameCmd
+				};
+			case 'Play':
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
 						ctor: '::',
 						_0: {
 							ctor: '_Tuple2',
-							_0: 'idx',
-							_1: _elm_lang$core$Json_Encode$int(_p35._0)
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(userName)
 						},
-						_1: {ctor: '[]'}
-					}
-				});
-			var _p37 = A3(
-				_elm_lang$core$Basics$flip,
-				_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
-				_p39,
-				A2(
-					_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
-					payload,
-					A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:player')));
-			var newSocket = _p37._0;
-			var gameCmd = _p37._1;
-			return {
-				ctor: '_Tuple2',
-				_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
-				_1: gameCmd
-			};
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'idx',
+								_1: _elm_lang$core$Json_Encode$int(_p34._0)
+							},
+							_1: {ctor: '[]'}
+						}
+					});
+				var _p36 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					_p39,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'play', 'game:player')));
+				var newSocket = _p36._0;
+				var gameCmd = _p36._1;
+				return {
+					ctor: '_Tuple2',
+					_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
+					_1: gameCmd
+				};
+			default:
+				var payload = _elm_lang$core$Json_Encode$object(
+					{
+						ctor: '::',
+						_0: {
+							ctor: '_Tuple2',
+							_0: 'userName',
+							_1: _elm_lang$core$Json_Encode$string(userName)
+						},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'name',
+								_1: _elm_lang$core$Json_Encode$string(_p34._0)
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: 'hint',
+									_1: _elm_lang$core$Json_Encode$string(_p34._1)
+								},
+								_1: {ctor: '[]'}
+							}
+						}
+					});
+				var _p37 = A3(
+					_elm_lang$core$Basics$flip,
+					_fbonetti$elm_phoenix_socket$Phoenix_Socket$push,
+					_p39,
+					A2(
+						_fbonetti$elm_phoenix_socket$Phoenix_Push$withPayload,
+						payload,
+						A2(_fbonetti$elm_phoenix_socket$Phoenix_Push$init, 'hint', 'game:player')));
+				var newSocket = _p37._0;
+				var gameCmd = _p37._1;
+				return {
+					ctor: '_Tuple2',
+					_0: {ctor: '_Tuple2', _0: _p38, _1: newSocket},
+					_1: gameCmd
+				};
 		}
 	});
 var _user$project$Game$tileDecoder = A3(
@@ -10784,6 +10948,107 @@ var _user$project$Game$gameDecoder = A9(
 		_elm_lang$core$Json_Decode$dict(_user$project$Game$handDecoder)),
 	A2(_elm_lang$core$Json_Decode$field, 'my_hand', _user$project$Game$handDecoder),
 	A2(_elm_lang$core$Json_Decode$field, 'my_turn', _elm_lang$core$Json_Decode$bool));
+var _user$project$Game$Hint = F2(
+	function (a, b) {
+		return {ctor: 'Hint', _0: a, _1: b};
+	});
+var _user$project$Game$renderButton = F2(
+	function (name, hint) {
+		return A2(
+			_elm_lang$html$Html$button,
+			{
+				ctor: '::',
+				_0: _elm_lang$svg$Svg_Events$onClick(
+					A2(_user$project$Game$Hint, name, hint)),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(hint),
+				_1: {ctor: '[]'}
+			});
+	});
+var _user$project$Game$hintButtons = F2(
+	function (name, hand) {
+		return A2(
+			_elm_lang$core$List$map,
+			_user$project$Game$renderButton(name),
+			_elm_lang$core$Set$toList(
+				_elm_lang$core$Set$fromList(
+					A2(_elm_lang$core$List$concatMap, _user$project$Game$tileAttributes, hand))));
+	});
+var _user$project$Game$renderTeamHand = F4(
+	function (_p40, hintCtrls, name, hand) {
+		var _p41 = _p40;
+		var _p45 = _p41._0;
+		var _p44 = _p41._2;
+		var _p43 = _p41._1;
+		var hints = function () {
+			var _p42 = hintCtrls;
+			if (_p42 === true) {
+				return A2(_user$project$Game$hintButtons, name, hand);
+			} else {
+				return {ctor: '[]'};
+			}
+		}();
+		return A2(
+			_elm_lang$html$Html$div,
+			{ctor: '[]'},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(_elm_lang$core$Basics_ops['++'], name, '\'s hand:')),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$svg$Svg$svg,
+						{
+							ctor: '::',
+							_0: _elm_lang$svg$Svg_Attributes$height(
+								A2(_user$project$Game$handHeight, _p43, _p44)),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$svg$Svg_Attributes$width(
+									A2(_user$project$Game$handWidth, _p45, _p44)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$class(
+										A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
+									_1: {ctor: '[]'}
+								}
+							}
+						},
+						A2(
+							_elm_lang$core$List$indexedMap,
+							_user$project$Game$drawTile(
+								{ctor: '_Tuple3', _0: _p45, _1: _p43, _2: _p44}),
+							hand)),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{ctor: '[]'},
+							hints),
+						_1: {ctor: '[]'}
+					}
+				}
+			});
+	});
+var _user$project$Game$renderTeamHands = F3(
+	function (hands, dimensions, hintCtrls) {
+		return _elm_lang$core$Dict$values(
+			A2(
+				_elm_lang$core$Dict$map,
+				A2(_user$project$Game$renderTeamHand, dimensions, hintCtrls),
+				hands));
+	});
 var _user$project$Game$Play = function (a) {
 	return {ctor: 'Play', _0: a};
 };
@@ -10843,18 +11108,18 @@ var _user$project$Game$discardButton = F3(
 			});
 	});
 var _user$project$Game$drawPlayerTile = F4(
-	function (_p41, my_turn, idx, _p40) {
-		var _p42 = _p41;
-		var _p49 = _p42._0;
-		var _p48 = _p42._2;
-		var _p47 = _p42._1;
-		var _p43 = _p40;
-		var _p46 = _p43._1;
-		var _p45 = _p43._0;
-		var ypos = _p48;
-		var xpos = A3(_user$project$Game$tileXpos, _p49, _p48, idx);
-		var _p44 = my_turn;
-		if (_p44 === true) {
+	function (_p47, my_turn, idx, _p46) {
+		var _p48 = _p47;
+		var _p55 = _p48._0;
+		var _p54 = _p48._2;
+		var _p53 = _p48._1;
+		var _p49 = _p46;
+		var _p52 = _p49._1;
+		var _p51 = _p49._0;
+		var ypos = _p54;
+		var xpos = A3(_user$project$Game$tileXpos, _p55, _p54, idx);
+		var _p50 = my_turn;
+		if (_p50 === true) {
 			return A2(
 				_elm_lang$svg$Svg$g,
 				{ctor: '[]'},
@@ -10865,11 +11130,11 @@ var _user$project$Game$drawPlayerTile = F4(
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
-								_elm_lang$core$Basics$toString(_p49)),
+								_elm_lang$core$Basics$toString(_p55)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$height(
-									_elm_lang$core$Basics$toString(_p47)),
+									_elm_lang$core$Basics$toString(_p53)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$y(
@@ -10898,7 +11163,7 @@ var _user$project$Game$drawPlayerTile = F4(
 							_user$project$Game$renderFirework,
 							xpos,
 							ypos,
-							{ctor: '_Tuple2', _0: _p45, _1: _p46}),
+							{ctor: '_Tuple2', _0: _p51, _1: _p52}),
 						_1: {
 							ctor: '::',
 							_0: A3(_user$project$Game$discardButton, xpos, ypos, idx),
@@ -10921,11 +11186,11 @@ var _user$project$Game$drawPlayerTile = F4(
 						{
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
-								_elm_lang$core$Basics$toString(_p49)),
+								_elm_lang$core$Basics$toString(_p55)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$height(
-									_elm_lang$core$Basics$toString(_p47)),
+									_elm_lang$core$Basics$toString(_p53)),
 								_1: {
 									ctor: '::',
 									_0: _elm_lang$svg$Svg_Attributes$y(
@@ -10954,18 +11219,18 @@ var _user$project$Game$drawPlayerTile = F4(
 							_user$project$Game$renderFirework,
 							xpos,
 							ypos,
-							{ctor: '_Tuple2', _0: _p45, _1: _p46}),
+							{ctor: '_Tuple2', _0: _p51, _1: _p52}),
 						_1: {ctor: '[]'}
 					}
 				});
 		}
 	});
 var _user$project$Game$renderPlayerHand = F4(
-	function (hand, _p50, name, my_turn) {
-		var _p51 = _p50;
-		var _p54 = _p51._0;
-		var _p53 = _p51._2;
-		var _p52 = _p51._1;
+	function (hand, _p56, name, my_turn) {
+		var _p57 = _p56;
+		var _p60 = _p57._0;
+		var _p59 = _p57._2;
+		var _p58 = _p57._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{ctor: '[]'},
@@ -10976,11 +11241,11 @@ var _user$project$Game$renderPlayerHand = F4(
 					{
 						ctor: '::',
 						_0: _elm_lang$svg$Svg_Attributes$height(
-							A2(_user$project$Game$handHeight, _p52, _p53)),
+							A2(_user$project$Game$handHeight, _p58, _p59)),
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$svg$Svg_Attributes$width(
-								A2(_user$project$Game$handWidth, _p54, _p53)),
+								A2(_user$project$Game$handWidth, _p60, _p59)),
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$svg$Svg_Attributes$class(
@@ -10993,7 +11258,7 @@ var _user$project$Game$renderPlayerHand = F4(
 						_elm_lang$core$List$indexedMap,
 						A2(
 							_user$project$Game$drawPlayerTile,
-							{ctor: '_Tuple3', _0: _p54, _1: _p52, _2: _p53},
+							{ctor: '_Tuple3', _0: _p60, _1: _p58, _2: _p59},
 							my_turn),
 						hand)),
 				_1: {ctor: '[]'}
@@ -11120,10 +11385,11 @@ var _user$project$Game$view = function (model) {
 											_0: _elm_lang$html$Html_Attributes$class('team-container'),
 											_1: {ctor: '[]'}
 										},
-										A2(
+										A3(
 											_user$project$Game$renderTeamHands,
 											model.hands,
-											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10})),
+											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10},
+											_user$project$Game$shouldShowButtons(model))),
 									_1: {
 										ctor: '::',
 										_0: A2(

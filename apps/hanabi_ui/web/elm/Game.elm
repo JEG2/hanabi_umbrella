@@ -9,6 +9,7 @@ import Phoenix.Socket
 import Phoenix.Push
 import Svg exposing (svg, Svg, rect, g, text, text_)
 import Svg.Events exposing (onClick)
+import Set exposing (fromList, toList)
 import Svg.Attributes
     exposing
         ( height
@@ -99,6 +100,7 @@ fireworkDecoder =
 type Msg
     = Discard Int
     | Play Int
+    | Hint String String
 
 
 update :
@@ -139,6 +141,22 @@ update msg userName ( model, socket ) msgMapper =
             in
                 ( ( model, newSocket ), gameCmd )
 
+        Hint name hint ->
+            let
+                payload =
+                    Json.Encode.object
+                        [ ( "userName", Json.Encode.string userName )
+                        , ( "name", Json.Encode.string name )
+                        , ( "hint", Json.Encode.string hint )
+                        ]
+
+                ( newSocket, gameCmd ) =
+                    Phoenix.Push.init "hint" "game:player"
+                        |> Phoenix.Push.withPayload payload
+                        |> (flip Phoenix.Socket.push socket)
+            in
+                ( ( model, newSocket ), gameCmd )
+
 
 
 -- VIEW
@@ -172,11 +190,16 @@ view model =
             ]
         , div
             [ Html.Attributes.class "team-container" ]
-            (renderTeamHands model.hands ( 100, 60, 10 ))
+            (renderTeamHands model.hands ( 100, 60, 10 ) (shouldShowButtons model) )
         , div
             [ Html.Attributes.class "discards-container" ]
             [ renderDiscardPile model.discards ( 100, 60, 10 ) ]
         ]
+
+
+shouldShowButtons : Model -> Bool
+shouldShowButtons {my_turn, clocks} =
+        my_turn && (clocks > 0)
 
 
 renderFireworkPile : Fireworks -> ( Int, Int, Int ) -> Svg a
@@ -259,24 +282,54 @@ renderDiscardPile hand ( width, height, padding ) =
         ]
 
 
-renderTeamHands : Dict String Hand -> ( Int, Int, Int ) -> List (Svg a)
-renderTeamHands hands dimensions =
+renderTeamHands : Dict String Hand -> ( Int, Int, Int ) -> Bool -> List (Html Msg)
+renderTeamHands hands dimensions hintCtrls =
     hands
-        |> Dict.map (renderTeamHand dimensions)
+        |> Dict.map (renderTeamHand dimensions hintCtrls)
         |> Dict.values
 
 
-renderTeamHand : ( Int, Int, Int ) -> String -> Hand -> Svg a
-renderTeamHand ( width, height, padding ) name hand =
-    div []
-        [ div [] [ Html.text (name ++ "'s hand:") ]
-        , Svg.svg
-            [ Svg.Attributes.height (handHeight height padding)
-            , Svg.Attributes.width (handWidth width padding)
-            , Svg.Attributes.class (name ++ "-hand")
+renderTeamHand : ( Int, Int, Int ) -> Bool -> String -> Hand -> Html Msg
+renderTeamHand ( width, height, padding ) hintCtrls name hand =
+    let
+        hints =
+            case hintCtrls of
+                True -> hintButtons name hand
+                False -> []
+    in
+        div []
+            [ div [] [ Html.text (name ++ "'s hand:") ]
+            , Svg.svg
+                [ Svg.Attributes.height (handHeight height padding)
+                , Svg.Attributes.width (handWidth width padding)
+                , Svg.Attributes.class (name ++ "-hand")
+                ]
+                  (List.indexedMap (drawTile ( width, height, padding )) hand)
+            , div [] hints
             ]
-            (List.indexedMap (drawTile ( width, height, padding )) hand)
-        ]
+
+
+hintButtons : String -> Hand -> List (Html Msg)
+hintButtons name hand =
+    hand
+        |> List.concatMap tileAttributes
+        |> Set.fromList
+        |> Set.toList
+        |> List.map (renderButton name)
+
+
+renderButton : String -> String -> Html Msg
+renderButton name hint =
+    button [ onClick (Hint name hint) ] [ Html.text hint ]
+
+
+tileAttributes : Tile -> List (String)
+tileAttributes (color, number) =
+    let
+        c = Maybe.withDefault "" color
+        n = toString (Maybe.withDefault 0 number)
+    in
+        [c, n]
 
 
 renderPlayerHand : Hand -> ( Int, Int, Int ) -> String -> Bool -> Html Msg
@@ -412,7 +465,14 @@ renderFirework xpos ypos ( color, number ) =
             renderFive xpos ypos color
 
         _ ->
-            g [] []
+            Svg.rect
+                [ width (toString 30)
+                , height (toString 10)
+                , x (toString (xpos + 20))
+                , y (toString (ypos + 20))
+                , style ("fill: " ++ (Maybe.withDefault "black" color))
+                ]
+                []
 
 
 renderOne : Int -> Int -> Maybe String -> Svg a
@@ -466,6 +526,6 @@ renderCircle x y color =
         [ cx (toString x)
         , cy (toString y)
         , r "5"
-        , style ("fill: " ++ (Maybe.withDefault "black" color))
+        , style ("fill: " ++ (Maybe.withDefault "orange" color))
         ]
         []
