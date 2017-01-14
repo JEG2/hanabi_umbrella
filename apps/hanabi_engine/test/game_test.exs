@@ -36,7 +36,7 @@ defmodule GameTest do
   test "conversion to a player's view hides a player's hand for knowns" do
     view = Game.new(~w[A B]) |> Game.deal |> Game.to_player_view("A")
     assert not Map.has_key?(view.hands, "A")
-    assert view.my_hand == List.duplicate([nil, nil], 5)
+    assert view.my_data.hand == List.duplicate([nil, nil], 5)
   end
 
   test "conversion to a player's view hides knowns" do
@@ -47,10 +47,10 @@ defmodule GameTest do
   test "conversion to a player's view adds a turn indicator" do
     game = Game.new(~w[A B]) |> Game.deal
     as_view = Game.to_player_view(game, "A")
-    assert as_view.my_turn == true
+    assert as_view.my_data.turn == true
 
     bs_view = Game.to_player_view(game, "B")
-    assert bs_view.my_turn == false
+    assert bs_view.my_data.turn == false
   end
 
   describe "moves" do

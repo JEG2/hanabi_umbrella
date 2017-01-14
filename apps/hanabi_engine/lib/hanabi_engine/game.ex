@@ -167,14 +167,17 @@ defmodule HanabiEngine.Game do
   data is also prepared for serialization.
   """
   def to_player_view(game, player) do
+    my_data = %{
+      hand: Map.fetch!(game.knowns, player),
+      turn: game.turn == player
+    }
     game
     |> Map.from_struct
     |> Map.delete(:status)
     |> Map.update!(:draw_pile, fn tiles -> length(tiles) end)
     |> Map.update!(:hands, fn hands -> Map.delete(hands, player) end)
-    |> Map.put(:my_hand, Map.fetch!(game.knowns, player))
     |> Map.delete(:knowns)
-    |> Map.put(:my_turn, game.turn == player)
+    |> Map.put(:my_data, my_data)
     |> tuples_to_lists
   end
 
