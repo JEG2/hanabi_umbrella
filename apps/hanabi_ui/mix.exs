@@ -8,7 +8,7 @@ defmodule HanabiUi.Mixfile do
      config_path: "../../config/config.exs",
      deps_path: "../../deps",
      lockfile: "../../mix.lock",
-     elixir: "~> 1.2",
+     elixir: "~> 1.4",
      elixirc_paths: elixirc_paths(Mix.env),
      compilers: [:phoenix, :gettext] ++ Mix.compilers,
      build_embedded: Mix.env == :prod,
@@ -21,17 +21,8 @@ defmodule HanabiUi.Mixfile do
   # Type `mix help compile.app` for more information.
   def application do
     [
-      mod: {HanabiUi, []},
-      applications: [
-        :phoenix,
-        :phoenix_pubsub,
-        :phoenix_html,
-        :cowboy,
-        :logger,
-        :gettext,
-        :hanabi_engine,
-        :hanabi_storage
-      ]
+      mod: {HanabiUi.Application, []},
+      extra_applications: [:logger]
     ]
   end
 

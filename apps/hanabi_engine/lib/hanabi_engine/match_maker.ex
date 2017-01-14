@@ -19,7 +19,7 @@ defmodule HanabiEngine.MatchMaker do
   Registers a user process by name.
   """
   def register(user_name) do
-    GenServer.call(__MODULE__, {:register, user_name, self})
+    GenServer.call(__MODULE__, {:register, user_name, self()})
   end
 
   @doc ~S"""
@@ -42,7 +42,7 @@ defmodule HanabiEngine.MatchMaker do
     {:error, "Invalid player count."}
   end
   def join_game(user_name, player_count) do
-    if user(user_name) == self do
+    if user(user_name) == self() do
       GenServer.call(__MODULE__, {:join_game, user_name, player_count})
     else
       {:error, "You can only add your user to games."}
