@@ -15,7 +15,6 @@ instead to support the makers of great games!
 
 ## To Do
 
-* Add storage
 * Prepare upgrade feature
 * Practice and automate hot code reloading
 * Better error handling

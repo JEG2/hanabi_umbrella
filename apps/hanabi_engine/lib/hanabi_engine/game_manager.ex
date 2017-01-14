@@ -45,14 +45,20 @@ defmodule HanabiEngine.GameManager do
   randomization the `GameManager` does predictable.  This allows for the
   recreation of games from long term storage.
   """
-  def start(game_id, players, seed \\ nil) do
-    Supervisor.start_child(GameSupervisor, [game_id, players, seed])
+  def start(game_id, players, seed \\ nil, builder \\ &Game.new/1) do
+    Supervisor.start_child(GameSupervisor, [game_id, players, seed, builder])
   end
 
   # used by GameSupervisor and test code
   @doc false
-  def start_link(game_id, players, seed \\ nil, options \\ [ ]) do
-    GenServer.start_link(__MODULE__, {game_id, players, seed}, options)
+  def start_link(
+    game_id,
+    players,
+    seed \\ nil,
+    builder \\ &Game.new/1,
+    options \\ [ ]
+  ) do
+    GenServer.start_link(__MODULE__, {game_id, players, seed, builder}, options)
   end
 
   @doc ~S"""
@@ -93,12 +99,12 @@ defmodule HanabiEngine.GameManager do
   ### Server ###
 
   @doc false
-  def init({game_id, _players, _seed}) when not is_binary(game_id),
+  def init({game_id, _players, _seed, _builder}) when not is_binary(game_id),
     do: {:stop, "A game ID must be a String."}
-  def init({_game_id, players, _seed})
+  def init({_game_id, players, _seed, _builder})
   when not is_list(players) or not length(players) in 2..5,
     do: {:stop, "A game requires a List of 2 to 5 players."}
-  def init({_game_id, _players, seed})
+  def init({_game_id, _players, seed, _builder})
   when not (is_nil(seed)
   or (is_tuple(seed) and tuple_size(seed) == 2)
   and is_atom(elem(seed, 0))
@@ -106,18 +112,18 @@ defmodule HanabiEngine.GameManager do
   and is_integer(hd(elem(seed, 1)))
   and is_integer(tl(elem(seed, 1)))),
     do: {:stop, "A game seed is Tuple of three Integer values."}
-  def init({game_id, players, seed}) do
+  def init({game_id, players, seed, builder}) do
     if seed, do: :rand.seed(seed)
 
     PubSub.subscribe(:hanabi, "game:#{game_id}:plays")
 
-    {:ok, %__MODULE__{id: game_id, game: Game.new(players)}}
+    {:ok, %__MODULE__{id: game_id, game: builder.(players)}}
   end
 
   @doc false
   def handle_info(move = :deal, %__MODULE__{id: id, game: game}) do
-    {reply, new_game} = RulesLawyer.deal_if_legal(game)
-    publish(id, move, reply, new_game)
+    new_game = RulesLawyer.deal_if_legal(game) |> elem(1)
+    publish(id, move, :ok, new_game)
     {:noreply, %__MODULE__{id: id, game: new_game}}
   end
 

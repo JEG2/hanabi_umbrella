@@ -14,12 +14,21 @@ defmodule HanabiStorage.Recorder do
     GenServer.call(__MODULE__, {:start_game, id, players, seed})
   end
 
+  def record_game(id) do
+    GenServer.call(__MODULE__, {:record_game, id})
+  end
+
   ### Server ###
 
   def handle_call({:start_game, id, players, seed}, _from, nil) do
     HanabiEngine.GameManager.subscribe(id)
     Game.started_changeset(id, players, seed)
     |> Repo.insert!
+    {:reply, :ok, nil}
+  end
+
+  def handle_call({:record_game, id}, _from, nil) do
+    HanabiEngine.GameManager.subscribe(id)
     {:reply, :ok, nil}
   end
 

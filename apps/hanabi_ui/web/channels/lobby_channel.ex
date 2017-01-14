@@ -89,21 +89,55 @@ defmodule HanabiUi.LobbyChannel do
   end
 
   defp start_game(players) do
-    result =
+    sorted_names =
       players
       |> Map.keys
       |> Enum.sort
-      |> HanabiEngine.GameManager.start_new
-    case result do
-      {:ok, game_id, player_names, seed} ->
-        HanabiStorage.Recorder.start_game(game_id, Enum.sort(player_names), seed)
-        Enum.each(players, fn {_player_name, pid} ->
-          send(pid, {:game_started, game_id, self()})
-        end)
-      {:error, message} ->
-        Enum.each(players, fn {player_name, pid} ->
-          send(pid, {:game_start_error, message, player_name})
-        end)
+    case HanabiStorage.most_recent_game_event_for(sorted_names) do
+      saved_game = %HanabiStorage.Game{event: "started"} ->
+        result =
+          HanabiEngine.GameManager.start(
+            saved_game.uuid,
+            sorted_names,
+            saved_game.seed,
+            fn _players ->
+              new_game =
+                sorted_names
+                |> HanabiEngine.Game.new
+                |> HanabiEngine.Game.deal
+              Enum.reduce(saved_game.moves, new_game, fn move, game ->
+                apply(
+                  HanabiEngine.Game,
+                  String.to_atom(move.play),
+                  [game | move.arguments]
+                )
+              end)
+            end
+          )
+        case result do
+          success when is_tuple(success) and elem(success, 0) == :ok ->
+            HanabiStorage.Recorder.record_game(saved_game.uuid)
+            Enum.each(players, fn {_player_name, pid} ->
+              send(pid, {:game_started, saved_game.uuid, self()})
+            end)
+          {:error, message} ->
+            Enum.each(players, fn {player_name, pid} ->
+              send(pid, {:game_start_error, message, player_name})
+            end)
+        end
+      _ ->
+        result = HanabiEngine.GameManager.start_new(sorted_names)
+        case result do
+          {:ok, game_id, _player_names, seed} ->
+            HanabiStorage.Recorder.start_game(game_id, sorted_names, seed)
+            Enum.each(players, fn {_player_name, pid} ->
+              send(pid, {:game_started, game_id, self()})
+            end)
+          {:error, message} ->
+            Enum.each(players, fn {player_name, pid} ->
+              send(pid, {:game_start_error, message, player_name})
+            end)
+        end
     end
   end
 end
