@@ -20,6 +20,7 @@ defmodule GameTest do
     assert not Map.has_key?(view, :__struct__)
     assert not Map.has_key?(view, :status)
     assert not Map.has_key?(view, :knowns)
+    assert not Map.has_key?(view, :insights)
   end
 
   test "conversion to a player's view reduces the draw pile to a size" do
@@ -235,6 +236,69 @@ defmodule GameTest do
         |> Game.hint("B", "A", 5)
       game_after_five = Game.play(game_ready_for_five, "A", 2)
       assert game_after_five.clocks == game_ready_for_five.clocks + 1
+    end
+  end
+
+  describe "insights" do
+    setup do
+      # Use a known deal for testing purposes:
+      #
+      # * A's hand:  `[green: 4, green: 3, white: 3, blue: 4, green: 1]`
+      # * B's hand:  `[red: 4, blue: 5, red: 2, white: 4, blue: 2]`
+      # * Top three draws:  `[green: 4, white: 4, red: 5, …]`
+      :rand.seed(:exsplus, {1, 2, 3})
+
+      game =
+        Game.new(~w[A B])
+        |> Game.deal
+        |> Game.hint("A", "B", :red)
+      {:ok, game: game}
+    end
+
+    test "giving a hint populates insights", %{game: game} do
+      bs_insights = game.insights |> Map.fetch!("B")
+      assert bs_insights == [
+        [ ],
+        ["Not red"],
+        [ ],
+        ["Not red"],
+        ["Not red"]
+      ]
+    end
+
+    test "discarding a tile resets insights", %{game: game} do
+      game_after_discard = Game.discard(game, "B", 1)
+      bs_insights = game_after_discard.insights |> Map.fetch!("B")
+      assert bs_insights == [
+        [ ],
+        [ ],
+        [ ],
+        ["Not red"],
+        ["Not red"]
+      ]
+    end
+
+    test "playing a tile resets insights", %{game: game} do
+      game_after_play = Game.play(game, "B", 4)
+      bs_insights = game_after_play.insights |> Map.fetch!("B")
+      assert bs_insights == [
+        [ ],
+        ["Not red"],
+        [ ],
+        ["Not red"],
+        [ ]
+      ]
+    end
+
+    test "player view includes my insights", %{game: game} do
+      my_insights = Game.to_player_view(game, "B").my_data.insights
+      assert my_insights == [
+        [ ],
+        ["Not red"],
+        [ ],
+        ["Not red"],
+        ["Not red"]
+      ]
     end
   end
 end

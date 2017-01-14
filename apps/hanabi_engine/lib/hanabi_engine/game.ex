@@ -16,6 +16,7 @@ defmodule HanabiEngine.Game do
             players: nil,
             hands: nil,
             knowns: nil,
+            insights: nil,
             draw_pile: nil,
             discards: [ ],
             fireworks: %{
@@ -57,12 +58,18 @@ defmodule HanabiEngine.Game do
       game.players
       |> Enum.map(fn player -> {player, no_knowns} end)
       |> Enum.into(%{ })
+    no_insights = List.duplicate([ ], hand_size)
+    insights =
+      game.players
+      |> Enum.map(fn player -> {player, no_insights} end)
+      |> Enum.into(%{ })
     draw_pile = Enum.drop(all_tiles, tile_count)
     %__MODULE__{
       game |
       status: :playing,
       hands: hands,
       knowns: knowns,
+      insights: insights,
       draw_pile: draw_pile,
       turn: hd(game.players)
     }
@@ -79,6 +86,7 @@ defmodule HanabiEngine.Game do
   def hint(game, _player, to, hint) do
     hand = Map.fetch!(game.hands, to)
     knowns = Map.fetch!(game.knowns, to)
+    insights = Map.fetch!(game.insights, to)
     new_knowns =
       knowns
       |> Enum.zip(hand)
@@ -89,9 +97,23 @@ defmodule HanabiEngine.Game do
           true -> {knowns_color, knowns_value}
         end
       end)
+    new_insights =
+      insights
+      |> Enum.zip(hand)
+      |> Enum.map(fn {tiles_insights, {hand_color, hand_value}} ->
+        cond do
+          hint == hand_color or hint == hand_value ->
+            tiles_insights
+          is_atom(hint) ->
+            tiles_insights ++ ["Not #{hint}"]
+          true ->
+            tiles_insights ++ ["Not a #{hint}"]
+        end
+      end)
     %__MODULE__{
       game |
       knowns: Map.put(game.knowns, to, new_knowns),
+      insights: Map.put(game.insights, to, new_insights),
       turn: next_turn(game),
       clocks: game.clocks - 1
     }
@@ -108,14 +130,17 @@ defmodule HanabiEngine.Game do
   def discard(game, player, index) do
     hand = game.hands |> Map.fetch!(player)
     knowns = game.knowns |> Map.fetch!(player)
+    insights = game.insights |> Map.fetch!(player)
     discard = hand |> Enum.at(index)
     drawn = draw(game)
     new_hand = List.replace_at(hand, index, drawn)
     new_knowns = List.replace_at(knowns, index, {nil, nil})
+    new_insights = List.replace_at(insights, index, [ ])
     %__MODULE__{
       game |
       hands: Map.put(game.hands, player, new_hand),
       knowns: Map.put(game.knowns, player, new_knowns),
+      insights: Map.put(game.insights, player, new_insights),
       draw_pile: post_draw_pile(game),
       discards: [discard | game.discards],
       turn: next_turn(game),
@@ -134,10 +159,12 @@ defmodule HanabiEngine.Game do
   def play(game, player, index) do
     hand = game.hands |> Map.fetch!(player)
     knowns = game.knowns |> Map.fetch!(player)
+    insights = game.insights |> Map.fetch!(player)
     tile = hand |> Enum.at(index)
     drawn = draw(game)
     new_hand = List.replace_at(hand, index, drawn)
     new_knowns = List.replace_at(knowns, index, {nil, nil})
+    new_insights = List.replace_at(insights, index, [ ])
     color = elem(tile, 0)
     fireworks = game.fireworks
     {new_fireworks, new_discards, new_fuses, new_clocks} =
@@ -161,6 +188,7 @@ defmodule HanabiEngine.Game do
       game |
       hands: Map.put(game.hands, player, new_hand),
       knowns: Map.put(game.knowns, player, new_knowns),
+      insights: Map.put(game.insights, player, new_insights),
       draw_pile: post_draw_pile(game),
       discards: new_discards,
       fireworks: new_fireworks,
@@ -177,7 +205,8 @@ defmodule HanabiEngine.Game do
   def to_player_view(game, player) do
     my_data = %{
       hand: Map.fetch!(game.knowns, player),
-      turn: game.turn == player
+      turn: game.turn == player,
+      insights: Map.fetch!(game.insights, player)
     }
     game
     |> Map.from_struct
@@ -185,6 +214,7 @@ defmodule HanabiEngine.Game do
     |> Map.update!(:draw_pile, fn tiles -> length(tiles) end)
     |> Map.update!(:hands, fn hands -> Map.delete(hands, player) end)
     |> Map.delete(:knowns)
+    |> Map.delete(:insights)
     |> Map.put(:my_data, my_data)
     |> tuples_to_lists
   end
