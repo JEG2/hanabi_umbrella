@@ -1,23 +1,40 @@
-module Game exposing(Model, gameDecoder, view, Msg(..))
+module Game exposing (Model, gameDecoder, update, view, Msg(..))
 
+import Dict exposing (Dict)
 import Html exposing (program, text, Html, div, button)
+import Html.Attributes exposing (class)
 import Json.Decode as JD exposing (..)
 import Json.Encode exposing (string, int)
-import Dict exposing (Dict)
-import Html.Attributes exposing (class)
+import Phoenix.Socket
+import Phoenix.Push
 import Svg exposing (svg, Svg, rect, g, text, text_)
 import Svg.Events exposing (onClick)
-import Svg.Attributes exposing (height, width, class, x, y, rx, ry, cx, cy, r, style)
+import Svg.Attributes
+    exposing
+        ( height
+        , width
+        , class
+        , x
+        , y
+        , rx
+        , ry
+        , cx
+        , cy
+        , r
+        , style
+        )
 
 
-type Msg
-    = Discard Int
-    | Play Int
+-- MODEL
 
 
-type alias Tile = (Maybe String, Maybe Int)
+type alias Tile =
+    ( Maybe String, Maybe Int )
 
-type alias Hand = List Tile
+
+type alias Hand =
+    List Tile
+
 
 type alias Fireworks =
     { blue : Maybe Int
@@ -26,6 +43,7 @@ type alias Fireworks =
     , white : Maybe Int
     , yellow : Maybe Int
     }
+
 
 type alias Model =
     { clocks : Int
@@ -47,7 +65,7 @@ gameDecoder =
         (field "draw_pile" JD.int)
         (field "fireworks" fireworkDecoder)
         (field "fuses" JD.int)
-        (field "hands" (JD.dict (handDecoder)))
+        (field "hands" (JD.dict handDecoder))
         (field "my_hand" handDecoder)
         (field "my_turn" JD.bool)
 
@@ -74,92 +92,206 @@ fireworkDecoder =
         (field "yellow" (nullable JD.int))
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+
+-- UPDATE
+
+
+type Msg
+    = Discard Int
+    | Play Int
+
+
+update :
+    Msg
+    -> String
+    -> ( Model, Phoenix.Socket.Socket msg )
+    -> (Msg -> msg)
+    -> ( ( Model, Phoenix.Socket.Socket msg ), Cmd (Phoenix.Socket.Msg msg) )
+update msg userName ( model, socket ) msgMapper =
+    case msg of
+        Discard idx ->
+            let
+                payload =
+                    Json.Encode.object
+                        [ ( "userName", Json.Encode.string userName )
+                        , ( "idx", Json.Encode.int idx )
+                        ]
+
+                ( newSocket, gameCmd ) =
+                    Phoenix.Push.init "discard" "game:player"
+                        |> Phoenix.Push.withPayload payload
+                        |> (flip Phoenix.Socket.push socket)
+            in
+                ( ( model, newSocket ), gameCmd )
+
+        Play idx ->
+            let
+                payload =
+                    Json.Encode.object
+                        [ ( "userName", Json.Encode.string userName )
+                        , ( "idx", Json.Encode.int idx )
+                        ]
+
+                ( newSocket, gameCmd ) =
+                    Phoenix.Push.init "play" "game:player"
+                        |> Phoenix.Push.withPayload payload
+                        |> (flip Phoenix.Socket.push socket)
+            in
+                ( ( model, newSocket ), gameCmd )
+
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
 view model =
-    div [ ] [ div [ Html.Attributes.class "draw"] [ Html.text ("Remaining Tiles: " ++ toString model.draw_pile)]
-            , div [ Html.Attributes.class "fuses"] [ Html.text ("Fuses: " ++ toString model.fuses)]
-            , div [ Html.Attributes.class "timers"] [ Html.text ("Clocks: " ++ toString model.clocks)]
-            , div [ Html.Attributes.class "turn"] [ Html.text ("My Turn: " ++ toString model.my_turn)]
-            , div [ Html.Attributes.class "fireworks"]
-                  [ renderFireworkPile model.fireworks (100,60,10)]
-            , div [ Html.Attributes.class "player-container" ]
-                  [ renderPlayerHand model.my_hand (100,60,15) "player" model.my_turn]
-            , div [ Html.Attributes.class "team-container" ]
-                  (renderTeamHands model.hands (100,60,10))
-            , div [ Html.Attributes.class "discards-container" ]
-                  [ renderDiscardPile model.discards (100,60,10) ]
+    div []
+        [ div
+            [ Html.Attributes.class "draw" ]
+            [ Html.text ("Remaining Tiles: " ++ toString model.draw_pile) ]
+        , div
+            [ Html.Attributes.class "fuses" ]
+            [ Html.text ("Fuses: " ++ toString model.fuses) ]
+        , div
+            [ Html.Attributes.class "timers" ]
+            [ Html.text ("Clocks: " ++ toString model.clocks) ]
+        , div
+            [ Html.Attributes.class "turn" ]
+            [ Html.text ("My Turn: " ++ toString model.my_turn) ]
+        , div
+            [ Html.Attributes.class "fireworks" ]
+            [ renderFireworkPile model.fireworks ( 100, 60, 10 ) ]
+        , div
+            [ Html.Attributes.class "player-container" ]
+            [ renderPlayerHand
+                model.my_hand
+                ( 100, 60, 15 )
+                "player"
+                model.my_turn
+            ]
+        , div
+            [ Html.Attributes.class "team-container" ]
+            (renderTeamHands model.hands ( 100, 60, 10 ))
+        , div
+            [ Html.Attributes.class "discards-container" ]
+            [ renderDiscardPile model.discards ( 100, 60, 10 ) ]
+        ]
+
+
+renderFireworkPile : Fireworks -> ( Int, Int, Int ) -> Svg a
+renderFireworkPile fireworks ( w, h, padding ) =
+    Svg.svg
+        [ Svg.Attributes.height (toString ((h + padding) * 5 + padding))
+        , Svg.Attributes.width (toString (padding + w + padding))
+        ]
+        [ (drawFireworkTile
+            ( w, h, padding )
+            0
+            ( Just "blue", fireworks.blue )
+          )
+        , (drawFireworkTile
+            ( w, h, padding )
+            1
+            ( Just "green", fireworks.green )
+          )
+        , (drawFireworkTile
+            ( w, h, padding )
+            2
+            ( Just "red", fireworks.red )
+          )
+        , (drawFireworkTile
+            ( w, h, padding )
+            3
+            ( Just "white", fireworks.white )
+          )
+        , (drawFireworkTile
+            ( w, h, padding )
+            4
+            ( Just "yellow", fireworks.yellow )
+          )
+        ]
+
+
+drawFireworkTile : ( Int, Int, Int ) -> Int -> Tile -> Svg a
+drawFireworkTile ( w, h, padding ) idx ( color, number ) =
+    let
+        xpos =
+            padding
+
+        ypos =
+            tileXpos h padding idx
+
+        fillStyle =
+            case number of
+                Just num ->
+                    ""
+
+                Nothing ->
+                    "fill-opacity:0.1"
+    in
+        g []
+            [ (rect
+                [ width (toString w)
+                , height (toString h)
+                , y (toString ypos)
+                , x (toString xpos)
+                , rx (toString padding)
+                , ry (toString padding)
+                , style fillStyle
+                ]
+                []
+              )
+            , renderFirework xpos ypos ( color, number )
             ]
 
 
-renderFireworkPile : Fireworks -> (Int, Int, Int) -> Svg a
-renderFireworkPile fireworks (w,h,padding) =
-    Svg.svg [ Svg.Attributes.height (toString ((h + padding) * 5 + padding))
-            , Svg.Attributes.width (toString (padding + w + padding)) ]
-            [ (drawFireworkTile (w,h,padding) 0 (Just "blue", fireworks.blue))
-            , (drawFireworkTile (w,h,padding) 1 (Just "green", fireworks.green))
-            , (drawFireworkTile (w,h,padding) 2 (Just "red", fireworks.red))
-            , (drawFireworkTile (w,h,padding) 3 (Just "white", fireworks.white))
-            , (drawFireworkTile (w,h,padding) 4 (Just "yellow", fireworks.yellow)) ]
+renderDiscardPile : Hand -> ( Int, Int, Int ) -> Svg a
+renderDiscardPile hand ( width, height, padding ) =
+    div []
+        [ div [] [ Html.text "Discards:" ]
+        , Svg.svg
+            [ Svg.Attributes.height (handHeight height padding)
+            , Svg.Attributes.width (handWidth width padding)
+            , Svg.Attributes.class "discards"
+            ]
+            (List.indexedMap (drawTile ( width, height, padding )) hand)
+        ]
 
 
-drawFireworkTile : (Int, Int, Int) -> Int -> Tile -> Svg a
-drawFireworkTile (w, h, padding) idx (color, number) =
-    let
-        xpos = padding
-        ypos = tileXpos h padding idx
-        fillStyle =
-            case number of
-                Just num -> ""
-                Nothing -> "fill-opacity:0.1"
-    in
-        g [] [(rect [ width (toString w)
-                    , height (toString h)
-                    , y (toString ypos)
-                    , x (toString xpos)
-                    , rx (toString padding)
-                    , ry (toString padding)
-                    , style fillStyle
-                    ] [])
-             , renderFirework xpos ypos (color, number)
-             ]
-
-
-renderDiscardPile : Hand -> (Int, Int, Int) -> Svg a
-renderDiscardPile hand (width,height,padding) =
-    div [] [ div [] [Html.text ("Discards:") ]
-           , Svg.svg [ Svg.Attributes.height (handHeight height padding)
-                     , Svg.Attributes.width (handWidth width padding)
-                     , Svg.Attributes.class ("discards") ]
-                     (List.indexedMap (drawTile (width,height,padding)) hand)]
-
-
-renderTeamHands : Dict String Hand -> (Int, Int, Int) -> List (Svg a)
+renderTeamHands : Dict String Hand -> ( Int, Int, Int ) -> List (Svg a)
 renderTeamHands hands dimensions =
     hands
         |> Dict.map (renderTeamHand dimensions)
         |> Dict.values
 
 
-renderTeamHand : (Int, Int, Int) -> String -> Hand -> Svg a
-renderTeamHand (width, height, padding) name hand =
-    div [] [ div [] [Html.text (name ++ "'s hand:") ]
-           , Svg.svg [ Svg.Attributes.height (handHeight height padding)
-                     , Svg.Attributes.width (handWidth width padding)
-                     , Svg.Attributes.class (name ++ "-hand") ]
-                     (List.indexedMap (drawTile (width,height,padding)) hand)]
+renderTeamHand : ( Int, Int, Int ) -> String -> Hand -> Svg a
+renderTeamHand ( width, height, padding ) name hand =
+    div []
+        [ div [] [ Html.text (name ++ "'s hand:") ]
+        , Svg.svg
+            [ Svg.Attributes.height (handHeight height padding)
+            , Svg.Attributes.width (handWidth width padding)
+            , Svg.Attributes.class (name ++ "-hand")
+            ]
+            (List.indexedMap (drawTile ( width, height, padding )) hand)
+        ]
 
 
-renderPlayerHand : Hand -> (Int, Int, Int) -> String -> Bool -> Html Msg
-renderPlayerHand hand (width, height, padding) name  my_turn =
-    div [] [ Svg.svg [ Svg.Attributes.height (handHeight height padding)
-                     , Svg.Attributes.width (handWidth width padding)
-                     , Svg.Attributes.class (name ++ "-hand") ]
-                     (List.indexedMap (drawPlayerTile (width,height,padding) my_turn) hand)]
+renderPlayerHand : Hand -> ( Int, Int, Int ) -> String -> Bool -> Html Msg
+renderPlayerHand hand ( width, height, padding ) name my_turn =
+    div []
+        [ Svg.svg
+            [ Svg.Attributes.height (handHeight height padding)
+            , Svg.Attributes.width (handWidth width padding)
+            , Svg.Attributes.class (name ++ "-hand")
+            ]
+            (List.indexedMap
+                (drawPlayerTile ( width, height, padding ) my_turn)
+                hand
+            )
+        ]
 
 
 handHeight : Int -> Int -> String
@@ -170,67 +302,90 @@ handHeight height padding =
 
 handWidth : Int -> Int -> String
 handWidth width padding =
-    ((padding + width) * 5) + padding
+    ((padding + width) * 5)
+        + padding
         |> toString
 
 
-drawTile : (Int, Int, Int) -> Int -> Tile -> Svg a
-drawTile (w, h, padding) idx (color, number) =
+drawTile : ( Int, Int, Int ) -> Int -> Tile -> Svg a
+drawTile ( w, h, padding ) idx ( color, number ) =
     let
-        xpos = tileXpos w padding idx
-        ypos = padding
+        xpos =
+            tileXpos w padding idx
+
+        ypos =
+            padding
     in
-        g [] [(rect [ width (toString w)
-                    , height (toString h)
-                    , y (toString ypos)
-                    , x (toString xpos)
-                    , rx (toString padding)
-                    , ry (toString padding)
-                    ] [])
-             , renderFirework xpos ypos (color, number)
-             ]
+        g []
+            [ (rect
+                [ width (toString w)
+                , height (toString h)
+                , y (toString ypos)
+                , x (toString xpos)
+                , rx (toString padding)
+                , ry (toString padding)
+                ]
+                []
+              )
+            , renderFirework xpos ypos ( color, number )
+            ]
 
 
-drawPlayerTile : (Int, Int, Int) -> Bool -> Int -> Tile -> Svg Msg
-drawPlayerTile (w, h, padding) my_turn idx (color, number) =
+drawPlayerTile : ( Int, Int, Int ) -> Bool -> Int -> Tile -> Svg Msg
+drawPlayerTile ( w, h, padding ) my_turn idx ( color, number ) =
     let
-        xpos = tileXpos w padding idx
-        ypos = padding
+        xpos =
+            tileXpos w padding idx
+
+        ypos =
+            padding
     in
         case my_turn of
             True ->
-                g [] [ (rect [ width (toString w)
-                             , height (toString h)
-                             , y (toString ypos)
-                             , x (toString xpos)
-                             , rx "10" --("toString padding)
-                             , ry "10" -- (toString padding)
-                             ] [])
-                     , renderFirework xpos ypos (color, number)
-                     , discardButton xpos ypos idx
-                     , playButton xpos ypos idx
-                     ]
+                g []
+                    [ (rect
+                        [ width (toString w)
+                        , height (toString h)
+                        , y (toString ypos)
+                        , x (toString xpos)
+                        , rx "10"
+                        , ry "10"
+                        ]
+                        []
+                      )
+                    , renderFirework xpos ypos ( color, number )
+                    , discardButton xpos ypos idx
+                    , playButton xpos ypos idx
+                    ]
 
             False ->
-                g [] [ (rect [ width (toString w)
-                             , height (toString h)
-                             , y (toString ypos)
-                             , x (toString xpos)
-                             , rx "10" --("toString padding)
-                             , ry "10" -- (toString padding)
-                             ] [])
-                     , renderFirework xpos ypos (color, number)
-                     ]
-
+                g []
+                    [ (rect
+                        [ width (toString w)
+                        , height (toString h)
+                        , y (toString ypos)
+                        , x (toString xpos)
+                        , rx "10"
+                        , ry "10"
+                        ]
+                        []
+                      )
+                    , renderFirework xpos ypos ( color, number )
+                    ]
 
 
 discardButton : Int -> Int -> Int -> Svg Msg
 discardButton xpos ypos idx =
-    Svg.text_ [ x (toString xpos), y (toString ypos), onClick (Discard idx)] [ (Svg.text "Discard") ]
+    Svg.text_
+        [ x (toString xpos), y (toString ypos), onClick (Discard idx) ]
+        [ Svg.text "Discard" ]
+
 
 playButton : Int -> Int -> Int -> Svg Msg
 playButton xpos ypos idx =
-    Svg.text_ [ x (toString (xpos + 75)), y (toString ypos), onClick (Play idx)] [ (Svg.text "Play") ]
+    Svg.text_
+        [ x (toString (xpos + 75)), y (toString ypos), onClick (Play idx) ]
+        [ Svg.text "Play" ]
 
 
 tileXpos : Int -> Int -> Int -> Int
@@ -239,118 +394,78 @@ tileXpos w padding idx =
 
 
 renderFirework : Int -> Int -> Tile -> Svg a
-renderFirework xpos ypos (color, number) =
-    case (Maybe.withDefault 0 number) of
-        1 -> renderOne xpos ypos color
-        2 -> renderTwo xpos ypos color
-        3 -> renderThree xpos ypos color
-        4 -> renderFour xpos ypos color
-        5 -> renderFive xpos ypos color
-        _ -> g [] []
+renderFirework xpos ypos ( color, number ) =
+    case Maybe.withDefault 0 number of
+        1 ->
+            renderOne xpos ypos color
+
+        2 ->
+            renderTwo xpos ypos color
+
+        3 ->
+            renderThree xpos ypos color
+
+        4 ->
+            renderFour xpos ypos color
+
+        5 ->
+            renderFive xpos ypos color
+
+        _ ->
+            g [] []
 
 
 renderOne : Int -> Int -> Maybe String -> Svg a
 renderOne xpos ypos color =
-    g [ ]
-      [ (Svg.circle [ cx (toString (xpos + 20))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] [])
-      ]
+    g []
+        [ renderCircle (xpos + 20) (ypos + 20) color
+        ]
 
 
 renderTwo : Int -> Int -> Maybe String -> Svg a
 renderTwo xpos ypos color =
-    g [ ]
-      [ (Svg.circle [ cx (toString (xpos + 30))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 50))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] [])
-      ]
+    g []
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        ]
 
 
 renderThree : Int -> Int -> Maybe String -> Svg a
 renderThree xpos ypos color =
-    g [ ]
-      [ (Svg.circle [ cx (toString (xpos + 30))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 50))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 70))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] [])
-
-      ]
+    g []
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        , renderCircle (xpos + 70) (ypos + 20) color
+        ]
 
 
 renderFour : Int -> Int -> Maybe String -> Svg a
 renderFour xpos ypos color =
-    g [ ]
-      [ (Svg.circle [ cx (toString (xpos + 30))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 50))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 70))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 50))
-                    , cy (toString (ypos + 40))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] [])
-      ]
+    g []
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        , renderCircle (xpos + 70) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 40) color
+        ]
 
 
 renderFive : Int -> Int -> Maybe String -> Svg a
 renderFive xpos ypos color =
-    g [ ]
-      [ (Svg.circle [ cx (toString (xpos + 30))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 50))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 70))
-                    , cy (toString (ypos + 20))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 50))
-                    , cy (toString (ypos + 40))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] []),
-        (Svg.circle [ cx (toString (xpos + 30))
-                    , cy (toString (ypos + 40))
-                    , r "5"
-                    , style ("fill: " ++ (Maybe.withDefault "black" color))
-                    ] [])
+    g []
+        [ renderCircle (xpos + 30) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 20) color
+        , renderCircle (xpos + 70) (ypos + 20) color
+        , renderCircle (xpos + 50) (ypos + 40) color
+        , renderCircle (xpos + 30) (ypos + 40) color
+        ]
 
-      ]
+
+renderCircle : Int -> Int -> Maybe String -> Svg a
+renderCircle x y color =
+    Svg.circle
+        [ cx (toString x)
+        , cy (toString y)
+        , r "5"
+        , style ("fill: " ++ (Maybe.withDefault "black" color))
+        ]
+        []

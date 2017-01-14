@@ -19,5 +19,4 @@ instead to support the makers of great games!
 * Practice and automate hot code reloading
 * Better error handling
 * Handle game end?
-* Split Elm code (user/lobby and a file per TEA)
 * Submit actions from UI
