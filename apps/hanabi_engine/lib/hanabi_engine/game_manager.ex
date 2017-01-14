@@ -44,6 +44,10 @@ defmodule HanabiEngine.GameManager do
   You can provide a `seed` (an `export_state()` from `:rand`) to make all
   randomization the `GameManager` does predictable.  This allows for the
   recreation of games from long term storage.
+
+  You can also provide a `builder` a function that returns a `Game` when
+  passed a `List` of player names.  The default `builder` generates a new
+  `Game`.
   """
   def start(game_id, players, seed \\ nil, builder \\ &Game.new/1) do
     Supervisor.start_child(GameSupervisor, [game_id, players, seed, builder])
