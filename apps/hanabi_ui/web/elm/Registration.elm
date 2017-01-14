@@ -166,7 +166,13 @@ updateInLobby msg userName playerCount socket msgMapper =
                 payload =
                     Json.Encode.object
                         [ ( "userName", Json.Encode.string newUserName )
-                        , ( "playerCount", Json.Encode.int (Result.withDefault 2 (String.toInt newPlayerCount)) )
+                        , ( "playerCount"
+                          , Json.Encode.int
+                                (Result.withDefault
+                                    2
+                                    (String.toInt newPlayerCount)
+                                )
+                          )
                         ]
 
                 ( newSocket, joinCmd ) =
@@ -251,6 +257,6 @@ selectOptions : String -> List (Html InLobbyMessage)
 selectOptions playerCount =
     [ "2", "3", "4", "5" ]
         |> List.map
-           (\i ->
+            (\i ->
                 option [ selected (i == playerCount), value i ] [ text i ]
-           )
+            )

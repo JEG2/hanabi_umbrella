@@ -5,9 +5,9 @@ import Json.Decode
 import Json.Encode
 import Phoenix.Socket
 import Phoenix.Channel
-
 import Game
 import Registration
+
 
 main : Program Never Model Msg
 main =
@@ -63,7 +63,6 @@ initSocket =
 
 
 
-
 -- UPDATE
 
 
@@ -90,7 +89,7 @@ update msg model =
             case model.game of
                 Just game ->
                     case model.registration of
-                        Registration.Complete userName->
+                        Registration.Complete userName ->
                             let
                                 ( ( newGame, phxSocket ), gameCmd ) =
                                     Game.update
@@ -100,8 +99,8 @@ update msg model =
                                         GameMsg
                             in
                                 ( { model
-                                  | game = Just newGame
-                                  , phxSocket = phxSocket
+                                    | game = Just newGame
+                                    , phxSocket = phxSocket
                                   }
                                 , Cmd.map PhoenixMsg gameCmd
                                 )
@@ -134,6 +133,7 @@ update msg model =
                 )
 
 
+
 -- VIEW
 
 
@@ -164,6 +164,7 @@ viewPlaying userName model =
                         ++ "Have a nice glass of water and enjoy the weather."
                     )
                 ]
+
 
 
 -- SUBSCRIPTIONS
