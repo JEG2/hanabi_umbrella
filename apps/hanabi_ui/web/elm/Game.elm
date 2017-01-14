@@ -12,6 +12,9 @@ import Svg.Events exposing (onClick)
 import Svg.Attributes exposing (height, width, class, x, y, rx, ry, cx, cy, r, style)
 
 
+-- MODEL
+
+
 type alias Tile = (Maybe String, Maybe Int)
 
 type alias Hand = List Tile
@@ -71,9 +74,7 @@ fireworkDecoder =
         (field "yellow" (nullable JD.int))
 
 
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Sub.none
+-- UPDATE
 
 
 type Msg
@@ -118,6 +119,9 @@ update msg userName ( model, socket ) msgMapper =
                         |> (flip Phoenix.Socket.push socket)
             in
                 ( ( model, newSocket ), gameCmd )
+
+
+-- VIEW
 
 
 view : Model -> Html Msg
