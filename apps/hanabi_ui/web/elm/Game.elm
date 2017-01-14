@@ -65,7 +65,7 @@ gameDecoder =
         (field "draw_pile" JD.int)
         (field "fireworks" fireworkDecoder)
         (field "fuses" JD.int)
-        (field "hands" (JD.dict (handDecoder)))
+        (field "hands" (JD.dict handDecoder))
         (field "my_hand" handDecoder)
         (field "my_turn" JD.bool)
 
@@ -249,11 +249,11 @@ drawFireworkTile ( w, h, padding ) idx ( color, number ) =
 renderDiscardPile : Hand -> ( Int, Int, Int ) -> Svg a
 renderDiscardPile hand ( width, height, padding ) =
     div []
-        [ div [] [ Html.text ("Discards:") ]
+        [ div [] [ Html.text "Discards:" ]
         , Svg.svg
             [ Svg.Attributes.height (handHeight height padding)
             , Svg.Attributes.width (handWidth width padding)
-            , Svg.Attributes.class ("discards")
+            , Svg.Attributes.class "discards"
             ]
             (List.indexedMap (drawTile ( width, height, padding )) hand)
         ]
@@ -349,9 +349,7 @@ drawPlayerTile ( w, h, padding ) my_turn idx ( color, number ) =
                         , y (toString ypos)
                         , x (toString xpos)
                         , rx "10"
-                          --("toString padding)
                         , ry "10"
-                          -- (toString padding)
                         ]
                         []
                       )
@@ -368,9 +366,7 @@ drawPlayerTile ( w, h, padding ) my_turn idx ( color, number ) =
                         , y (toString ypos)
                         , x (toString xpos)
                         , rx "10"
-                          --("toString padding)
                         , ry "10"
-                          -- (toString padding)
                         ]
                         []
                       )
@@ -382,14 +378,14 @@ discardButton : Int -> Int -> Int -> Svg Msg
 discardButton xpos ypos idx =
     Svg.text_
         [ x (toString xpos), y (toString ypos), onClick (Discard idx) ]
-        [ (Svg.text "Discard") ]
+        [ Svg.text "Discard" ]
 
 
 playButton : Int -> Int -> Int -> Svg Msg
 playButton xpos ypos idx =
     Svg.text_
         [ x (toString (xpos + 75)), y (toString ypos), onClick (Play idx) ]
-        [ (Svg.text "Play") ]
+        [ Svg.text "Play" ]
 
 
 tileXpos : Int -> Int -> Int -> Int
@@ -399,7 +395,7 @@ tileXpos w padding idx =
 
 renderFirework : Int -> Int -> Tile -> Svg a
 renderFirework xpos ypos ( color, number ) =
-    case (Maybe.withDefault 0 number) of
+    case Maybe.withDefault 0 number of
         1 ->
             renderOne xpos ypos color
 

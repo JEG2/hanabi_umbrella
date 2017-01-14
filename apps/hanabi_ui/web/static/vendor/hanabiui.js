@@ -11070,9 +11070,6 @@ var _user$project$Game$update = F4(
 			};
 		}
 	});
-var _user$project$Game$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$none;
-};
 var _user$project$Game$tileDecoder = A3(
 	_elm_lang$core$Json_Decode$map2,
 	F2(
@@ -12058,19 +12055,13 @@ var _user$project$HanabiUi$viewPlaying = F2(
 	});
 var _user$project$HanabiUi$view = function (model) {
 	var _p7 = model.registration;
-	switch (_p7.ctor) {
-		case 'Unregistered':
-			return A2(
-				_elm_lang$html$Html$map,
-				_user$project$HanabiUi$RegistrationMsg,
-				_user$project$Registration$view(model.registration));
-		case 'InLobby':
-			return A2(
-				_elm_lang$html$Html$map,
-				_user$project$HanabiUi$RegistrationMsg,
-				_user$project$Registration$view(model.registration));
-		default:
-			return A2(_user$project$HanabiUi$viewPlaying, _p7._0, model);
+	if (_p7.ctor === 'Complete') {
+		return A2(_user$project$HanabiUi$viewPlaying, _p7._0, model);
+	} else {
+		return A2(
+			_elm_lang$html$Html$map,
+			_user$project$HanabiUi$RegistrationMsg,
+			_user$project$Registration$view(model.registration));
 	}
 };
 var _user$project$HanabiUi$AssignGame = function (a) {
