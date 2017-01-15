@@ -67,10 +67,9 @@ defmodule HanabiUi.PlayerChannel do
   ### Helpers ###
 
   defp update_game_ui(game, socket) do
-    push(
-      socket,
-      "game",
+    for_elm =
       HanabiEngine.Game.to_player_view(game, socket.assigns.user_name)
-    )
+    Logger.info "Sending to Elm:  #{inspect for_elm}"
+    push(socket, "game", for_elm)
   end
 end
