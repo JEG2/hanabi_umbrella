@@ -1,17 +1,73 @@
 /* This file is for your main application css. */
-.player-hand, .game-surface-container, .game-details-container {
+.player-hand, .game-surface-container, .game-details-container, .team-hand, .discards{
     display: flex;
+    flex-wrap: wrap;
+    padding: 5px;
+}
+
+.game-container {
+    width: 750px;
+}
+
+.game-details-container {
+    justify-content: center;
+}
+
+.player-container {
+    padding: 5px;
+    border-radius: 5px;
+    border: 2px ridge;
+    margin-bottom: 5px;
+}
+
+.tile-controls, .hints-container {
+    height: 30px;
+}
+
+.hints-container {
+    display: flex;
+    justify-content: center;
 }
 
 .tile {
     padding: 5px;
+    justify-content: center;
 }
 
-.hands-container {
+.fireworks-container > .tile {
+    flex-grow: 1;
+}
+
+.hands-container, .fireworks-container {
     display: flex;
     flex-direction: column;
+    padding: 5px;
 }
 
 .game-details-container > div {
     padding: 5px;
+}
+
+.team-container {
+    border-radius: 5px;
+    border: 2px ridge;
+    padding: 5px;
+}
+
+.team-container > div {
+    border-bottom: 2px ridge;
+    padding: 5px;
+}
+
+.team-container > div:last-child {
+    border-bottom: none;
+}
+
+button {
+    border: 2px outset;
+    padding: 3px;
+}
+button:hover {
+}
+button:active {
 }

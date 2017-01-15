@@ -182,7 +182,7 @@ update msg userName ( model, socket ) msgMapper =
 
 view : Model -> Html Msg
 view model =
-    div []
+    div [ Html.Attributes.class "game-container" ]
         [ (gameDetails model)
         , (playSurface model)
         , div
@@ -195,17 +195,17 @@ gameDetails : Model -> Html msg
 gameDetails { draw_pile, fuses, clocks, my_data } =
     div [ Html.Attributes.class "game-details-container" ]
         [ div
-              [ Html.Attributes.class "draw" ]
-              [ Html.text ("Remaining Tiles: " ++ toString draw_pile) ]
+            [ Html.Attributes.class "draw" ]
+            [ Html.text ("Remaining Tiles: " ++ toString draw_pile) ]
         , div
-              [ Html.Attributes.class "fuses" ]
-              [ Html.text ("Fuses: " ++ toString fuses) ]
+            [ Html.Attributes.class "fuses" ]
+            [ Html.text ("Fuses: " ++ toString fuses) ]
         , div
-              [ Html.Attributes.class "timers" ]
-              [ Html.text ("Clocks: " ++ toString clocks) ]
+            [ Html.Attributes.class "timers" ]
+            [ Html.text ("Clocks: " ++ toString clocks) ]
         , div
-              [ Html.Attributes.class "turn" ]
-              [ Html.text ("My Turn: " ++ toString my_data.turn) ]
+            [ Html.Attributes.class "turn" ]
+            [ Html.text ("My Turn: " ++ toString my_data.turn) ]
         ]
 
 
@@ -213,138 +213,99 @@ playSurface : Model -> Html Msg
 playSurface { fireworks, my_data, hands, clocks } =
     div [ Html.Attributes.class "game-surface-container" ]
         [ div
-            [ Html.Attributes.class "fireworks" ]
-            [ renderFireworkPile fireworks ( 100, 60, 10 ) ]
-
+            [ Html.Attributes.class "fireworks-container" ]
+            (renderFireworkPile fireworks ( 100, 60 ))
         , div [ Html.Attributes.class "hands-container" ]
-              [ div
+            [ div
                 [ Html.Attributes.class "player-container" ]
-                [ div [] [Html.text ("My hand:")]
+                [ div [ Html.Attributes.class "hand-label" ] [ Html.text ("My hand:") ]
                 , renderPlayerHand
-                      my_data.hand
-                      ( 100, 60, 15 )
-                      "player"
-                      my_data.turn
+                    my_data.hand
+                    ( 100, 60 )
+                    my_data.turn
                 ]
-              , div
-                  [ Html.Attributes.class "team-container" ]
-                  (renderTeamHands hands ( 100, 60, 10 ) (shouldShowButtons my_data.turn clocks))
-              ]
+            , div
+                [ Html.Attributes.class "team-container" ]
+                (renderTeamHands hands ( 100, 60 ) (shouldShowButtons my_data.turn clocks))
+            ]
         ]
+
 
 shouldShowButtons : Bool -> Int -> Bool
 shouldShowButtons myTurn clocks =
     myTurn && (clocks > 0)
 
 
-renderFireworkPile : Fireworks -> ( Int, Int, Int ) -> Svg a
-renderFireworkPile fireworks ( w, h, padding ) =
-    Svg.svg
-        [ Svg.Attributes.height (toString ((h + padding) * 5 + padding))
-        , Svg.Attributes.width (toString (padding + w + padding))
-        ]
-        [ (drawFireworkTile
-            ( w, h, padding )
-            0
-            ( Just "blue", fireworks.blue )
-          )
-        , (drawFireworkTile
-            ( w, h, padding )
-            1
-            ( Just "green", fireworks.green )
-          )
-        , (drawFireworkTile
-            ( w, h, padding )
-            2
-            ( Just "red", fireworks.red )
-          )
-        , (drawFireworkTile
-
-            ( w, h, padding )
-            3
-            ( Just "white", fireworks.white )
-          )
-        , (drawFireworkTile
-            ( w, h, padding )
-            4
-            ( Just "yellow", fireworks.yellow )
-          )
-        ]
+renderFireworkPile : Fireworks -> ( Int, Int ) -> List (Html Msg)
+renderFireworkPile fireworks dimensions =
+    [ "blue", "green", "red", "white", "yellow" ]
+        |> List.map (drawFireworkTile dimensions fireworks)
 
 
-drawFireworkTile : ( Int, Int, Int ) -> Int -> Tile -> Svg a
-drawFireworkTile ( w, h, padding ) idx ( color, number ) =
+getNumber : String -> Fireworks -> Maybe Int
+getNumber name fireworks =
+    case name of
+        "blue" ->
+            fireworks.blue
+
+        "green" ->
+            fireworks.green
+
+        "red" ->
+            fireworks.red
+
+        "white" ->
+            fireworks.white
+
+        "yellow" ->
+            fireworks.yellow
+
+        _ ->
+            Nothing
+
+
+drawFireworkTile : ( Int, Int ) -> Fireworks -> String -> Html Msg
+drawFireworkTile dimensions fireworks color =
     let
-        xpos =
-            padding
-
-        ypos =
-            tileXpos h padding idx
-
-        fillStyle =
-            case number of
-                Just num ->
-                    ""
-
-                Nothing ->
-                    "fill-opacity:0.1"
+        number =
+            getNumber color fireworks
     in
-        g []
-            [ (rect
-                [ width (toString w)
-                , height (toString h)
-                , y (toString ypos)
-                , x (toString xpos)
-                , rx (toString padding)
-                , ry (toString padding)
-                , style fillStyle
-                ]
-                []
-              )
-            , renderFirework xpos ypos ( color, number )
-            ]
+        div [ Html.Attributes.class "tile" ]
+            [ drawTileSvg dimensions ( Just color, number ) ]
 
 
-renderDiscardPile : Hand -> ( Int, Int, Int ) -> Svg a
+renderDiscardPile : Hand -> ( Int, Int, Int ) -> Html Msg
 renderDiscardPile hand ( width, height, padding ) =
     div []
         [ div [] [ Html.text "Discards:" ]
-        , Svg.svg
-            [ Svg.Attributes.height (handHeight height padding)
-            , Svg.Attributes.width (handWidth width padding)
-            , Svg.Attributes.class "discards"
-            ]
-            (List.indexedMap (drawTile ( width, height, padding )) hand)
+        , div [ Html.Attributes.class "discards" ]
+            (List.map (drawTeamTile ( width, height )) hand)
         ]
 
 
-renderTeamHands : Dict String Hand -> ( Int, Int, Int ) -> Bool -> List (Html Msg)
+renderTeamHands : Dict String Hand -> ( Int, Int ) -> Bool -> List (Html Msg)
 renderTeamHands hands dimensions hintCtrls =
     hands
         |> Dict.map (renderTeamHand dimensions hintCtrls)
         |> Dict.values
 
 
-renderTeamHand : ( Int, Int, Int ) -> Bool -> String -> Hand -> Html Msg
-renderTeamHand ( width, height, padding ) hintCtrls name hand =
+renderTeamHand : ( Int, Int ) -> Bool -> String -> Hand -> Html Msg
+renderTeamHand dimensions hintCtrls name hand =
     let
         hints =
             case hintCtrls of
                 True ->
-                    hintButtons name hand
+                    ((Html.text "Hint: ") :: hintButtons name hand)
 
                 False ->
                     []
     in
         div []
-            [ div [] [ Html.text (name ++ "'s hand:") ]
-            , Svg.svg
-                [ Svg.Attributes.height (handHeight height padding)
-                , Svg.Attributes.width (handWidth width padding)
-                , Svg.Attributes.class (name ++ "-hand")
-                ]
-                (List.indexedMap (drawTile ( width, height, padding )) hand)
-            , div [] hints
+            [ div [ Html.Attributes.class "hand-label" ] [ Html.text (name ++ "'s hand:") ]
+            , div [ Html.Attributes.class "team-hand" ]
+                (List.map (drawTeamTile dimensions) hand)
+            , div [ Html.Attributes.class "hints-container" ] hints
             ]
 
 
@@ -374,92 +335,82 @@ tileAttributes ( color, number ) =
         [ c, n ]
 
 
-renderPlayerHand : Hand -> ( Int, Int, Int ) -> String -> Bool -> Html Msg
-renderPlayerHand hand ( width, height, padding ) name my_turn =
+renderPlayerHand : Hand -> ( Int, Int ) -> Bool -> Html Msg
+renderPlayerHand hand dimensions my_turn =
     div [ Html.Attributes.class "player-hand" ]
-        (List.indexedMap (drawPlayerTile (width, height) my_turn) hand)
+        (List.indexedMap (drawPlayerTile dimensions my_turn) hand)
 
 
-handHeight : Int -> Int -> String
-handHeight height padding =
-    (padding + height + padding)
-        |> toString
-
-
-handWidth : Int -> Int -> String
-handWidth width padding =
-    ((padding + width) * 5)
-        + padding
-        |> toString
-
-
-drawTileSvg : (Int, Int) -> Tile -> Svg Msg
-drawTileSvg (w,h) tile =
-    Svg.svg
-        [ Svg.Attributes.height (toString h)
-        , Svg.Attributes.width (toString w)
-        ]
-        [ rect [ width (toString w)
-               , height (toString h)
-               , rx "10"
-               ]
-              []
-        , renderFirework 0 0 tile
-        ]
-
-
-drawTile : ( Int, Int, Int ) -> Int -> Tile -> Svg a
-drawTile ( w, h, padding ) idx ( color, number ) =
+drawTileSvg : ( Int, Int ) -> Tile -> Svg Msg
+drawTileSvg ( w, h ) tile =
     let
-        xpos =
-            tileXpos w padding idx
+        baseStyle =
+            "fill-opacity:0.4;stroke:black;stroke-width:3;stroke-opacity:0.6"
 
-        ypos =
-            padding
+        style_ =
+            case tile of
+                ( Just color, Nothing ) ->
+                    (baseStyle ++ ";fill:" ++ color)
+
+                ( Nothing, Nothing ) ->
+                    baseStyle
+
+                ( Nothing, Just number ) ->
+                    baseStyle
+
+                _ ->
+                    ""
     in
-        g []
-            [ (rect
+        Svg.svg
+            [ Svg.Attributes.height (toString h)
+            , Svg.Attributes.width (toString w)
+            ]
+            [ rect
                 [ width (toString w)
                 , height (toString h)
-                , y (toString ypos)
-                , x (toString xpos)
-                , rx (toString padding)
-                , ry (toString padding)
+                , rx "10"
+                , style style_
                 ]
                 []
-              )
-            , renderFirework xpos ypos ( color, number )
+            , renderFirework 0 0 tile
             ]
 
 
-drawPlayerTile : (Int, Int) -> Bool -> Int -> Tile -> Html Msg
+drawPlayerTile : ( Int, Int ) -> Bool -> Int -> Tile -> Html Msg
 drawPlayerTile dimensions my_turn idx tile =
     div [ Html.Attributes.class "tile" ]
         [ (drawTileSvg dimensions tile)
-        , div [ Html.Attributes.class "tile-controls"]
-              [ (drawDiscardButton my_turn idx)
-              , (drawPlayButton my_turn idx)
-              ]
+        , div [ Html.Attributes.class "tile-controls" ]
+            [ (drawDiscardButton my_turn idx)
+            , (drawPlayButton my_turn idx)
+            ]
         ]
+
+
+drawTeamTile : ( Int, Int ) -> Tile -> Html Msg
+drawTeamTile dimensions tile =
+    div [ Html.Attributes.class "tile" ]
+        [ (drawTileSvg dimensions tile) ]
 
 
 drawDiscardButton : Bool -> Int -> Html Msg
 drawDiscardButton my_turn idx =
     case my_turn of
-        True -> button [onClick (Discard idx)] [Html.text "Discard"]
-        False -> div [] []
+        True ->
+            button [ onClick (Discard idx) ] [ Html.text "Discard" ]
+
+        False ->
+            div [] []
 
 
 drawPlayButton : Bool -> Int -> Html Msg
 drawPlayButton my_turn idx =
     case my_turn of
-        True -> button [onClick (Play idx)] [Html.text "Play"]
-        False -> div [] []
+        True ->
+            button [ onClick (Play idx) ] [ Html.text "Play" ]
 
-
-tileXpos : Int -> Int -> Int -> Int
-tileXpos w padding idx =
-    padding + (idx * w) + (idx * padding)
+        False ->
+            div [] []
 
 
 renderFirework : Int -> Int -> Tile -> Svg a
@@ -481,14 +432,7 @@ renderFirework xpos ypos ( color, number ) =
             renderFive xpos ypos color
 
         _ ->
-            Svg.rect
-                [ width (toString 30)
-                , height (toString 10)
-                , x (toString (xpos + 20))
-                , y (toString (ypos + 20))
-                , style ("fill: " ++ (Maybe.withDefault "black" color))
-                ]
-                []
+            g [] []
 
 
 renderOne : Int -> Int -> Maybe String -> Svg a
@@ -542,6 +486,6 @@ renderCircle x y color =
         [ cx (toString x)
         , cy (toString y)
         , r "5"
-        , style ("fill: " ++ (Maybe.withDefault "orange" color))
+        , style ("fill: " ++ (Maybe.withDefault "black" color))
         ]
         []
