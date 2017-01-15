@@ -82,6 +82,7 @@ update msg model =
                     json
                         |> Json.Decode.decodeValue Game.gameDecoder
                         |> Result.toMaybe
+                        |> Debug.log "game"
             in
                 ( { model | game = newGame }, Cmd.none )
 
