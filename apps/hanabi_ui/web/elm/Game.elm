@@ -183,41 +183,65 @@ update msg userName ( model, socket ) msgMapper =
 view : Model -> Html Msg
 view model =
     div []
-        [ div
-            [ Html.Attributes.class "draw" ]
-            [ Html.text ("Remaining Tiles: " ++ toString model.draw_pile) ]
-        , div
-            [ Html.Attributes.class "fuses" ]
-            [ Html.text ("Fuses: " ++ toString model.fuses) ]
-        , div
-            [ Html.Attributes.class "timers" ]
-            [ Html.text ("Clocks: " ++ toString model.clocks) ]
-        , div
-            [ Html.Attributes.class "turn" ]
-            [ Html.text ("My Turn: " ++ toString model.my_data.turn) ]
-        , div
-            [ Html.Attributes.class "fireworks" ]
-            [ renderFireworkPile model.fireworks ( 100, 60, 10 ) ]
-        , div
-            [ Html.Attributes.class "player-container" ]
-            [ renderPlayerHand
-                model.my_data.hand
-                ( 100, 60, 15 )
-                "player"
-                model.my_data.turn
-            ]
-        , div
-            [ Html.Attributes.class "team-container" ]
-            (renderTeamHands model.hands ( 100, 60, 10 ) (shouldShowButtons model))
+        [ (gameDetails model)
+        , (playSurface model)
         , div
             [ Html.Attributes.class "discards-container" ]
             [ renderDiscardPile model.discards ( 100, 60, 10 ) ]
         ]
 
 
-shouldShowButtons : Model -> Bool
-shouldShowButtons { my_data, clocks } =
-    my_data.turn && (clocks > 0)
+gameDetails : Model -> Html msg
+gameDetails { draw_pile, fuses, clocks, my_data } =
+    div [ Html.Attributes.class "game-details-container"
+        , Html.Attributes.style [ ("display", "flex")]
+        ]
+        [ div
+              [ Html.Attributes.class "draw"
+              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.text ("Remaining Tiles: " ++ toString draw_pile) ]
+        , div
+              [ Html.Attributes.class "fuses"
+              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.text ("Fuses: " ++ toString fuses) ]
+        , div
+              [ Html.Attributes.class "timers"
+              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.text ("Clocks: " ++ toString clocks) ]
+        , div
+              [ Html.Attributes.class "turn"
+              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.text ("My Turn: " ++ toString my_data.turn) ]
+        ]
+
+
+playSurface : Model -> Html Msg
+playSurface { fireworks, my_data, hands, clocks } =
+    div [ Html.Attributes.class "game-surface-container"
+        , Html.Attributes.style [("display", "flex")]]
+        [ div
+            [ Html.Attributes.class "fireworks" ]
+            [ renderFireworkPile fireworks ( 100, 60, 10 ) ]
+
+        , div [ Html.Attributes.class "hands-container"
+              , Html.Attributes.style [("display", "flex"), ("flex-direction", "column")]]
+              [ div
+                [ Html.Attributes.class "player-container" ]
+                [ renderPlayerHand
+                      my_data.hand
+                      ( 100, 60, 15 )
+                      "player"
+                      my_data.turn
+                ]
+              , div
+                  [ Html.Attributes.class "team-container" ]
+                  (renderTeamHands hands ( 100, 60, 10 ) (shouldShowButtons my_data.turn clocks))
+              ]
+        ]
+
+shouldShowButtons : Bool -> Int -> Bool
+shouldShowButtons myTurn clocks =
+    myTurn && (clocks > 0)
 
 
 renderFireworkPile : Fireworks -> ( Int, Int, Int ) -> Svg a
@@ -242,6 +266,7 @@ renderFireworkPile fireworks ( w, h, padding ) =
             ( Just "red", fireworks.red )
           )
         , (drawFireworkTile
+
             ( w, h, padding )
             3
             ( Just "white", fireworks.white )
@@ -359,7 +384,8 @@ tileAttributes ( color, number ) =
 renderPlayerHand : Hand -> ( Int, Int, Int ) -> String -> Bool -> Html Msg
 renderPlayerHand hand ( width, height, padding ) name my_turn =
     div []
-        [ Svg.svg
+        [ div [] [ Html.text ("My hand:") ]
+        , Svg.svg
             [ Svg.Attributes.height (handHeight height padding)
             , Svg.Attributes.width (handWidth width padding)
             , Svg.Attributes.class (name ++ "-hand")

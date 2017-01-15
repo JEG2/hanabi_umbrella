@@ -10765,9 +10765,141 @@ var _user$project$Game$renderFireworkPile = F2(
 				}
 			});
 	});
-var _user$project$Game$shouldShowButtons = function (_p30) {
+var _user$project$Game$shouldShowButtons = F2(
+	function (myTurn, clocks) {
+		return myTurn && (_elm_lang$core$Native_Utils.cmp(clocks, 0) > 0);
+	});
+var _user$project$Game$gameDetails = function (_p30) {
 	var _p31 = _p30;
-	return _p31.my_data.turn && (_elm_lang$core$Native_Utils.cmp(_p31.clocks, 0) > 0);
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('game-details-container'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('draw'),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$style(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'padding', _1: '5px'},
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text(
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'Remaining Tiles: ',
+							_elm_lang$core$Basics$toString(_p31.draw_pile))),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('fuses'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$style(
+								{
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'padding', _1: '5px'},
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(
+							A2(
+								_elm_lang$core$Basics_ops['++'],
+								'Fuses: ',
+								_elm_lang$core$Basics$toString(_p31.fuses))),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('timers'),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$style(
+									{
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'padding', _1: '5px'},
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}
+						},
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html$text(
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									'Clocks: ',
+									_elm_lang$core$Basics$toString(_p31.clocks))),
+							_1: {ctor: '[]'}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('turn'),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$style(
+										{
+											ctor: '::',
+											_0: {ctor: '_Tuple2', _0: 'padding', _1: '5px'},
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text(
+									A2(
+										_elm_lang$core$Basics_ops['++'],
+										'My Turn: ',
+										_elm_lang$core$Basics$toString(_p31.my_data.turn))),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}
+			}
+		});
 };
 var _user$project$Game$update = F4(
 	function (msg, userName, _p32, msgMapper) {
@@ -11249,53 +11381,78 @@ var _user$project$Game$renderPlayerHand = F4(
 			{
 				ctor: '::',
 				_0: A2(
-					_elm_lang$svg$Svg$svg,
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
 					{
 						ctor: '::',
-						_0: _elm_lang$svg$Svg_Attributes$height(
-							A2(_user$project$Game$handHeight, _p58, _p59)),
-						_1: {
+						_0: _elm_lang$html$Html$text('My hand:'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$svg$Svg$svg,
+						{
 							ctor: '::',
-							_0: _elm_lang$svg$Svg_Attributes$width(
-								A2(_user$project$Game$handWidth, _p60, _p59)),
+							_0: _elm_lang$svg$Svg_Attributes$height(
+								A2(_user$project$Game$handHeight, _p58, _p59)),
 							_1: {
 								ctor: '::',
-								_0: _elm_lang$svg$Svg_Attributes$class(
-									A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
-								_1: {ctor: '[]'}
+								_0: _elm_lang$svg$Svg_Attributes$width(
+									A2(_user$project$Game$handWidth, _p60, _p59)),
+								_1: {
+									ctor: '::',
+									_0: _elm_lang$svg$Svg_Attributes$class(
+										A2(_elm_lang$core$Basics_ops['++'], name, '-hand')),
+									_1: {ctor: '[]'}
+								}
 							}
-						}
-					},
-					A2(
-						_elm_lang$core$List$indexedMap,
+						},
 						A2(
-							_user$project$Game$drawPlayerTile,
-							{ctor: '_Tuple3', _0: _p60, _1: _p58, _2: _p59},
-							my_turn),
-						hand)),
-				_1: {ctor: '[]'}
+							_elm_lang$core$List$indexedMap,
+							A2(
+								_user$project$Game$drawPlayerTile,
+								{ctor: '_Tuple3', _0: _p60, _1: _p58, _2: _p59},
+								my_turn),
+							hand)),
+					_1: {ctor: '[]'}
+				}
 			});
 	});
-var _user$project$Game$view = function (model) {
+var _user$project$Game$playSurface = function (_p61) {
+	var _p62 = _p61;
+	var _p63 = _p62.my_data;
 	return A2(
 		_elm_lang$html$Html$div,
-		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('game-surface-container'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$style(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}
+		},
 		{
 			ctor: '::',
 			_0: A2(
 				_elm_lang$html$Html$div,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('draw'),
+					_0: _elm_lang$html$Html_Attributes$class('fireworks'),
 					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html$text(
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'Remaining Tiles: ',
-							_elm_lang$core$Basics$toString(model.draw_pile))),
+					_0: A2(
+						_user$project$Game$renderFireworkPile,
+						_p62.fireworks,
+						{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
 					_1: {ctor: '[]'}
 				}),
 			_1: {
@@ -11304,52 +11461,39 @@ var _user$project$Game$view = function (model) {
 					_elm_lang$html$Html$div,
 					{
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('fuses'),
-						_1: {ctor: '[]'}
+						_0: _elm_lang$html$Html_Attributes$class('hands-container'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$style(
+								{
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'display', _1: 'flex'},
+									_1: {
+										ctor: '::',
+										_0: {ctor: '_Tuple2', _0: 'flex-direction', _1: 'column'},
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {ctor: '[]'}
+						}
 					},
 					{
-						ctor: '::',
-						_0: _elm_lang$html$Html$text(
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'Fuses: ',
-								_elm_lang$core$Basics$toString(model.fuses))),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('timers'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html$text(
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'Clocks: ',
-									_elm_lang$core$Basics$toString(model.clocks))),
-							_1: {ctor: '[]'}
-						}),
-					_1: {
 						ctor: '::',
 						_0: A2(
 							_elm_lang$html$Html$div,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('turn'),
+								_0: _elm_lang$html$Html_Attributes$class('player-container'),
 								_1: {ctor: '[]'}
 							},
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'My Turn: ',
-										_elm_lang$core$Basics$toString(model.my_data.turn))),
+								_0: A4(
+									_user$project$Game$renderPlayerHand,
+									_p63.hand,
+									{ctor: '_Tuple3', _0: 100, _1: 60, _2: 15},
+									'player',
+									_p63.turn),
 								_1: {ctor: '[]'}
 							}),
 						_1: {
@@ -11358,73 +11502,49 @@ var _user$project$Game$view = function (model) {
 								_elm_lang$html$Html$div,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('fireworks'),
+									_0: _elm_lang$html$Html_Attributes$class('team-container'),
 									_1: {ctor: '[]'}
 								},
-								{
-									ctor: '::',
-									_0: A2(
-										_user$project$Game$renderFireworkPile,
-										model.fireworks,
-										{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('player-container'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: A4(
-											_user$project$Game$renderPlayerHand,
-											model.my_data.hand,
-											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 15},
-											'player',
-											model.my_data.turn),
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('team-container'),
-											_1: {ctor: '[]'}
-										},
-										A3(
-											_user$project$Game$renderTeamHands,
-											model.hands,
-											{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10},
-											_user$project$Game$shouldShowButtons(model))),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$div,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$class('discards-container'),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: A2(
-													_user$project$Game$renderDiscardPile,
-													model.discards,
-													{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
-												_1: {ctor: '[]'}
-											}),
-										_1: {ctor: '[]'}
-									}
-								}
-							}
+								A3(
+									_user$project$Game$renderTeamHands,
+									_p62.hands,
+									{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10},
+									A2(_user$project$Game$shouldShowButtons, _p63.turn, _p62.clocks))),
+							_1: {ctor: '[]'}
 						}
-					}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _user$project$Game$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: _user$project$Game$gameDetails(model),
+			_1: {
+				ctor: '::',
+				_0: _user$project$Game$playSurface(model),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('discards-container'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_user$project$Game$renderDiscardPile,
+								model.discards,
+								{ctor: '_Tuple3', _0: 100, _1: 60, _2: 10}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
 				}
 			}
 		});
