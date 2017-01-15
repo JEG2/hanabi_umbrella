@@ -6,6 +6,8 @@ defmodule HanabiEngine.GameManager do
 
   use GenServer
 
+  @vsn "0"
+
   defstruct ~w[id game]a
 
   alias Phoenix.PubSub
