@@ -19,4 +19,16 @@ instead to support the makers of great games!
 * Practice and automate hot code reloading
 * Better error handling
 * Handle game end?
-* Submit actions from UI
+
+## Demo Steps
+
+* Checkout `master`
+* `MIX_ENV=prod mix release.clean`
+* `MIX_ENV=prod mix release --env=prod`
+* `PORT=4000 ./_build/prod/rel/hanabi_umbrella/bin/hanabi_umbrella foreground`
+* Play some
+* Open a new shell:
+    * Checkout `insights_feature`
+    * `MIX_ENV=prod mix release.clean`
+    * `MIX_ENV=prod mix release --env=prod --upgrade --upfrom=0.1.0`
+    * `PORT=4000 ./_build/prod/rel/hanabi_umbrella/bin/hanabi_umbrella upgrade "0.2.0"`
