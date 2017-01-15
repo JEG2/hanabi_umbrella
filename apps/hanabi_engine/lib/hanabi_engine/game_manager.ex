@@ -6,7 +6,7 @@ defmodule HanabiEngine.GameManager do
 
   use GenServer
 
-  @vsn "0"
+  @vsn "1"
 
   defstruct ~w[id seed game builder]a
 
@@ -164,9 +164,25 @@ defmodule HanabiEngine.GameManager do
     {:noreply, %__MODULE__{state | game: new_game}}
   end
 
+  def code_change("0", old_state, _extra) do
+    new_game =
+      replay_game(old_state.seed, old_state.builder, old_state.game.players)
+    {:ok, %__MODULE__{old_state | game: new_game}}
+  end
+  def code_change({:down, "1"}, old_state, _extra) do
+    new_game =
+      replay_game(old_state.seed, old_state.builder, old_state.game.players)
+    {:ok, %__MODULE__{old_state | game: new_game}}
+  end
+
   ### Helpers ###
 
   defp publish(id, move, reply, game) do
     PubSub.broadcast(:hanabi, "game:#{id}:events", {move, reply, id, game})
+  end
+
+  def replay_game(seed, builder, players) do
+    :rand.seed(seed)
+    builder.(players)
   end
 end
