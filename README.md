@@ -23,6 +23,8 @@ instead to support the makers of great games!
 ## Demo Steps
 
 * Checkout `master`
+* `./node_modules/brunch/bin/brunch b -p`
+* `MIX_ENV=prod mix phoenix.digest`
 * `MIX_ENV=prod mix release.clean`
 * `MIX_ENV=prod mix release --env=prod`
 * `PORT=4000 ./_build/prod/rel/hanabi_umbrella/bin/hanabi_umbrella foreground`

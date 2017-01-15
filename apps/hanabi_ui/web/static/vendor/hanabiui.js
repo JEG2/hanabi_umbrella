@@ -11897,8 +11897,11 @@ var _user$project$HanabiUi$update = F2(
 		var _p0 = msg;
 		switch (_p0.ctor) {
 			case 'AssignGame':
-				var newGame = _elm_lang$core$Result$toMaybe(
-					A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, _p0._0));
+				var newGame = A2(
+					_elm_lang$core$Debug$log,
+					'game',
+					_elm_lang$core$Result$toMaybe(
+						A2(_elm_lang$core$Json_Decode$decodeValue, _user$project$Game$gameDecoder, _p0._0)));
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$core$Native_Utils.update(
