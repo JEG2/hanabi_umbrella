@@ -193,41 +193,34 @@ view model =
 
 gameDetails : Model -> Html msg
 gameDetails { draw_pile, fuses, clocks, my_data } =
-    div [ Html.Attributes.class "game-details-container"
-        , Html.Attributes.style [ ("display", "flex")]
-        ]
+    div [ Html.Attributes.class "game-details-container" ]
         [ div
-              [ Html.Attributes.class "draw"
-              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.Attributes.class "draw" ]
               [ Html.text ("Remaining Tiles: " ++ toString draw_pile) ]
         , div
-              [ Html.Attributes.class "fuses"
-              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.Attributes.class "fuses" ]
               [ Html.text ("Fuses: " ++ toString fuses) ]
         , div
-              [ Html.Attributes.class "timers"
-              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.Attributes.class "timers" ]
               [ Html.text ("Clocks: " ++ toString clocks) ]
         , div
-              [ Html.Attributes.class "turn"
-              , Html.Attributes.style [("padding", "5px")]]
+              [ Html.Attributes.class "turn" ]
               [ Html.text ("My Turn: " ++ toString my_data.turn) ]
         ]
 
 
 playSurface : Model -> Html Msg
 playSurface { fireworks, my_data, hands, clocks } =
-    div [ Html.Attributes.class "game-surface-container"
-        , Html.Attributes.style [("display", "flex")]]
+    div [ Html.Attributes.class "game-surface-container" ]
         [ div
             [ Html.Attributes.class "fireworks" ]
             [ renderFireworkPile fireworks ( 100, 60, 10 ) ]
 
-        , div [ Html.Attributes.class "hands-container"
-              , Html.Attributes.style [("display", "flex"), ("flex-direction", "column")]]
+        , div [ Html.Attributes.class "hands-container" ]
               [ div
                 [ Html.Attributes.class "player-container" ]
-                [ renderPlayerHand
+                [ div [] [Html.text ("My hand:")]
+                , renderPlayerHand
                       my_data.hand
                       ( 100, 60, 15 )
                       "player"
@@ -383,18 +376,8 @@ tileAttributes ( color, number ) =
 
 renderPlayerHand : Hand -> ( Int, Int, Int ) -> String -> Bool -> Html Msg
 renderPlayerHand hand ( width, height, padding ) name my_turn =
-    div []
-        [ div [] [ Html.text ("My hand:") ]
-        , Svg.svg
-            [ Svg.Attributes.height (handHeight height padding)
-            , Svg.Attributes.width (handWidth width padding)
-            , Svg.Attributes.class (name ++ "-hand")
-            ]
-            (List.indexedMap
-                (drawPlayerTile ( width, height, padding ) my_turn)
-                hand
-            )
-        ]
+    div [ Html.Attributes.class "player-hand" ]
+        (List.indexedMap (drawPlayerTile (width, height) my_turn) hand)
 
 
 handHeight : Int -> Int -> String
@@ -408,6 +391,21 @@ handWidth width padding =
     ((padding + width) * 5)
         + padding
         |> toString
+
+
+drawTileSvg : (Int, Int) -> Tile -> Svg Msg
+drawTileSvg (w,h) tile =
+    Svg.svg
+        [ Svg.Attributes.height (toString h)
+        , Svg.Attributes.width (toString w)
+        ]
+        [ rect [ width (toString w)
+               , height (toString h)
+               , rx "10"
+               ]
+              []
+        , renderFirework 0 0 tile
+        ]
 
 
 drawTile : ( Int, Int, Int ) -> Int -> Tile -> Svg a
@@ -434,61 +432,29 @@ drawTile ( w, h, padding ) idx ( color, number ) =
             ]
 
 
-drawPlayerTile : ( Int, Int, Int ) -> Bool -> Int -> Tile -> Svg Msg
-drawPlayerTile ( w, h, padding ) my_turn idx ( color, number ) =
-    let
-        xpos =
-            tileXpos w padding idx
-
-        ypos =
-            padding
-    in
-        case my_turn of
-            True ->
-                g []
-                    [ (rect
-                        [ width (toString w)
-                        , height (toString h)
-                        , y (toString ypos)
-                        , x (toString xpos)
-                        , rx "10"
-                        , ry "10"
-                        ]
-                        []
-                      )
-                    , renderFirework xpos ypos ( color, number )
-                    , discardButton xpos ypos idx
-                    , playButton xpos ypos idx
-                    ]
-
-            False ->
-                g []
-                    [ (rect
-                        [ width (toString w)
-                        , height (toString h)
-                        , y (toString ypos)
-                        , x (toString xpos)
-                        , rx "10"
-                        , ry "10"
-                        ]
-                        []
-                      )
-                    , renderFirework xpos ypos ( color, number )
-                    ]
+drawPlayerTile : (Int, Int) -> Bool -> Int -> Tile -> Html Msg
+drawPlayerTile dimensions my_turn idx tile =
+    div [ Html.Attributes.class "tile" ]
+        [ (drawTileSvg dimensions tile)
+        , div [ Html.Attributes.class "tile-controls"]
+              [ (drawDiscardButton my_turn idx)
+              , (drawPlayButton my_turn idx)
+              ]
+        ]
 
 
-discardButton : Int -> Int -> Int -> Svg Msg
-discardButton xpos ypos idx =
-    Svg.text_
-        [ x (toString xpos), y (toString ypos), onClick (Discard idx) ]
-        [ Svg.text "Discard" ]
+drawDiscardButton : Bool -> Int -> Html Msg
+drawDiscardButton my_turn idx =
+    case my_turn of
+        True -> button [onClick (Discard idx)] [Html.text "Discard"]
+        False -> div [] []
 
 
-playButton : Int -> Int -> Int -> Svg Msg
-playButton xpos ypos idx =
-    Svg.text_
-        [ x (toString (xpos + 75)), y (toString ypos), onClick (Play idx) ]
-        [ Svg.text "Play" ]
+drawPlayButton : Bool -> Int -> Html Msg
+drawPlayButton my_turn idx =
+    case my_turn of
+        True -> button [onClick (Play idx)] [Html.text "Play"]
+        False -> div [] []
 
 
 tileXpos : Int -> Int -> Int -> Int

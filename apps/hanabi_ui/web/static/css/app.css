@@ -1,1 +1,17 @@
 /* This file is for your main application css. */
+.player-hand, .game-surface-container, .game-details-container {
+    display: flex;
+}
+
+.tile {
+    padding: 5px;
+}
+
+.hands-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.game-details-container > div {
+    padding: 5px;
+}
