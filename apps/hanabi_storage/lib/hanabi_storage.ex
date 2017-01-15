@@ -34,17 +34,22 @@ defmodule HanabiStorage do
     end
   end
 
-  def load(saved_game = %Game{ }) do
-    new_game =
-      saved_game.players
-      |> HanabiEngine.Game.new
-      |> HanabiEngine.Game.deal
-    Enum.reduce(saved_game.moves, new_game, fn move, game ->
-      apply(
-        HanabiEngine.Game,
-        String.to_atom(move.play),
-        [game | move.arguments]
-      )
-    end)
+  def load(players) do
+    case most_recent_game_event_for(players) do
+      saved_game = %HanabiStorage.Game{event: "started"} ->
+        new_game =
+          players
+          |> HanabiEngine.Game.new
+          |> HanabiEngine.Game.deal
+        Enum.reduce(saved_game.moves, new_game, fn move, game ->
+          apply(
+            HanabiEngine.Game,
+            String.to_atom(move.play),
+            [game | move.arguments]
+          )
+        end)
+      _ ->
+        HanabiEngine.Game.new(players)
+    end
   end
 end

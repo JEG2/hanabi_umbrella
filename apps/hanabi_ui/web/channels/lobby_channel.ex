@@ -100,7 +100,7 @@ defmodule HanabiUi.LobbyChannel do
             saved_game.uuid,
             sorted_names,
             saved_game.seed,
-            fn _players -> HanabiStorage.load(saved_game) end
+            &HanabiStorage.load/1
           )
         case result do
           success when is_tuple(success) and elem(success, 0) == :ok ->
@@ -110,7 +110,11 @@ defmodule HanabiUi.LobbyChannel do
             notify_players_of_game_error(players, message)
         end
       _ ->
-        result = HanabiEngine.GameManager.start_new(sorted_names)
+        result =
+          HanabiEngine.GameManager.start_new(
+            sorted_names,
+            &HanabiStorage.load/1
+          )
         case result do
           {:ok, game_id, _player_names, seed} ->
             HanabiStorage.Recorder.start_game(game_id, sorted_names, seed)

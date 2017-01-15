@@ -8,7 +8,7 @@ defmodule HanabiEngine.GameManager do
 
   @vsn "0"
 
-  defstruct ~w[id game]a
+  defstruct ~w[id seed game builder]a
 
   alias Phoenix.PubSub
   alias HanabiEngine.{Game, GameSupervisor, RulesLawyer}
@@ -19,10 +19,10 @@ defmodule HanabiEngine.GameManager do
   Creates the `game_id` and `seed` expected by `start/3`, then forwards to that
   function.  Returns `{:ok, game_id, players, seed}` or `{:error, message}`.
   """
-  def start_new(players) do
+  def start_new(players, builder \\ &Game.new/1) do
     game_id = UUID.uuid1
     seed = :rand.seed_s(:exsplus) |> :rand.export_seed_s
-    result = start(game_id, players, seed)
+    result = start(game_id, players, seed, builder)
     case result do
       success when is_tuple(success) and elem(success, 0) == :ok ->
         {:ok, game_id, players, seed}
@@ -119,48 +119,49 @@ defmodule HanabiEngine.GameManager do
   and is_integer(tl(elem(seed, 1)))),
     do: {:stop, "A game seed is Tuple of three Integer values."}
   def init({game_id, players, seed, builder}) do
-    if seed, do: :rand.seed(seed)
-
     PubSub.subscribe(:hanabi, "game:#{game_id}:plays")
 
-    {:ok, %__MODULE__{id: game_id, game: builder.(players)}}
+    if seed, do: :rand.seed(seed)
+    game = builder.(players)
+
+    {:ok, %__MODULE__{id: game_id, seed: seed, game: game, builder: builder}}
   end
 
   @doc false
-  def handle_info(move = :deal, %__MODULE__{id: id, game: game}) do
+  def handle_info(move = :deal, state = %__MODULE__{id: id, game: game}) do
     new_game = RulesLawyer.deal_if_legal(game) |> elem(1)
     publish(id, move, :ok, new_game)
-    {:noreply, %__MODULE__{id: id, game: new_game}}
+    {:noreply, %__MODULE__{state | game: new_game}}
   end
 
   @doc false
   def handle_info(
     move = {:hint, player, to, hint},
-    %__MODULE__{id: id, game: game}
+    state = %__MODULE__{id: id, game: game}
   ) do
     {reply, new_game} = RulesLawyer.hint_if_legal(game, player, to, hint)
     publish(id, move, reply, new_game)
-    {:noreply, %__MODULE__{id: id, game: new_game}}
+    {:noreply, %__MODULE__{state | game: new_game}}
   end
 
   @doc false
   def handle_info(
     move = {:discard, player, index},
-    %__MODULE__{id: id, game: game}
+    state = %__MODULE__{id: id, game: game}
   ) do
     {reply, new_game} = RulesLawyer.discard_if_legal(game, player, index)
     publish(id, move, reply, new_game)
-    {:noreply, %__MODULE__{id: id, game: new_game}}
+    {:noreply, %__MODULE__{state | game: new_game}}
   end
 
   @doc false
   def handle_info(
     move = {:play, player, index},
-    %__MODULE__{id: id, game: game}
+    state = %__MODULE__{id: id, game: game}
   ) do
     {reply, new_game} = RulesLawyer.play_if_legal(game, player, index)
     publish(id, move, reply, new_game)
-    {:noreply, %__MODULE__{id: id, game: new_game}}
+    {:noreply, %__MODULE__{state | game: new_game}}
   end
 
   ### Helpers ###
