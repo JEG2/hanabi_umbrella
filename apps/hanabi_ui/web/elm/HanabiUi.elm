@@ -9,9 +9,14 @@ import Game
 import Registration
 
 
-main : Program Never Model Msg
+type alias Flags =
+    { ipAddress : String
+    }
+
+
+main : Program Flags Model Msg
 main =
-    Html.program
+    Html.programWithFlags
         { init = init
         , view = view
         , update = update
@@ -30,11 +35,11 @@ type alias Model =
     }
 
 
-init : ( Model, Cmd Msg )
-init =
+init : Flags -> ( Model, Cmd Msg )
+init { ipAddress } =
     let
         ( phxSocket, joinCmd ) =
-            initSocket
+            initSocket ipAddress
     in
         ( { registration = Registration.init
           , phxSocket = phxSocket
@@ -44,11 +49,11 @@ init =
         )
 
 
-initSocket : ( Phoenix.Socket.Socket Msg, Cmd (Phoenix.Socket.Msg Msg) )
-initSocket =
+initSocket : String -> ( Phoenix.Socket.Socket Msg, Cmd (Phoenix.Socket.Msg Msg) )
+initSocket ipAddress =
     let
         ( lobbySocket, lobbyJoinCmd ) =
-            Phoenix.Socket.init "ws://localhost:4000/socket/websocket"
+            Phoenix.Socket.init ("ws://" ++ ipAddress ++ "/socket/websocket")
                 |> Phoenix.Socket.join (Phoenix.Channel.init "game:lobby")
 
         ( gameSocket, gameJoinCmd ) =

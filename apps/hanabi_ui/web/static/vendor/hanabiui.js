@@ -11745,6 +11745,9 @@ var _user$project$Registration$view = function (model) {
 	}
 };
 
+var _user$project$HanabiUi$Flags = function (a) {
+	return {ipAddress: a};
+};
 var _user$project$HanabiUi$Model = F3(
 	function (a, b, c) {
 		return {registration: a, phxSocket: b, game: c};
@@ -11871,11 +11874,15 @@ var _user$project$HanabiUi$view = function (model) {
 var _user$project$HanabiUi$AssignGame = function (a) {
 	return {ctor: 'AssignGame', _0: a};
 };
-var _user$project$HanabiUi$initSocket = function () {
+var _user$project$HanabiUi$initSocket = function (ipAddress) {
 	var _p8 = A2(
 		_fbonetti$elm_phoenix_socket$Phoenix_Socket$join,
 		_fbonetti$elm_phoenix_socket$Phoenix_Channel$init('game:lobby'),
-		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init('ws://localhost:4000/socket/websocket'));
+		_fbonetti$elm_phoenix_socket$Phoenix_Socket$init(
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'ws://',
+				A2(_elm_lang$core$Basics_ops['++'], ipAddress, '/socket/websocket'))));
 	var lobbySocket = _p8._0;
 	var lobbyJoinCmd = _p8._1;
 	var _p9 = A2(
@@ -11905,19 +11912,27 @@ var _user$project$HanabiUi$initSocket = function () {
 				}
 			})
 	};
-}();
-var _user$project$HanabiUi$init = function () {
-	var _p10 = _user$project$HanabiUi$initSocket;
-	var phxSocket = _p10._0;
-	var joinCmd = _p10._1;
+};
+var _user$project$HanabiUi$init = function (_p10) {
+	var _p11 = _p10;
+	var _p12 = _user$project$HanabiUi$initSocket(_p11.ipAddress);
+	var phxSocket = _p12._0;
+	var joinCmd = _p12._1;
 	return {
 		ctor: '_Tuple2',
 		_0: {registration: _user$project$Registration$init, phxSocket: phxSocket, game: _elm_lang$core$Maybe$Nothing},
 		_1: A2(_elm_lang$core$Platform_Cmd$map, _user$project$HanabiUi$PhoenixMsg, joinCmd)
 	};
-}();
-var _user$project$HanabiUi$main = _elm_lang$html$Html$program(
-	{init: _user$project$HanabiUi$init, view: _user$project$HanabiUi$view, update: _user$project$HanabiUi$update, subscriptions: _user$project$HanabiUi$subscriptions})();
+};
+var _user$project$HanabiUi$main = _elm_lang$html$Html$programWithFlags(
+	{init: _user$project$HanabiUi$init, view: _user$project$HanabiUi$view, update: _user$project$HanabiUi$update, subscriptions: _user$project$HanabiUi$subscriptions})(
+	A2(
+		_elm_lang$core$Json_Decode$andThen,
+		function (ipAddress) {
+			return _elm_lang$core$Json_Decode$succeed(
+				{ipAddress: ipAddress});
+		},
+		A2(_elm_lang$core$Json_Decode$field, 'ipAddress', _elm_lang$core$Json_Decode$string)));
 
 var Elm = {};
 Elm['HanabiUi'] = Elm['HanabiUi'] || {};

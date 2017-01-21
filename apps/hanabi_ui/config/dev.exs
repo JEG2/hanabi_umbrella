@@ -8,6 +8,7 @@ use Mix.Config
 # with brunch.io to recompile .js and .css sources.
 config :hanabi_ui, HanabiUi.Endpoint,
   http: [port: 4000],
+  url: [host: {0, 0, 0, 0}],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,

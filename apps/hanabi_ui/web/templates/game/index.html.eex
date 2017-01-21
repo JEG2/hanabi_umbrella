@@ -1,0 +1,3 @@
+<script type="text/javascript">
+  window.ipAddress = '<%= host_with_port(@conn) %>';
+</script>

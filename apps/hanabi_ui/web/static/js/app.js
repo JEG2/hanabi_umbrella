@@ -13,4 +13,4 @@
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
 
-const elmApp = Elm.HanabiUi.fullscreen();
+const elmApp = Elm.HanabiUi.fullscreen({ipAddress: window.ipAddress});
