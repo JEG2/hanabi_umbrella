@@ -1,6 +1,0 @@
-<script>
-  window.pageData = <%= raw Poison.encode!(@conn.assigns.game) %>;
-</script>
-<div class="jumbotron">
-  <div id="elm-container"></div>
-</div>
