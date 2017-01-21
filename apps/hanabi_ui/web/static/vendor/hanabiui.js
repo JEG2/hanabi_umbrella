@@ -10453,6 +10453,27 @@ var _user$project$Game$renderFirework = F3(
 					{ctor: '[]'});
 		}
 	});
+var _user$project$Game$drawInsight = function (insights) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		A2(
+			_elm_lang$core$List$map,
+			function (insight) {
+				return A2(
+					_elm_lang$html$Html$div,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text(insight),
+						_1: {ctor: '[]'}
+					});
+			},
+			A2(
+				_elm_lang$core$Maybe$withDefault,
+				{ctor: '[]'},
+				insights)));
+};
 var _user$project$Game$drawTileSvg = F2(
 	function (_p4, tile) {
 		var _p5 = _p4;
@@ -11095,8 +11116,8 @@ var _user$project$Game$drawDiscardButton = F2(
 				{ctor: '[]'});
 		}
 	});
-var _user$project$Game$drawPlayerTile = F4(
-	function (dimensions, my_turn, idx, tile) {
+var _user$project$Game$drawPlayerTile = F5(
+	function (dimensions, my_turn, insights, idx, tile) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -11125,12 +11146,20 @@ var _user$project$Game$drawPlayerTile = F4(
 								_1: {ctor: '[]'}
 							}
 						}),
-					_1: {ctor: '[]'}
+					_1: {
+						ctor: '::',
+						_0: _user$project$Game$drawInsight(
+							A2(
+								_elm_lang$core$Array$get,
+								idx,
+								_elm_lang$core$Array$fromList(insights))),
+						_1: {ctor: '[]'}
+					}
 				}
 			});
 	});
-var _user$project$Game$renderPlayerHand = F3(
-	function (hand, dimensions, my_turn) {
+var _user$project$Game$renderPlayerHand = F4(
+	function (hand, dimensions, my_turn, insights) {
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -11140,7 +11169,7 @@ var _user$project$Game$renderPlayerHand = F3(
 			},
 			A2(
 				_elm_lang$core$List$indexedMap,
-				A2(_user$project$Game$drawPlayerTile, dimensions, my_turn),
+				A3(_user$project$Game$drawPlayerTile, dimensions, my_turn, insights),
 				hand));
 	});
 var _user$project$Game$playSurface = function (_p27) {
@@ -11181,47 +11210,51 @@ var _user$project$Game$playSurface = function (_p27) {
 							_elm_lang$html$Html$div,
 							{
 								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('player-container'),
+								_0: _elm_lang$html$Html_Attributes$class('team-container'),
 								_1: {ctor: '[]'}
 							},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('hand-label'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('My hand:'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A3(
-										_user$project$Game$renderPlayerHand,
-										_p29.hand,
-										{ctor: '_Tuple2', _0: 100, _1: 60},
-										_p29.turn),
-									_1: {ctor: '[]'}
-								}
-							}),
+							A3(
+								_user$project$Game$renderTeamHands,
+								_p28.hands,
+								{ctor: '_Tuple2', _0: 100, _1: 60},
+								A2(_user$project$Game$shouldShowButtons, _p29.turn, _p28.clocks))),
 						_1: {
 							ctor: '::',
 							_0: A2(
 								_elm_lang$html$Html$div,
 								{
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('team-container'),
+									_0: _elm_lang$html$Html_Attributes$class('player-container'),
 									_1: {ctor: '[]'}
 								},
-								A3(
-									_user$project$Game$renderTeamHands,
-									_p28.hands,
-									{ctor: '_Tuple2', _0: 100, _1: 60},
-									A2(_user$project$Game$shouldShowButtons, _p29.turn, _p28.clocks))),
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('hand-label'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('My hand:'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A4(
+											_user$project$Game$renderPlayerHand,
+											_p29.hand,
+											{ctor: '_Tuple2', _0: 100, _1: 60},
+											_p29.turn,
+											A2(
+												_elm_lang$core$Maybe$withDefault,
+												{ctor: '[]'},
+												_p29.insights)),
+										_1: {ctor: '[]'}
+									}
+								}),
 							_1: {ctor: '[]'}
 						}
 					}),

@@ -10,6 +10,7 @@ import Phoenix.Push
 import Svg exposing (svg, Svg, rect, g, text, text_)
 import Svg.Events exposing (onClick)
 import Set exposing (fromList, toList)
+import Array
 import Svg.Attributes
     exposing
         ( height
@@ -217,16 +218,17 @@ playSurface { fireworks, my_data, hands, clocks } =
             (renderFireworkPile fireworks ( 100, 60 ))
         , div [ Html.Attributes.class "hands-container" ]
             [ div
+                [ Html.Attributes.class "team-container" ]
+                (renderTeamHands hands ( 100, 60 ) (shouldShowButtons my_data.turn clocks))
+            , div
                 [ Html.Attributes.class "player-container" ]
                 [ div [ Html.Attributes.class "hand-label" ] [ Html.text ("My hand:") ]
                 , renderPlayerHand
                     my_data.hand
                     ( 100, 60 )
                     my_data.turn
+                    (Maybe.withDefault [] my_data.insights)
                 ]
-            , div
-                [ Html.Attributes.class "team-container" ]
-                (renderTeamHands hands ( 100, 60 ) (shouldShowButtons my_data.turn clocks))
             ]
         ]
 
@@ -335,10 +337,10 @@ tileAttributes ( color, number ) =
         [ c, n ]
 
 
-renderPlayerHand : Hand -> ( Int, Int ) -> Bool -> Html Msg
-renderPlayerHand hand dimensions my_turn =
+renderPlayerHand : Hand -> ( Int, Int ) -> Bool -> List (List String) -> Html Msg
+renderPlayerHand hand dimensions my_turn insights =
     div [ Html.Attributes.class "player-hand" ]
-        (List.indexedMap (drawPlayerTile dimensions my_turn) hand)
+        (List.indexedMap (drawPlayerTile dimensions my_turn insights) hand)
 
 
 drawTileSvg : ( Int, Int ) -> Tile -> Svg Msg
@@ -376,15 +378,21 @@ drawTileSvg ( w, h ) tile =
             ]
 
 
-drawPlayerTile : ( Int, Int ) -> Bool -> Int -> Tile -> Html Msg
-drawPlayerTile dimensions my_turn idx tile =
+drawPlayerTile : ( Int, Int ) -> Bool -> List (List String) -> Int -> Tile -> Html Msg
+drawPlayerTile dimensions my_turn insights idx tile =
     div [ Html.Attributes.class "tile" ]
         [ (drawTileSvg dimensions tile)
         , div [ Html.Attributes.class "tile-controls" ]
             [ (drawDiscardButton my_turn idx)
             , (drawPlayButton my_turn idx)
             ]
+        , (drawInsight (Array.get idx (Array.fromList insights)))
         ]
+
+
+drawInsight : Maybe (List String) -> Html Msg
+drawInsight insights =
+    div [] (List.map (\insight -> div [] [ Html.text insight ]) (Maybe.withDefault [] insights))
 
 
 drawTeamTile : ( Int, Int ) -> Tile -> Html Msg

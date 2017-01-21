@@ -34,10 +34,6 @@
     justify-content: center;
 }
 
-.fireworks-container > .tile {
-    flex-grow: 1;
-}
-
 .hands-container, .fireworks-container {
     display: flex;
     flex-direction: column;
