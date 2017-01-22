@@ -140,15 +140,22 @@ defmodule HanabiEngine.Game do
     new_knowns = List.replace_at(knowns, index, {nil, nil})
     color = elem(tile, 0)
     fireworks = game.fireworks
-    {new_fireworks, new_discards, new_fuses} =
+    {new_fireworks, new_discards, new_fuses, new_clocks} =
       if (Map.fetch!(fireworks, color) || 0) + 1 == elem(tile, 1) do
+        restored_clocks =
+          if elem(tile, 1) == 5 do
+            1
+          else
+            0
+          end
         {
           Map.put(fireworks, color, elem(tile, 1)),
           game.discards,
-          game.fuses
+          game.fuses,
+          Enum.min([game.clocks + restored_clocks, 8])
         }
       else
-        {fireworks, [tile | game.discards], game.fuses - 1}
+        {fireworks, [tile | game.discards], game.fuses - 1, game.clocks}
       end
     %__MODULE__{
       game |
@@ -158,7 +165,8 @@ defmodule HanabiEngine.Game do
       discards: new_discards,
       fireworks: new_fireworks,
       turn: next_turn(game),
-      fuses: new_fuses
+      fuses: new_fuses,
+      clocks: new_clocks
     }
   end
 

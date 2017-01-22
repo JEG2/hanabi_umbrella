@@ -197,5 +197,44 @@ defmodule GameTest do
       bs_knowns = game_after_play.knowns |> Map.fetch!("B")
       assert hd(bs_knowns) == {nil, nil}
     end
+
+    test "playing a five restores a clock", %{game: game} do
+      game_ready_for_five =
+        [
+          {:play, ["A", 4]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 2]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 2]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:discard, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:play, ["A", 3]},
+          {:discard, ["B", 0]},
+          {:play, ["A", 1]},
+          {:discard, ["B", 0]},
+          {:play, ["A", 0]}
+        ]
+        |> Enum.reduce(game, fn {fun, args}, new_game ->
+          apply(Game, fun, [new_game | args])
+        end)
+        |> Game.hint("B", "A", 5)
+      game_after_five = Game.play(game_ready_for_five, "A", 2)
+      assert game_after_five.clocks == game_ready_for_five.clocks + 1
+    end
   end
 end
