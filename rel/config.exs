@@ -28,7 +28,8 @@ environment :dev do
 end
 
 environment :prod do
-  set include_erts: true
+  set include_erts: false
+  set include_system_libs: true
   set include_src: false
   set cookie: :"*:.Tijz?$Hu&KWn~Sb4>H1*$3Lm@ng@To)>Wd.v(2d$$^D,GNF50_(ZMb3cenOzo"
 end
