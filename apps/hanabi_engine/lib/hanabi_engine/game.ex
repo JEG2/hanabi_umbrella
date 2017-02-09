@@ -109,6 +109,7 @@ defmodule HanabiEngine.Game do
           true ->
             tiles_insights ++ ["Not a #{hint}"]
         end
+        |> Enum.uniq
       end)
     %__MODULE__{
       game |

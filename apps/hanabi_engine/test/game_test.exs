@@ -300,5 +300,20 @@ defmodule GameTest do
         ["Not red"]
       ]
     end
+
+    test "insights aren't doubled", %{game: game} do
+      doubled_game =
+        game
+        |> Game.discard("B", 1)  # discard non-red, draw non-red
+        |> Game.hint("A", "B", :red)
+      bs_insights = doubled_game.insights |> Map.fetch!("B")
+      assert bs_insights == [
+        [ ],
+        ["Not red"],
+        [ ],
+        ["Not red"],
+        ["Not red"]
+      ]
+    end
   end
 end
